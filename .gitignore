@@ -1,0 +1,11 @@
+# 環境変数（アプリが動くときに参照する設定値）
+.env
+
+# Laravelの依存パッケージ（composer installで再生成できるため）
+vendor/
+
+# Node.jsの依存パッケージ(npm installで再生成できるため)
+node_modules/
+
+# MacのOSが自動生成するファイル
+.DS_Store
