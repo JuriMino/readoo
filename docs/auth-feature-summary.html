@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 認証機能 実装〜テスト 総括</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--orange), #f97316); color: #fff; padding: 2.4rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.8rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 960px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.8rem; padding-bottom: .4rem; border-bottom: 3px solid var(--orange); font-size: 1.4rem; }
+    h3 { margin-top: 1.7rem; font-size: 1.13rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .89rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .point { background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid var(--green); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .point strong { color: var(--green); }
+    .done { color: var(--green); font-weight: 700; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    .swatches { display: flex; gap: .8rem; flex-wrap: wrap; margin: 1rem 0; }
+    .sw { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; width: 130px; font-size: .76rem; background:#fff; }
+    .sw .chip { height: 44px; }
+    .sw .label { padding: .35rem .5rem; }
+    .sw .label b { display:block; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>認証機能 実装〜テスト 総括</h1>
+    <p>Readoo! &mdash; Phase 3：Laravel Breeze 認証機能（2026-06 完了）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>このドキュメントの目的</h2>
+    <div class="card">
+      <p>認証機能（新規登録・ログイン・ログアウト・My Page・プロフィール編集・退会）を、実装からFeatureテストまで完走した。
+      <strong>実際に手を入れた箇所</strong>と、<strong>この後の開発で繰り返し効いてくる教訓</strong>をまとめる。
+      個別の日次ログは <code>docs/2026-06-XX-worklog.html</code> を参照。</p>
+    </div>
+
+    <h2>完成した機能（動作確認・テスト済み）</h2>
+    <ul class="checklist">
+      <li><code>localhost:8080</code> アクセス時、未ログインはログイン画面・ログイン済みはMy Pageへ自動振り分け</li>
+      <li>ログイン画面 ⇄ 新規登録画面の相互遷移</li>
+      <li>新規登録できる（username・email・password）</li>
+      <li>作成アカウント（メール＋パスワード）でログインできる</li>
+      <li>ログイン後 My Page が表示される</li>
+      <li>My Page → プロフィール編集へ遷移</li>
+      <li>プロフィール編集で ユーザー名・メール・パスワードを変更できる</li>
+      <li>退会（論理削除）できる</li>
+      <li>Feature テスト（Authentication / Registration / PasswordUpdate / Profile）が全て緑</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>実際に手を入れたファイル（カテゴリ別）</h2>
+
+    <h3>① DB・モデル・設定</h3>
+    <table>
+      <tr><th>ファイル</th><th>変更内容</th></tr>
+      <tr><td><code>database/migrations/..._create_users_table</code></td><td>カラムを <code>username</code> に。<code>softDeletes()</code> 追加。<code>email_verified_at</code>・<code>rememberToken</code> はコメントアウト（v1スコープ外）</td></tr>
+      <tr><td><code>app/Models/User.php</code></td><td><code>SoftDeletes</code> トレイト適用。<code>#[Fillable(['username','email','password'])]</code>。不要な casts 削除</td></tr>
+      <tr><td><code>config/app.php</code></td><td>タイムゾーンを <code>Asia/Tokyo</code> に</td></tr>
+      <tr><td><code>routes/web.php</code></td><td><code>/</code> をログイン状態で分岐（<code>Auth::check()</code>）。dashboard ルートを <code>mypage</code> に改名</td></tr>
+      <tr><td><code>routes/auth.php</code></td><td>パスワードリセットの4ルートをコメントアウト（v1スコープ外）</td></tr>
+    </table>
+
+    <h3>② コントローラ・バリデーション</h3>
+    <table>
+      <tr><th>ファイル</th><th>変更内容</th></tr>
+      <tr><td><code>Auth/RegisteredUserController.php</code></td><td><code>name</code>→<code>username</code>。登録後リダイレクトを <code>route('mypage')</code> に</td></tr>
+      <tr><td><code>Auth/AuthenticatedSessionController.php</code></td><td>ログイン後リダイレクトを <code>route('mypage')</code> に</td></tr>
+      <tr><td><code>ProfileController.php</code></td><td>ビュー変数キーは <code>'user'</code> のまま（罠）。<code>email_verified_at</code> リセットの <code>if</code> ブロック削除</td></tr>
+      <tr><td><code>Http/Requests/ProfileUpdateRequest.php</code></td><td>バリデーションルールを <code>username</code> に</td></tr>
+    </table>
+
+    <h3>③ 画面（Blade）・デザイン</h3>
+    <table>
+      <tr><th>ファイル</th><th>変更内容</th></tr>
+      <tr><td><code>tailwind.config.js</code></td><td>ブランド/エンティティ色とクリーム背景を定義</td></tr>
+      <tr><td><code>layouts/guest.blade.php</code></td><td>ログイン前の枠（青ナビ・クリーム背景・青フッター）</td></tr>
+      <tr><td><code>layouts/app.blade.php</code></td><td>ログイン後の枠（クリーム背景・青フッター・白$headerバー廃止）</td></tr>
+      <tr><td><code>layouts/navigation.blade.php</code></td><td>青バーにシンプル化。ロゴ＋My Page｜Logout（<strong>LogoutはPOSTフォーム</strong>）</td></tr>
+      <tr><td><code>auth/login.blade.php</code></td><td>カードUI・必須バッジ・日本語化</td></tr>
+      <tr><td><code>auth/register.blade.php</code></td><td>同上（username・password_confirmation）</td></tr>
+      <tr><td><code>mypage.blade.php</code>（旧dashboard）</td><td>My Page。エンティティ色の3コレクション行</td></tr>
+      <tr><td><code>profile/edit.blade.php</code> ＋ partials 3つ</td><td>プロフィール情報・パスワード変更・退会（危険ゾーン）</td></tr>
+      <tr><td><code>components/required-badge.blade.php</code>（新規）</td><td>赤い「必須」バッジ。再利用部品</td></tr>
+      <tr><td><code>components/application-logo.blade.php</code></td><td>LaravelロゴSVG → Readoo!のPNG（<code>public/images/</code>）に差し替え</td></tr>
+    </table>
+
+    <h3>④ テスト</h3>
+    <table>
+      <tr><th>ファイル</th><th>変更内容</th></tr>
+      <tr><td><code>database/factories/UserFactory.php</code></td><td><code>name</code>→<code>username</code>。<code>email_verified_at</code>・<code>remember_token</code>・<code>unverified()</code> 削除</td></tr>
+      <tr><td><code>tests/Feature/Auth/RegistrationTest.php</code></td><td><code>name</code>→<code>username</code></td></tr>
+      <tr><td><code>tests/Feature/ProfileTest.php</code></td><td><code>username</code>化。退会を <code>assertSoftDeleted()</code> に。メール認証テスト削除</td></tr>
+      <tr><td><span style="color:var(--red)">削除</span>：EmailVerificationTest / PasswordResetTest / ExampleTest</td><td>v1スコープ外・<code>/</code>が302になったため</td></tr>
+    </table>
+
+    <h3>⑤ ブランドカラー定義（再掲）</h3>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#16a34a"></div><div class="label"><b>book</b>本（緑）</div></div>
+      <div class="sw"><div class="chip" style="background:#2D5BE3"></div><div class="label"><b>knowledge / secondary</b>知識（青）</div></div>
+      <div class="sw"><div class="chip" style="background:#E8510A"></div><div class="label"><b>action / primary</b>行動（橙）</div></div>
+      <div class="sw"><div class="chip" style="background:#FAF6EC"></div><div class="label"><b>base</b>背景クリーム</div></div>
+    </div>
+    <p>操作色は固定：<strong>削除=赤(red-600) / 戻る=グレー(gray)</strong>（Tailwind標準・定義不要）。</p>
+
+    <!-- ============================================================ -->
+    <h2>★ 今回いちばん大事な教訓：「Breeze残骸」パターン</h2>
+    <div class="warn">
+      <strong>同じ根っこの失敗を何度も踏んだ。</strong>
+      Breezeが自動生成したコードには、こちらが<strong>カスタマイズで変更・削除した要素</strong>（<code>name</code> / <code>email_verified_at</code> / <code>dashboard</code> / <code>rememberToken</code>）が
+      あちこちに残る。1か所直しても、<strong>同じ要素を参照する別の箇所</strong>が後から牙をむく。
+    </div>
+    <table>
+      <tr><th>変更した要素</th><th>残骸が出た場所</th><th>症状</th></tr>
+      <tr><td>name → username</td><td>Fillable / Controller / Blade / Factory / Test</td><td>登録できない・列が無いエラー</td></tr>
+      <tr><td>email_verified_at 削除</td><td>Factory / ProfileController / casts</td><td>no such column エラー</td></tr>
+      <tr><td>dashboard → mypage</td><td>RegisteredUserController ほか</td><td>Route not defined（500）</td></tr>
+    </table>
+    <div class="point">
+      <strong>再発防止の鉄則：</strong>スキーマ名・ルート名・カラム名を変えたら、
+      <strong>必ず <code>grep</code> で全参照を洗い出してから</strong>変更する。
+      <pre style="margin:.6rem 0 0"><code>grep -rn "古い名前" app routes tests resources/views database</code></pre>
+      「動いてる画面」だけ見て満足しない。<strong>その変更後に再テストしていない経路</strong>（登録後リダイレクト等）に残骸が潜む。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>横断的に効く技術ポイント（復習）</h2>
+
+    <h3>HTML / フォーム</h3>
+    <table>
+      <tr><th>項目</th><th>要点</th></tr>
+      <tr><td><code>type</code> と <code>name</code></td><td>別物。type=入力の種類、name=送信フィールド名。混同すると平文表示等の事故</td></tr>
+      <tr><td><code>for</code> と <code>id</code></td><td>ラベルの <code>for</code> は入力の <code>id</code> と一致。id はページ内で重複禁止</td></tr>
+      <tr><td><code>autofocus</code></td><td>最初にカーソルを置く欄を1つだけ</td></tr>
+      <tr><td><code>autocomplete</code></td><td>ログイン=current-password / 登録=new-password。メールログインのID欄は username</td></tr>
+      <tr><td>ログアウト</td><td>状態変更なので <strong>POST</strong>（<code>&lt;a&gt;</code> 不可・<code>@csrf</code> 必須）</td></tr>
+    </table>
+
+    <h3>Laravel / Blade</h3>
+    <table>
+      <tr><th>項目</th><th>要点</th></tr>
+      <tr><td>レイアウトコンポーネント</td><td><code>guest</code>（ログイン前）/ <code>app</code>（ログイン後）。枠を1か所直すと配下の全画面に反映</td></tr>
+      <tr><td>スロット</td><td><code>{{ $slot }}</code>（デフォルト）と <code>&lt;x-slot name="..."&gt;</code>（名前付き）</td></tr>
+      <tr><td>名前付きエラーバッグ</td><td>パスワード=<code>$errors-&gt;updatePassword-&gt;...</code> / 退会=<code>$errors-&gt;userDeletion-&gt;...</code></td></tr>
+      <tr><td><code>{{ __('...') }}</code></td><td>翻訳ヘルパ＋出力。翻訳が無ければそのまま表示。v1は直接日本語でも可</td></tr>
+      <tr><td><code>Auth::check()</code> / <code>auth()-&gt;check()</code></td><td>同じ動作。ファサードで統一すると解析しやすい</td></tr>
+      <tr><td><code>@props(['x'])</code></td><td>デフォルト無し＝必須。渡されないと「未定義」エラー（<code>:message</code>単数の罠）</td></tr>
+    </table>
+
+    <h3>テスト</h3>
+    <table>
+      <tr><th>項目</th><th>要点</th></tr>
+      <tr><td>Unit と Feature</td><td>Unit=クラス単体 / Feature=HTTP通し。認証チェックはFeature</td></tr>
+      <tr><td>テストDB</td><td>SQLite メモリ。本番MySQLに触れない・使い捨て</td></tr>
+      <tr><td><code>RefreshDatabase</code></td><td>各テストでDB初期化</td></tr>
+      <tr><td>論理削除の検証</td><td><code>assertNull($user-&gt;fresh())</code> は不可。<strong><code>assertSoftDeleted()</code></strong> を使う</td></tr>
+      <tr><td>絞り込み実行</td><td><code>--testsuite=Feature</code> / <code>--filter=メソッド名</code> / ファイル名指定</td></tr>
+      <tr><td>テストは仕様の写し鏡</td><td>生成テストが落ちたら「実装バグ」か「テストが古い前提のまま」かを切り分ける</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2>この後の開発で押さえるべきポイント</h2>
+
+    <div class="key">
+      <strong>① レイヤー構成を守る（次の機能から本番）</strong>
+      <p>本・知識・行動のCRUDからは、規約どおり <strong>ビジネスロジックを <code>app/Services/</code> に分離</strong>する（Fat Controller禁止）。
+      Controller=受付、Service=ロジック、Model=データ、FormRequest=検証、Blade=表示。</p>
+    </div>
+
+    <div class="note">
+      <strong>② 機能単位の進め方を固定化する</strong>
+      <p>Issue作成 → ブランチ（<code>feature/(issue番号)-概要</code>）→ 実装 → <strong>Featureテスト</strong> → PR（<code>Closes #番号</code>）。
+      認証で踏んだ「残骸」を避けるため、<strong>カラム/ルート名はgrepで全置換</strong>を習慣に。</p>
+    </div>
+
+    <div class="point">
+      <strong>③ エンティティ色とUI部品の再利用</strong>
+      <p>本=緑 / 知識=青 / 行動=橙 を <code>bg-book</code> 等で一貫使用。
+      <code>required-badge</code> のように、繰り返す要素はコンポーネント化。入力欄スタイルも共通化を検討。</p>
+    </div>
+
+    <div class="warn">
+      <strong>④ 残課題（忘れず対応）</strong>
+      <ul style="margin:.4rem 0 0">
+        <li>My Pageの3コレクション行は <code>href="#"</code> の<strong>仮リンク</strong>。各CRUD実装時に <code>route('books.index')</code> 等へ接続</li>
+        <li>未使用の <code>dashboard</code> 参照（VerifyEmail系・ConfirmablePassword・welcome.blade）が残存。潜在バグなので整理推奨</li>
+        <li><code>welcome.blade.php</code> は未使用。削除してよい</li>
+        <li>Breezeが残した未使用コンポーネント（dropdown / nav-link 等）も整理可</li>
+      </ul>
+    </div>
+
+    <div class="key">
+      <strong>⑤ アクセス制御・認可</strong>
+      <p>未ログイン→ログイン画面リダイレクトは <code>auth</code> ミドルウェアで担保済み。
+      今後は<strong>「他ユーザーのデータにアクセスさせない」認可</strong>が必須（本・知識・行動は所有者のみ操作可）。
+      <code>where('user_id', auth()->id())</code> やポリシーで制御する。</p>
+    </div>
+
+    <h2>次の作業</h2>
+    <p>認証基盤が固まったので、次は <strong>本（Book）のCRUD</strong> から着手するのが自然。
+    一覧取得では <strong>N+1対策（<code>with()</code>）</strong>、ロジックは <strong>Service</strong>、検証は <strong>FormRequest</strong>、
+    そして各機能ごとに <strong>Featureテスト</strong>を書く、という今回確立した型をそのまま展開していく。</p>
+
+    <h2>関連ドキュメント</h2>
+    <ul>
+      <li><code>docs/breeze-setup.html</code> … Breeze導入手順</li>
+      <li><code>docs/login-redesign-guide.html</code> … ログイン画面リニューアル手順</li>
+      <li><code>docs/auth-testing-guide.html</code> … テスト手順</li>
+      <li><code>docs/2026-06-15〜18-worklog.html</code> … 日次の作業ログ</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! プロジェクト 内部ドキュメント &mdash; 認証機能 実装〜テスト 総括
+  </footer>
+</body>
+</html>

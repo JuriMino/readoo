@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 作業記録 2026-06-15</title>
+  <style>
+    :root {
+      --orange: #E8510A;
+      --blue: #2D5BE3;
+      --bg: #fafafa;
+      --code-bg: #1e1e2e;
+      --code-fg: #e4e4e7;
+      --border: #e5e7eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --green: #16a34a;
+      --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+        "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.8;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header {
+      background: linear-gradient(135deg, var(--orange), #f97316);
+      color: #fff;
+      padding: 2.2rem 1.5rem;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 880px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 {
+      margin-top: 2.6rem;
+      padding-bottom: .4rem;
+      border-bottom: 3px solid var(--orange);
+      font-size: 1.35rem;
+    }
+    h3 { margin-top: 1.6rem; font-size: 1.08rem; color: var(--blue); }
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--orange);
+      border-radius: 8px;
+      padding: 1rem 1.3rem;
+      margin: 1rem 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      padding: .9rem 1.1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: .88rem;
+      line-height: 1.55;
+    }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code {
+      background: #f1f1f4;
+      color: var(--orange);
+      padding: .1rem .4rem;
+      border-radius: 4px;
+      font-size: .88em;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      background: #fff;
+      font-size: .9rem;
+    }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .todo { color: var(--red); font-weight: 700; }
+    .err {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+    }
+    .err strong { color: var(--red); }
+    .qa {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+    }
+    .qa strong { color: var(--blue); }
+    .next {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      padding: 1rem 1.3rem;
+      margin: 1rem 0;
+    }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before {
+      content: "☐"; position: absolute; left: 0;
+      color: var(--orange); font-size: 1.1rem;
+    }
+    .tag {
+      display: inline-block; font-size: .72rem; padding: .12rem .5rem;
+      border-radius: 999px; margin-left: .4rem; vertical-align: middle; color: #fff;
+    }
+    .tag-done { background: var(--green); }
+    .tag-todo { background: var(--red); }
+    footer {
+      text-align: center; color: var(--muted); font-size: .82rem;
+      padding: 2rem 1rem; border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Readoo! 作業記録</h1>
+    <p>2026-06-15（Phase 3：認証機能 / Laravel Breeze 導入）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>Laravel Breeze（Bladeスタック）の導入に着手。Docker環境でのVite開発サーバー（HMR）の表示崩れを解消し、
+      ログイン／登録のデフォルト画面表示まで到達。<code>User</code> モデルの論理削除対応と
+      <code>username</code> へのカラム名統一（モデル側）まで完了した。</p>
+      <p><strong>到達点：</strong> Breezeのデフォルト認証画面が <code>localhost:8080</code> で正常表示される状態。</p>
+    </div>
+
+    <h2>環境の確認・確定事項</h2>
+    <table>
+      <tr><th>項目</th><th>内容</th></tr>
+      <tr><td>Laravel</td><td>13.14.0（仕様書のLaravel12表記は誤り → 13に修正）</td></tr>
+      <tr><td>PHP</td><td>8.5.7（要件 8.3以上）</td></tr>
+      <tr><td>Docker サービス</td><td><code>web</code>(Nginx, 8080) / <code>app</code>(PHP-FPM) / <code>db</code>(MySQL 9.4, 6306)</td></tr>
+      <tr><td>アクセス制御</td><td>未ログイン時は<strong>ログイン画面へリダイレクト</strong>（403ではない。仕様書の旧記述を訂正）</td></tr>
+    </table>
+
+    <h2>実施した作業</h2>
+
+    <h3>1. バージョン確認とドキュメント整備</h3>
+    <table>
+      <tr><th>作業</th><th>状態</th></tr>
+      <tr><td>Laravel / PHP バージョンの実態確認</td><td class="done">完了</td></tr>
+      <tr><td>仕様書の技術スタック表を Laravel 13 / PHP 8.3以上 へ修正（ユーザー対応）</td><td class="done">完了</td></tr>
+      <tr><td><code>docs/breeze-setup.html</code>（Breeze導入手順）を作成</td><td class="done">完了</td></tr>
+    </table>
+
+    <h3>2. Docker × Vite（HMR）の表示崩れ対応</h3>
+    <p>Breeze導入に伴うフロント資産まわりで表示崩れが発生 → 原因を特定し解消。</p>
+    <ul>
+      <li><code>vite.config.js</code> に <code>server.host: '0.0.0.0'</code> と <code>hmr.host: 'localhost'</code> を追加</li>
+      <li><code>compose.yaml</code> の <code>app</code> サービスに <code>ports: "5173:5173"</code> を追加</li>
+      <li><code>docker compose up -d</code> でコンテナ再作成 → ポート公開を反映</li>
+      <li><code>npm run dev</code> 再実行 → <code>localhost:8080</code> の表示崩れ解消</li>
+    </ul>
+
+    <h3>3. Breeze 導入と認証画面の確認</h3>
+    <ul>
+      <li>Breeze（Bladeスタック）導入済み</li>
+      <li>マイグレーション実行済み（<code>users</code> 等のテーブル作成）</li>
+      <li><code>/login</code>・<code>/register</code> でBreezeデフォルト画面の表示を確認</li>
+    </ul>
+
+    <h3>4. User モデル / マイグレーションの設計反映</h3>
+    <ul>
+      <li>マイグレーション：<code>users</code> に <code>softDeletes()</code> 追加済み。
+        <code>email_verified_at</code>・<code>rememberToken</code> はv1スコープ外として理由付きでコメントアウト</li>
+      <li><code>app/Models/User.php</code> を修正：
+        <ul>
+          <li><code>SoftDeletes</code> トレイトを適用 → <strong>論理削除が機能する状態に</strong></li>
+          <li><code>#[Fillable]</code> を <code>username</code> に統一</li>
+          <li><code>#[Hidden]</code> から不要な <code>remember_token</code> を除去</li>
+          <li><code>casts()</code> から不使用の <code>email_verified_at</code> を除去</li>
+        </ul>
+      </li>
+    </ul>
+
+    <h2>発生したエラー / つまずき</h2>
+
+    <div class="err">
+      <strong>エラー① npm run build の後に npm run dev したら表示が崩れた</strong>
+      <p><strong>原因：</strong> <code>npm run dev</code> で <code>public/hot</code> が生成され、
+      <code>@vite</code> が「Vite開発サーバー（<code>localhost:5173</code>）から資産を取る」モードに切替。
+      しかしVite開発サーバーは<strong>appコンテナ内</strong>で動いており、ポート未公開のためホスト側ブラウザから届かずCSS/JS取得に失敗。</p>
+      <p><strong>解決：</strong> <code>vite.config.js</code> に <code>host: '0.0.0.0'</code> を追加し、
+      <code>compose.yaml</code> で <code>5173:5173</code> を公開、コンテナ再作成。</p>
+    </div>
+
+    <div class="err">
+      <strong>エラー② ポート追加後も localhost が開けず、8080は崩れたまま</strong>
+      <p><strong>原因：</strong> <code>compose.yaml</code> への <code>ports</code> 追記がまだで、
+      かつコンテナが古いまま（再作成していなかった）。<code>docker compose ps</code> で
+      <code>app</code> に 5173 が公開されていないことを確認。<code>public/hot</code> は
+      <code>http://localhost:5173</code> を指すが接続不可（HTTP 000）。</p>
+      <p><strong>解決：</strong> <code>compose.yaml</code> に <code>ports: "5173:5173"</code> を追記 →
+      <code>docker compose up -d</code> で再作成 → <code>npm run dev</code> 再実行で解消。</p>
+    </div>
+
+    <h2>主な質問と回答（メモ）</h2>
+
+    <div class="qa">
+      <strong>Q. Breezeを入れれば主要なログイン機能は実装できる？</strong>
+      <p>A. おおむねYes。登録・ログイン・ログアウト・プロフィール編集・退会の画面とロジックが生成される。
+      ただしBreezeは「足場」なので、論理削除対応・パスワードリセットのスコープ調整・ブランドカラー適用などは別途必要。</p>
+    </div>
+
+    <div class="qa">
+      <strong>Q. 5173 はBreezeの指定ポート？</strong>
+      <p>A. いいえ。Vite（フロント資産のビルド/開発サーバー）のデフォルトポート。
+      <code>vite.config.js</code> に <code>server</code> 記述が無ければデフォルトの 5173 / localhost で起動する。</p>
+    </div>
+
+    <div class="qa">
+      <strong>Q. softDeletes() をマイグレーションに入れれば論理削除になる？</strong>
+      <p>A. それだけでは不十分。<code>deleted_at</code> カラムが作られるだけで、実際に論理削除として動かすには
+      <code>User</code> モデルへの <code>SoftDeletes</code> トレイト適用が必要（本日対応済み）。</p>
+    </div>
+
+    <h2 id="next">明日以降のTODO（重要：忘れないこと）</h2>
+
+    <div class="next">
+      <h3 style="margin-top:0">★ username 統一の残対応 <span class="tag tag-todo">最優先</span></h3>
+      <p><code>User</code> モデルは <code>username</code> に統一済みだが、
+      <strong>Breezeが生成した <code>name</code> 前提のコードが残っている。</strong>
+      このままだと登録/更新でエラーになるため、以下の <code>name</code> → <code>username</code> 置換が必要。</p>
+      <table>
+        <tr><th>ファイル</th><th>直す内容</th></tr>
+        <tr><td><code>app/Http/Controllers/Auth/RegisteredUserController.php</code></td>
+            <td>バリデーションと <code>User::create()</code> の <code>name</code></td></tr>
+        <tr><td><code>app/Http/Controllers/ProfileController.php</code></td>
+            <td>プロフィール更新の <code>name</code> 参照</td></tr>
+        <tr><td><code>app/Http/Requests/ProfileUpdateRequest.php</code></td>
+            <td>バリデーションルールの <code>name</code>（存在すれば）</td></tr>
+        <tr><td><code>resources/views/auth/register.blade.php</code></td>
+            <td>入力欄 <code>name="name"</code> → <code>name="username"</code>、ラベル</td></tr>
+        <tr><td><code>resources/views/profile/partials/update-profile-information-form.blade.php</code></td>
+            <td>同上</td></tr>
+      </table>
+      <p><strong>メモ：</strong> Laravel 13のBreezeはバリデーションをController内に直書きする構成の可能性あり。
+      まず <code>RegisteredUserController.php</code> を開いて <code>name</code> の出現箇所を確認するのが確実。
+      横断検索（grep）で <code>name</code> 残存箇所を洗い出すのがおすすめ。</p>
+    </div>
+
+    <div class="next">
+      <h3 style="margin-top:0">その他のTODO</h3>
+      <ul class="checklist">
+        <li>パスワードリセット（v1スコープ外）の扱いを決定：残す / ルート除外 / ビュー削除</li>
+        <li>退会処理が論理削除で動くか実機確認（<code>deleted_at</code> が入るか）</li>
+        <li>ログイン画面・登録画面をブランドカラー（オレンジ #E8510A / ブルー #2D5BE3）で設計に合わせて修正</li>
+        <li>保護ルートへの <code>auth</code> ミドルウェア適用、他ユーザーデータへのアクセス防止（認可）</li>
+        <li>作業ブランチ・コミットの整理（規約：feature/(issue番号)-概要、Conventional Commits）</li>
+      </ul>
+    </div>
+
+    <h2>推奨する進行順（明日のスタート地点）</h2>
+    <ol>
+      <li><strong>username 統一の残対応</strong>（grepで <code>name</code> 残存箇所を洗い出し → 置換）</li>
+      <li>register / login / logout の動作再確認</li>
+      <li>退会の論理削除を実機確認</li>
+      <li>パスワードリセットの扱いを決定</li>
+      <li>設計に合わせた画面修正（ブランドカラー等）</li>
+    </ol>
+
+  </div>
+
+  <footer>
+    Readoo! プロジェクト 内部ドキュメント &mdash; 作業記録 2026-06-15
+  </footer>
+</body>
+</html>

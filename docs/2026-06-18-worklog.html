@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 作業記録 2026-06-18</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--orange), #f97316); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--orange); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .point { background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid var(--green); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .point strong { color: var(--green); }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+    .tldr { font-weight: 700; color: var(--blue); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Readoo! 作業記録</h1>
+    <p>2026-06-18（Phase 3：新規登録画面の刷新 / ルート設定 ＋ 重点復習：autofocus・autocomplete 他）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>ログイン画面を参考に<strong>新規登録（register）画面をブランドデザインに刷新</strong>。実装中に出たバグ（input type の誤り等）を修正。
+      さらに <code>/</code>（ルート）アクセス時に Laravel ウェルカムページではなく<strong>ログイン状態で分岐</strong>する設定に変更。
+      本日は HTML属性（autofocus / autocomplete）の理解が曖昧だったため、その復習を重点的に記録する。</p>
+    </div>
+    <table>
+      <tr><th>作業</th><th>状態</th></tr>
+      <tr><td>register画面のブランドデザイン刷新</td><td class="done">完了</td></tr>
+      <tr><td>register画面のバグ修正（type / for / autocomplete / autofocus / タイポ）</td><td class="done">完了</td></tr>
+      <tr><td>ルート <code>/</code> をログイン状態で分岐（welcome廃止）</td><td class="done">完了</td></tr>
+    </table>
+
+    <!-- ===================== 重点復習 ===================== -->
+    <h2>★ 重点復習①：autofocus</h2>
+    <div class="key">
+      <p class="tldr">「ページを開いた瞬間にカーソルが入る欄」を1つだけ指定する属性。見た目ではなく“入力開始位置”。</p>
+    </div>
+    <ul>
+      <li>ページ読み込み時に、その入力欄へ<strong>自動でカーソルが入る</strong>（クリック不要で入力開始できる）。</li>
+      <li><strong>1ページに1つだけ有効</strong>。複数付けても最初の1つしか効かない。</li>
+      <li>付けるのは「最初に入力してほしい欄」。ログイン=email、登録=username。</li>
+    </ul>
+    <div class="warn">
+      <strong>今日のミス：</strong>register画面で username と email の<strong>両方に autofocus</strong>が付いていた。
+      → email側を削除。最初に入力すべき username だけに残すのが正しい。
+    </div>
+
+    <h2>★ 重点復習②：autocomplete</h2>
+    <div class="key">
+      <p class="tldr">入力欄の「意味」をブラウザに伝える裏方ラベル。補完候補やパスワード管理を“正しい種類で”動かすための交通整理。</p>
+    </div>
+
+    <h3>大前提：候補が出る仕組みは2系統ある</h3>
+    <table>
+      <tr><th>種類</th><th>何が候補に出るか</th><th>担当</th></tr>
+      <tr><td>① フォーム履歴（オートフィル）</td><td>過去にそのブラウザで入力した値（メール等）</td><td>ブラウザ本体</td></tr>
+      <tr><td>② パスワードマネージャー</td><td>保存済みのログイン情報（ID・パスワード）</td><td>ブラウザ / 1Password 等</td></tr>
+    </table>
+    <p>「入力途中で過去の値が候補に出た」のは主に<strong>①フォーム履歴（ブラウザの基本機能）</strong>。
+    <code>autocomplete</code> はこの①②を<strong>正しく・的確に動かすための指示</strong>であって、候補を出す魔法そのものではない。</p>
+
+    <h3>よく使う値</h3>
+    <table>
+      <tr><th>値</th><th>意味</th><th>使う場所</th></tr>
+      <tr><td><code>username</code></td><td>ログインIDになる欄（メールでも該当すれば使う）</td><td>ログイン/登録のメール欄</td></tr>
+      <tr><td><code>email</code></td><td>ログインには使わない連絡先メール</td><td>純粋なメール入力欄</td></tr>
+      <tr><td><code>current-password</code></td><td><strong>既存の</strong>パスワード</td><td><strong>ログイン</strong>のパスワード欄</td></tr>
+      <tr><td><code>new-password</code></td><td><strong>これから作る</strong>パスワード</td><td><strong>登録</strong>・パスワード変更欄</td></tr>
+      <tr><td><code>off</code></td><td>補完しない（※パスワード欄では効かないことも）</td><td>補完されたくない欄</td></tr>
+    </table>
+
+    <div class="point">
+      <strong>最重要の使い分け：current-password と new-password</strong>
+      <ul style="margin:.4rem 0 0">
+        <li><strong>ログイン</strong>＝<code>current-password</code>：既存パスワードを呼び出して入力してほしい</li>
+        <li><strong>新規登録</strong>＝<code>new-password</code>：強力なパスワードを生成・提案してほしい</li>
+        <li>登録の「パスワード」と「パスワード確認」は<strong>両方 new-password</strong> → 同じ生成パスワードが両欄に入る</li>
+      </ul>
+    </div>
+    <div class="warn">
+      <strong>今日のミス：</strong>register のパスワード欄が <code>current-password</code>（ログイン用）のままだった → <code>new-password</code> に修正。
+    </div>
+
+    <h3>username と email の使い分け</h3>
+    <div class="key">
+      <p>判断軸は「<strong>ログインIDとして使うか</strong>」。<code>username</code> は“ユーザー名”ではなく“<strong>ログインID</strong>”を表すトークン。
+      メールアドレスでも、それでログインするなら <code>username</code> を使う。</p>
+    </div>
+    <p><strong>Readoo! はメールでログインする仕様</strong>（＝メール＝ログインID）。
+    なので<strong>ログイン・登録ともにメール欄は <code>autocomplete="username"</code></strong> で揃えると、パスワードマネージャーが
+    「ID＋パスワード」をセットで保存・自動入力でき、次回ログインが繋がりやすい。</p>
+    <p>表示用の「ユーザー名（username欄）」はログインIDではないので、ここに <code>autocomplete="username"</code> を付ける必要はない（混同しない）。</p>
+
+    <div class="note">
+      <strong>確かめ方：</strong>メール欄に打ち始めて過去値が出れば①フォーム履歴。パスワード欄クリックで「強力なパスワードを生成」が出れば②マネージャー（<code>new-password</code>が効いている合図）。
+    </div>
+
+    <h2>★ 重点復習③：input の type 属性の罠</h2>
+    <div class="warn">
+      <strong>今日の実害バグ：</strong>パスワード確認欄を <code>type="password_confirmation"</code> と書いていた。
+      <div style="margin-top:.6rem">
+        <code>type="password_confirmation"</code> という<strong>typeは存在しない</strong> → 不正なtypeは <code>type="text"</code> 扱いになる →
+        確認欄が<strong>マスクされず平文で丸見え</strong>になっていた。
+      </div>
+      <p style="margin:.6rem 0 0">正：<code>type="password"</code>（マスク）＋ <code>name="password_confirmation"</code>（送信名）。
+      <strong>type（入力の種類）と name（送信フィールド名）は役割が別物</strong>。混同しないこと。</p>
+    </div>
+    <p>あわせて、確認欄のラベルが <code>for="password"</code> になっていた（正しくは <code>for="password_confirmation"</code>）。
+    <code>for</code> は対応する入力の <code>id</code> と一致させる。ズレるとラベルクリックで別の欄にフォーカスが飛ぶ。</p>
+
+    <h2>★ 重点復習④：auth()->check() と Auth::check()</h2>
+    <div class="key">
+      <p class="tldr">どちらも同じ動作。Auth::check() はファサード（要 use インポート）、auth()->check() はヘルパ関数。</p>
+    </div>
+    <ul>
+      <li>IDE/静的解析が「ファサードの方が明示的・解析しやすい」として <code>Auth::check()</code> を推奨することがある（今日の警告の正体）。実害のある間違いではない。</li>
+      <li><code>use Illuminate\Support\Facades\Auth;</code> を冒頭に書けば <code>Auth::check()</code> が使える。</li>
+      <li>プロジェクト内で書き方を統一しておくと読みやすい（今後 <code>Auth::</code> で揃える方針）。</li>
+    </ul>
+
+    <h2>ルート設定の変更（/ の入口）</h2>
+    <p><code>routes/web.php</code> の <code>/</code> を、welcomeページ表示からログイン状態の分岐に変更。</p>
+    <pre><code>Route::get('/', function () {
+    return Auth::check()
+        ? redirect()->route('dashboard')   // ログイン済み → ダッシュボード
+        : redirect()->route('login');      // 未ログイン → ログイン画面
+});</code></pre>
+    <ul>
+      <li><strong>view() ではなく redirect() を採用</strong>：既存の名前付きルート（login / dashboard）を再利用でき、URLも統一される。</li>
+      <li><code>welcome.blade.php</code> は参照されなくなるだけで害はない。後で整理時に削除でOK。</li>
+      <li>反映確認：<code>docker compose exec app php artisan route:clear</code></li>
+    </ul>
+
+    <h2>register画面で修正した点（まとめ）</h2>
+    <table>
+      <tr><th>箇所</th><th>修正</th></tr>
+      <tr><td>確認欄の type</td><td><code>password_confirmation</code> → <code>password</code>（実害バグ）</td></tr>
+      <tr><td>確認欄ラベルの for</td><td><code>password</code> → <code>password_confirmation</code></td></tr>
+      <tr><td>パスワードの autocomplete</td><td><code>current-password</code> → <code>new-password</code></td></tr>
+      <tr><td>autofocus の重複</td><td>email側を削除（username だけに）</td></tr>
+      <tr><td>見出しタイポ</td><td><code>Registre</code> → <code>Register</code></td></tr>
+      <tr><td>クラスタイポ</td><td><code>spac-x-2</code> → <code>space-x-2</code></td></tr>
+    </table>
+    <div class="note">
+      <strong>良かった点：</strong><code>name="username"</code>（統一済みカラム）・<code>name="password_confirmation"</code> を正しく使えていた。
+      登録ボタンを <code>bg-primary</code>（オレンジ）にしてログインの青と差別化できていた。
+    </div>
+
+    <h2>今日の学びの一言まとめ</h2>
+    <ul>
+      <li><strong>autofocus</strong>＝最初にカーソルを置く欄を1つだけ。</li>
+      <li><strong>autocomplete</strong>＝欄の意味を教える裏方。パスワードは ログイン=current / 登録=new。メールログインなら ID欄は username。</li>
+      <li><strong>type と name は別物</strong>。type=入力の種類、name=送信名。</li>
+      <li><strong>for は id と一致</strong>させる。</li>
+      <li><strong>Auth::check() と auth()->check() は同じ</strong>。ファサードで統一。</li>
+    </ul>
+
+    <h2>次回以降</h2>
+    <p>認証画面（login / register）と入口の導線が整った。次は <strong>プロフィール / マイページ</strong>、<strong>ログイン後のナビゲーション</strong>、
+    その後 <strong>本・知識・行動の各画面とエンティティ色（緑/青/橙）の適用</strong> へ展開する。</p>
+
+  </div>
+
+  <footer>
+    Readoo! プロジェクト 内部ドキュメント &mdash; 作業記録 2026-06-18
+  </footer>
+</body>
+</html>

@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 作業記録 2026-06-16</title>
+  <style>
+    :root {
+      --orange: #E8510A;
+      --blue: #2D5BE3;
+      --bg: #fafafa;
+      --code-bg: #1e1e2e;
+      --code-fg: #e4e4e7;
+      --border: #e5e7eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --green: #16a34a;
+      --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+        "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.8;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header {
+      background: linear-gradient(135deg, var(--orange), #f97316);
+      color: #fff;
+      padding: 2.2rem 1.5rem;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 {
+      margin-top: 2.6rem;
+      padding-bottom: .4rem;
+      border-bottom: 3px solid var(--orange);
+      font-size: 1.35rem;
+    }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.2rem; margin-bottom: .4rem; font-size: 1rem; }
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--orange);
+      border-radius: 8px;
+      padding: 1rem 1.3rem;
+      margin: 1rem 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      padding: .9rem 1.1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: .86rem;
+      line-height: 1.6;
+    }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code {
+      background: #f1f1f4;
+      color: var(--orange);
+      padding: .1rem .4rem;
+      border-radius: 4px;
+      font-size: .88em;
+    }
+    pre code { background: none; color: inherit; padding: 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      background: #fff;
+      font-size: .9rem;
+    }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .todo { color: var(--red); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .qa { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--blue); }
+    .next { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; }
+    /* 図解用 */
+    .diagram {
+      background: #fff; border: 1px solid var(--border); border-radius: 10px;
+      padding: 1.2rem 1.4rem; margin: 1.2rem 0;
+    }
+    .legend { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1rem; font-size: .85rem; }
+    .legend span { display: inline-flex; align-items: center; gap: .4rem; }
+    .chip { display: inline-block; width: 1rem; height: 1rem; border-radius: 3px; }
+    .chip-yes { background: #fecaca; border: 1px solid var(--red); }
+    .chip-no { background: #bbf7d0; border: 1px solid var(--green); }
+    .tok {
+      display: inline-block; padding: .15rem .45rem; border-radius: 5px;
+      font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: .85em; margin: 0 .05rem;
+    }
+    .tok-yes { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; font-weight: 700; }
+    .tok-no { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .code-anno { background: var(--code-bg); border-radius: 8px; padding: .9rem 1.1rem; overflow-x: auto; }
+    .code-anno .line { font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: .84rem; color: var(--code-fg); white-space: pre; }
+    .mark-yes { background: rgba(239,68,68,.35); color: #fff; padding: 0 .15rem; border-radius: 3px; font-weight: 700; }
+    .mark-no { background: rgba(34,197,94,.30); color: #fff; padding: 0 .15rem; border-radius: 3px; }
+    .flow { font-family: "SFMono-Regular", Consolas, Menlo, monospace; font-size: .85rem; line-height: 2; }
+    .flow b { color: var(--orange); }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "☐"; position: absolute; left: 0; color: var(--orange); font-size: 1.1rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Readoo! 作業記録</h1>
+    <p>2026-06-16（Phase 3：認証機能の仕上げ / username統一・パスワードリセット対応）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>昨日からの宿題「username統一の残対応」を完了し、新規登録〜ダッシュボード〜プロフィール編集〜退会まで動作確認。
+      パスワードリセット（v1スコープ外）はルート無効化で対応。アプリのタイムゾーンをJSTに修正。
+      認証機能の<strong>機能面（項目1〜4）は完成</strong>。残るは画面のブランドカラー反映（項目5＝明日）。</p>
+    </div>
+    <table>
+      <tr><th>項目</th><th>内容</th><th>状態</th></tr>
+      <tr><td>1</td><td>username統一の残対応</td><td class="done">完了</td></tr>
+      <tr><td>2</td><td>register / login / logout の動作確認</td><td class="done">完了</td></tr>
+      <tr><td>3</td><td>退会の論理削除を実機確認</td><td class="done">完了</td></tr>
+      <tr><td>4</td><td>パスワードリセットの扱いを決定・対応</td><td class="done">完了</td></tr>
+      <tr><td>+</td><td>タイムゾーンをJST化</td><td class="done">完了</td></tr>
+      <tr><td>5</td><td>設計に合わせた画面修正（ブランドカラー）</td><td class="todo">明日</td></tr>
+    </table>
+
+    <!-- ============================================================= -->
+    <h2>★ 重要理解：username統一で「直すべき／直すべきでない」</h2>
+    <p>今回いちばん混乱しやすかったポイント。<strong>「<code>name</code> や <code>user</code> という文字をすべて <code>username</code> に変える」のは誤り。</strong>
+    同じ <code>name</code> でも<strong>意味（役割）が違う</strong>ため、直す対象は限られる。</p>
+
+    <h3>大原則：直すのは「DBカラム名 / 送信フィールド名」に対応するものだけ</h3>
+    <div class="diagram">
+      <div class="legend">
+        <span><span class="chip chip-yes"></span> <strong>直す</strong>＝DBカラム/送信フィールドに対応</span>
+        <span><span class="chip chip-no"></span> <strong>直さない</strong>＝それ以外（変数名・ルート名・HTMLヒント等）</span>
+      </div>
+      <table>
+        <tr><th>登場するもの</th><th>意味</th><th>判定</th></tr>
+        <tr><td><span class="tok tok-yes">name="name"</span>（HTMLのname属性）</td><td>サーバーに送信されるフィールド名。DBカラムに直結</td><td class="todo">直す → username</td></tr>
+        <tr><td><span class="tok tok-yes">old('name')</span></td><td>送信フィールド名の入力値保持。送信名と一致必須</td><td class="todo">直す → username</td></tr>
+        <tr><td><span class="tok tok-yes">$errors->get('name')</span></td><td>バリデーションのエラーキー。送信名と一致必須</td><td class="todo">直す → username</td></tr>
+        <tr><td><span class="tok tok-yes">'name' =&gt; ['required'...]</span>（ルール）</td><td>バリデーション対象のフィールド名</td><td class="todo">直す → username</td></tr>
+        <tr><td><span class="tok tok-yes">$request->name</span></td><td>送信された値の取り出し。送信名と一致必須</td><td class="todo">直す → request->username</td></tr>
+        <tr><td><span class="tok tok-yes">$user->name</span></td><td>モデルの属性（=DBカラム）</td><td class="todo">直す → $user->username</td></tr>
+        <tr><td><span class="tok tok-yes">for="name" / id="name"</span></td><td>ラベルと入力欄の対応付け。name属性に揃える</td><td class="todo">直す → username</td></tr>
+        <tr><td><span class="tok tok-no">'user' =&gt; $request->user()</span></td><td><strong>ビューに渡す変数の名前</strong>（$user を作るキー）。DBと無関係</td><td class="done">直さない</td></tr>
+        <tr><td><span class="tok tok-no">$user</span>（Blade内の変数）</td><td>ログインユーザーを入れた変数名。Breeze全体で $user に統一</td><td class="done">直さない</td></tr>
+        <tr><td><span class="tok tok-no">:value="__('Name')"</span></td><td>ラベルの<strong>表示テキスト</strong>。見た目だけ</td><td class="done">直さない（表示変更は任意）</td></tr>
+        <tr><td><span class="tok tok-no">autocomplete="name"</span></td><td>ブラウザの自動補完ヒント。機能に無関係</td><td class="done">直さない（任意）</td></tr>
+        <tr><td><span class="tok tok-no">->name('register') 等</span></td><td>ルート名。URLの識別子でDBと無関係</td><td class="done">直さない</td></tr>
+        <tr><td><span class="tok tok-no">name="password" / name="email"</span></td><td>別カラムのname属性。usernameとは無関係</td><td class="done">直さない</td></tr>
+      </table>
+    </div>
+
+    <h3>今日やらかした2つのミス（と原因）</h3>
+    <div class="warn">
+      <strong>ミスA：登録時に username が null になった</strong><br>
+      <code>RegisteredUserController.php</code> で、キーは直したが<strong>値を直し忘れた</strong>。
+      <div class="code-anno" style="margin-top:.6rem">
+<span class="line">$user = User::create([</span>
+<span class="line">    'username' =&gt; $request-&gt;<span class="mark-yes">name</span>,   ← キーはOKだが値が name のまま（nullになる）</span>
+<span class="line">]);</span>
+<span class="line" style="color:#86efac">// 正：'username' =&gt; $request-&gt;username</span>
+      </div>
+      <p style="margin:.6rem 0 0">送信フィールドは <code>username</code> なので、<code>$request->name</code> は存在せず null。<strong>キーと値は両方そろえて直す</strong>。</p>
+    </div>
+
+    <div class="warn">
+      <strong>ミスB：プロフィール編集で既存のusernameが表示されない</strong><br>
+      更新フォームで <code>old()</code> の第1引数は直したが、<strong>第2引数の属性を直し忘れた</strong>。
+      <div class="code-anno" style="margin-top:.6rem">
+<span class="line">:value="old('username', $user-&gt;<span class="mark-yes">name</span>)"   ← $user->name は null（カラムはusername）</span>
+<span class="line" style="color:#86efac">// 正：old('username', $user-&gt;username)</span>
+      </div>
+    </div>
+
+    <div class="warn">
+      <strong>ミスC（やりすぎ）：プロフィール画面で「Undefined variable $user」</strong><br>
+      Controllerが<strong>ビューに渡す変数のキー名</strong>まで username に変えてしまった。
+      <div class="code-anno" style="margin-top:.6rem">
+<span class="line">return view('profile.edit', [</span>
+<span class="line">    '<span class="mark-yes">username</span>' =&gt; $request-&gt;user(),   ← これは「$user という変数を作る」キー。変えてはいけない</span>
+<span class="line">]);</span>
+<span class="line" style="color:#86efac">// 正：'user' =&gt; $request-&gt;user()</span>
+      </div>
+      <p style="margin:.6rem 0 0">キーを <code>username</code> にすると、ビュー側に渡る変数が <code>$username</code> になり、
+      Blade が参照する <code>$user</code> が未定義になる。<strong>「<code>user</code>＝変数名」と「<code>username</code>＝カラム名」は別物。</strong></p>
+    </div>
+
+    <h3>覚え方（チェック手順）</h3>
+    <div class="note">
+      <strong>その <code>name</code> は「ブラウザから送られる入力欄の名前」か「DBの列の値」か？</strong>
+      <ul style="margin:.5rem 0 0">
+        <li><strong>YES</strong> → 直す（<code>username</code> へ）</li>
+        <li><strong>NO</strong>（変数名・ルート名・表示文字・autocomplete・別カラム）→ 直さない</li>
+      </ul>
+      <p style="margin:.6rem 0 0">特に <code>$user</code>（変数名）と <code>$user->username</code>（属性）の違いに注意。<strong>変数名 <code>$user</code> はそのまま、後ろの属性 <code>->name</code> だけ <code>->username</code> に。</strong></p>
+    </div>
+
+    <!-- ============================================================= -->
+    <h2>パスワードリセット対応の記録（振り返り用）</h2>
+
+    <h3>背景：なぜ「無効化」したのか</h3>
+    <div class="card">
+      <p>パスワードリセット（メール送信によるリセット）は<strong>v1スコープ外</strong>。だがBreezeはこの機能一式を自動生成する。
+      しかも<strong>メール送信設定（SMTP）をしていないため、リンクを辿っても実際には動かない。</strong>
+      「動かない機能をユーザーに見せる」と混乱の元になるので、<strong>ユーザーから見えなくしつつ、コードはv2用に残す</strong>方針を採用した。</p>
+      <p><strong>選んだ方針：</strong>「ログイン画面のリンクを隠す ＋ 関連ルートを無効化」。完全削除は選ばなかった（v2で復活させる手間を避けるため）。</p>
+    </div>
+
+    <h3>実際にやったこと</h3>
+    <h4>① <code>routes/auth.php</code> のリセット用4ルートをコメントアウト</h4>
+    <div class="code-anno">
+<span class="line" style="color:#86efac">// v1スコープ外：パスワードリセット（メール送信）はv2で復活させる</span>
+<span class="line">// Route::get('forgot-password', ...)-&gt;name('password.request');</span>
+<span class="line">// Route::post('forgot-password', ...)-&gt;name('password.email');</span>
+<span class="line">// Route::get('reset-password/{token}', ...)-&gt;name('password.reset');</span>
+<span class="line">// Route::post('reset-password', ...)-&gt;name('password.store');</span>
+    </div>
+
+    <h4>② ログイン画面のリンクは「触っていない」（重要）</h4>
+    <div class="note">
+      <strong>なぜlogin.blade.phpを編集しなかったか：</strong>
+      Breezeのログイン画面は、最初からリンクを次の条件で囲っている。
+      <div class="code-anno" style="margin-top:.6rem">
+<span class="line">@if (Route::has('password.request'))</span>
+<span class="line">    &lt;a href="{{ route('password.request') }}"&gt;Forgot your password?&lt;/a&gt;</span>
+<span class="line">@endif</span>
+      </div>
+      <p style="margin:.6rem 0 0"><code>Route::has('password.request')</code> は「そのルートが存在するか」を判定する。
+      ①でルートをコメントアウトした結果、この判定が <code>false</code> になり、<strong>リンクは自動的に消える。</strong>
+      だからBlade側の修正は不要だった。</p>
+    </div>
+
+    <h4>③ 反映確認</h4>
+    <pre><code>docker compose exec app php artisan route:clear
+docker compose exec app php artisan route:list --path=password</code></pre>
+    <p><code>password.request / password.email / password.reset / password.store</code> が一覧に出てこなければ成功。
+    （<code>password.update</code>＝ログイン中のパスワード変更は別機能なので残してOK）</p>
+
+    <h3>v2で復活させるときの手順（未来の自分へ）</h3>
+    <div class="next">
+      <ol style="margin:0">
+        <li><code>routes/auth.php</code> の4ルートのコメントを外す</li>
+        <li>→ <code>Route::has('password.request')</code> が <code>true</code> になり、ログイン画面のリンクも自動で復活</li>
+        <li>メール送信設定（<code>.env</code> の <code>MAIL_*</code>、本番はSES等）を行う</li>
+        <li><code>password_reset_tokens</code> テーブルは既に存在するので新規マイグレーション不要</li>
+      </ol>
+    </div>
+
+    <!-- ============================================================= -->
+    <h2>その他の対応：タイムゾーン</h2>
+    <div class="card">
+      <p><code>config/app.php</code> の <code>'timezone' =&gt; 'UTC'</code> を <strong><code>'Asia/Tokyo'</code></strong> に変更。
+      反映のため <code>php artisan config:clear</code> を実行。これで <code>created_at</code> 等のタイムスタンプがJSTになる。</p>
+      <p style="margin:.4rem 0 0"><strong>メモ：</strong>本来は「DBはUTC保存・表示時にJST変換」がベストプラクティスだが、個人開発v1では全体JST統一でシンプルに運用する判断。</p>
+    </div>
+
+    <!-- ============================================================= -->
+    <h2>つまずき・質問のまとめ</h2>
+    <div class="qa">
+      <strong>Q. register.blade.php の :value（ラベルのvalue）も修正対象？</strong>
+      <p>A. <code>&lt;x-input-label :value="__('Name')"&gt;</code> はラベルの表示テキストなので機能には無関係（直すのは任意）。
+      一方 <code>&lt;x-text-input :value="old('name', $user->name)"&gt;</code> の中の name は送信名・属性なので修正対象。</p>
+    </div>
+    <div class="qa">
+      <strong>Q. プロフィール画面で Undefined variable $user が出た</strong>
+      <p>A. Controllerがビューに渡す変数キーを <code>'user'</code> から <code>'username'</code> に変えてしまったのが原因（上記ミスC）。
+      <code>'user' => $request->user()</code> に戻して解決。</p>
+    </div>
+
+    <!-- ============================================================= -->
+    <h2>明日の作業：項目5「設計に合わせた画面修正（ブランドカラー）」</h2>
+    <p>Breezeデフォルトは全体が<strong>インディゴ（紫青）系</strong>。これをブランドカラーに置き換える。
+    <strong>個別画面をいきなり触らず、土台（色定義）から入る</strong>のが効率的。</p>
+
+    <table>
+      <tr><th>ブランドカラー</th><th>カラーコード</th><th>用途</th></tr>
+      <tr><td>オレンジ（メイン）</td><td><code>#E8510A</code></td><td>主要ボタン・リンク・アクセント</td></tr>
+      <tr><td>ブルー（サブ）</td><td><code>#2D5BE3</code></td><td>補助的な要素</td></tr>
+    </table>
+
+    <h3>推奨手順（この順番で進める）</h3>
+
+    <h4>STEP 1. Tailwindにブランドカラーを定義する</h4>
+    <p><code>tailwind.config.js</code> の <code>theme.extend.colors</code> に色を登録。これで <code>bg-primary</code> / <code>text-primary</code> などが使えるようになり、
+    色コードがコード中に散らばるのを防げる。</p>
+    <pre><code>// tailwind.config.js（イメージ）
+theme: {
+    extend: {
+        colors: {
+            primary: '#E8510A',   // オレンジ（メイン）
+            secondary: '#2D5BE3', // ブルー（サブ）
+        },
+    },
+},</code></pre>
+    <p class="note" style="margin-top:.6rem"><strong>確認：</strong>定義変更後は <code>npm run dev</code>（or build）でTailwindが再生成されて反映される。
+    クラスを使っていないと purge されるので、実際に <code>bg-primary</code> 等を使ってから確認する。</p>
+
+    <h4>STEP 2. 共通コンポーネントの色を差し替える</h4>
+    <p>個別画面より先に、共通部品を直すと一気に反映される。対象は <code>resources/views/components/</code>。</p>
+    <table>
+      <tr><th>ファイル</th><th>やること</th></tr>
+      <tr><td><code>components/primary-button.blade.php</code></td><td><code>bg-gray-800</code> 等 → <code>bg-primary</code> 系へ。ホバー色も調整</td></tr>
+      <tr><td><code>components/text-input.blade.php</code></td><td>フォーカスリング <code>focus:ring-indigo-500</code> → <code>focus:ring-primary</code></td></tr>
+      <tr><td><code>components/text-link / nav-link 等</code></td><td>リンク/アクティブ状態の <code>indigo</code> → ブランド色</td></tr>
+    </table>
+
+    <h4>STEP 3. 認証画面の細部・日本語化</h4>
+    <table>
+      <tr><th>ファイル</th><th>やること</th></tr>
+      <tr><td><code>auth/login.blade.php</code></td><td>「Log in」等の文言を日本語へ。Remember me / Email等のラベル調整</td></tr>
+      <tr><td><code>auth/register.blade.php</code></td><td>ラベル「Name」→「ユーザー名」等。<code>username</code>表示に整合</td></tr>
+      <tr><td><code>profile/edit.blade.php・partials/*</code></td><td>「Profile」「Save」等の文言、退会ボタンの色（危険操作は赤系のままが自然）</td></tr>
+    </table>
+    <p class="note"><strong>判断ポイント：</strong>退会など「危険な操作」のボタンは、ブランド色にせず<strong>赤系（danger）</strong>のまま残すのがUX的に正解。すべてをオレンジにしない。</p>
+
+    <h4>STEP 4. レイアウト・ロゴ・ヘッダー</h4>
+    <table>
+      <tr><th>ファイル</th><th>やること</th></tr>
+      <tr><td><code>components/application-logo.blade.php</code></td><td>BreezeのLaravelロゴ → Readoo!のロゴ/文字へ</td></tr>
+      <tr><td><code>layouts/navigation.blade.php</code></td><td>ナビバーの色・アクティブ表示・メニュー項目（マイページ等）</td></tr>
+      <tr><td><code>layouts/guest.blade.php</code></td><td>ログイン/登録画面の背景・ロゴ周り</td></tr>
+    </table>
+
+    <h3>明日のチェックリスト</h3>
+    <ul class="checklist">
+      <li>tailwind.config.js に primary(#E8510A)/secondary(#2D5BE3) を定義</li>
+      <li>primary-button をブランド色に変更</li>
+      <li>text-input のフォーカスリングをブランド色に変更</li>
+      <li>login / register / profile の文言を日本語化</li>
+      <li>退会ボタンは danger（赤系）のまま維持</li>
+      <li>ロゴを Readoo! 用に差し替え</li>
+      <li>ナビゲーションの色・メニュー調整</li>
+      <li>npm run dev で反映確認（color が purge されていないか）</li>
+    </ul>
+
+    <h3>進め方の注意（規約より）</h3>
+    <div class="note">
+      <ul style="margin:0">
+        <li>Tailwindクラス順序：<strong>レイアウト → サイズ → スペース → 色 → テキスト → その他</strong></li>
+        <li>Bladeにはロジックを書かない（表示のみ）</li>
+        <li>作業ブランチを切る（例：<code>feature/(issue番号)-auth-ui</code>）／コミットはConventional Commits</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <footer>
+    Readoo! プロジェクト 内部ドキュメント &mdash; 作業記録 2026-06-16
+  </footer>
+</body>
+</html>

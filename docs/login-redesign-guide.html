@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! ログイン画面リニューアル 手順書</title>
+  <style>
+    :root {
+      --orange: #E8510A;
+      --blue: #2D5BE3;
+      --cream: #FAF6EC;
+      --bg: #fafafa;
+      --code-bg: #1e1e2e;
+      --code-fg: #e4e4e7;
+      --border: #e5e7eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --green: #16a34a;
+      --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+        "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.8;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header {
+      background: linear-gradient(135deg, var(--orange), #f97316);
+      color: #fff;
+      padding: 2.2rem 1.5rem;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 920px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 {
+      margin-top: 2.6rem; padding-bottom: .4rem;
+      border-bottom: 3px solid var(--orange); font-size: 1.35rem;
+    }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card {
+      background: #fff; border: 1px solid var(--border);
+      border-left: 4px solid var(--orange); border-radius: 8px;
+      padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    pre {
+      background: var(--code-bg); color: var(--code-fg);
+      padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto;
+      font-size: .85rem; line-height: 1.6;
+    }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code {
+      background: #f1f1f4; color: var(--orange);
+      padding: .1rem .4rem; border-radius: 4px; font-size: .88em;
+    }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .decide { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .decide strong { color: var(--blue); }
+    .step-head {
+      display: flex; align-items: center; gap: .6rem; margin-top: 2rem;
+    }
+    .step-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      background: var(--orange); color: #fff; width: 2rem; height: 2rem;
+      border-radius: 50%; font-weight: 700; flex: 0 0 auto;
+    }
+    .step-head h3 { margin: 0; color: var(--text); }
+    /* カラーパレット見本 */
+    .swatches { display: flex; gap: .8rem; flex-wrap: wrap; margin: 1rem 0; }
+    .sw { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; width: 130px; font-size: .78rem; background:#fff; }
+    .sw .chip { height: 52px; }
+    .sw .label { padding: .4rem .5rem; }
+    .sw .label b { display:block; }
+    /* レイアウト骨格図 */
+    .skeleton { border: 2px dashed #cbd5e1; border-radius: 10px; overflow: hidden; margin: 1rem 0; background:#fff; }
+    .sk-nav { background: var(--blue); color:#fff; padding: .6rem 1rem; display:flex; justify-content:space-between; font-size:.85rem; }
+    .sk-main { background: var(--cream); padding: 2rem 1rem; text-align:center; color: var(--muted); font-size:.85rem; }
+    .sk-card { background:#fff; border:1px solid var(--border); border-radius:12px; max-width:420px; margin: 0 auto; padding:1.4rem; color: var(--text); }
+    .sk-footer { background: var(--blue); color:#fff; padding:.6rem 1rem; text-align:center; font-size:.8rem; }
+    .badge-demo { display:inline-block; background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; font-size:.72rem; padding:.1rem .5rem; border-radius:5px; font-weight:700; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "☐"; position: absolute; left: 0; color: var(--orange); font-size: 1.1rem; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ログイン画面リニューアル 手順書</h1>
+    <p>Readoo! &mdash; 項目5「設計に合わせた画面修正」/ ログイン画面のブランド適用</p>
+  </header>
+
+  <div class="container">
+
+    <h2>ゴール</h2>
+    <div class="card">
+      <p>Breezeデフォルトのログイン画面を、Readoo!のデザイン（青いナビ＆フッター・クリーム背景・白カード・必須バッジ・日本語化）に差し替える。
+      共通レイアウトを直すため、<strong>register画面にも枠（ナビ・背景・フッター）が自動適用</strong>される。</p>
+    </div>
+
+    <h2>完成イメージ（レイアウト骨格）</h2>
+    <div class="skeleton">
+      <div class="sk-nav"><span>🔶 Readoo!（ロゴ）</span><span>Register ｜ Log in</span></div>
+      <div class="sk-main">
+        <div style="margin-bottom:1rem;"><b style="font-size:1.2rem;color:var(--text)">Log in</b><br>アカウントにログインしてください</div>
+        <div class="sk-card" style="text-align:left">
+          <div>E-MAIL <span class="badge-demo">必須</span></div>
+          <div style="background:#f3f4f6;border-radius:8px;padding:.5rem;margin:.3rem 0 1rem;color:#9ca3af">example@email.com</div>
+          <div>PASSWORD <span class="badge-demo">必須</span></div>
+          <div style="background:#f3f4f6;border-radius:8px;padding:.5rem;margin:.3rem 0 .2rem;color:#9ca3af">**********</div>
+          <div style="font-size:.75rem;color:#9ca3af;margin-bottom:1rem">英数字8文字以上</div>
+          <div style="background:var(--blue);color:#fff;text-align:center;border-radius:8px;padding:.6rem;font-weight:700">Log in</div>
+          <div style="text-align:center;font-size:.8rem;margin-top:.8rem;color:var(--muted)">アカウントをお持ちでないですか？<span style="color:var(--blue);text-decoration:underline">新規登録はこちら</span></div>
+        </div>
+      </div>
+      <div class="sk-footer">© 2026 Readoo! All rights reserved.</div>
+    </div>
+
+    <h2>使う色</h2>
+    <div class="swatches">
+      <div class="sw"><div class="chip" style="background:#2D5BE3"></div><div class="label"><b>#2D5BE3</b>secondary（青）<br>ナビ/フッター/ボタン</div></div>
+      <div class="sw"><div class="chip" style="background:#FAF6EC"></div><div class="label"><b>#FAF6EC</b>base（クリーム）※仮<br>ページ背景</div></div>
+      <div class="sw"><div class="chip" style="background:#fff;border-bottom:1px solid #eee"></div><div class="label"><b>#FFFFFF</b>white<br>カード背景</div></div>
+      <div class="sw"><div class="chip" style="background:#fee2e2"></div><div class="label"><b>red-100/600</b>必須バッジ</div></div>
+    </div>
+
+    <div class="decide">
+      <strong>着手前に確定したい判断（3点）</strong>
+      <ol style="margin:.4rem 0 0">
+        <li>クリーム背景色 = <code>#FAF6EC</code>（仮）でよいか → <code>tailwind.config.js</code> に <code>base</code> として追加</li>
+        <li>ナビ/フッター/ログインボタンの青 = <code>secondary</code>(#2D5BE3) でよいか</li>
+        <li>ロゴ画像はあるか → 無ければ当面テキスト「Readoo!」で進め、後で画像差し替え</li>
+      </ol>
+    </div>
+
+    <h2>触るファイル一覧</h2>
+    <table>
+      <tr><th>対象</th><th>ファイル</th><th>内容</th></tr>
+      <tr><td>画面の枠（共通）</td><td><code>resources/views/layouts/guest.blade.php</code></td><td>ナビ・クリーム背景・フッター</td></tr>
+      <tr><td>カードの中身</td><td><code>resources/views/auth/login.blade.php</code></td><td>見出し・入力欄・必須・ボタン・リンク</td></tr>
+      <tr><td>色定義</td><td><code>tailwind.config.js</code></td><td><code>base</code>（クリーム）を追加</td></tr>
+      <tr><td>必須バッジ（任意）</td><td><code>resources/views/components/required-badge.blade.php</code>（新規）</td><td>赤い「必須」バッジ。registerでも再利用</td></tr>
+      <tr><td>ロゴ</td><td><code>public/images/logo.png</code>（新規）＋ <code>components/application-logo.blade.php</code></td><td>Readoo!ロゴへ差し替え</td></tr>
+    </table>
+
+    <h2>作業手順（段階的に進める）</h2>
+    <p class="note"><strong>進め方の原則：</strong>一気に作らず、<strong>各ステップごとにブラウザで表示確認</strong>する。崩れたらどのステップが原因か切り分けやすい。</p>
+
+    <div class="step-head"><span class="step-num">0</span><h3>準備：ブランチ作成・色定義</h3></div>
+    <ul>
+      <li>作業ブランチを切る（例：<code>feature/(issue番号)-auth-ui</code>）</li>
+      <li><code>tailwind.config.js</code> に <code>base: '#FAF6EC'</code> を追加（クリーム背景用）</li>
+      <li><code>npm run dev</code> を起動しておく（保存で自動反映）</li>
+    </ul>
+
+    <div class="step-head"><span class="step-num">1</span><h3>共通レイアウトの枠を組む（guest.blade.php）</h3></div>
+    <p>中央寄せカードだけの構造を、<strong>ヘッダー / メイン / フッターの縦3分割</strong>に組み替える。</p>
+    <pre><code>&lt;body class="min-h-screen flex flex-col bg-base"&gt;
+    &lt;header&gt; 青いナビ（ロゴ ＋ Register｜Log in リンク）&lt;/header&gt;
+
+    &lt;main class="flex-1 ..."&gt;
+        {{ $slot }}   &lt;!-- login / register がここに入る --&gt;
+    &lt;/main&gt;
+
+    &lt;footer&gt; 青いバー（© 2026 Readoo!…）&lt;/footer&gt;
+&lt;/body&gt;</code></pre>
+    <ul>
+      <li><code>min-h-screen flex flex-col</code> ＋ <code>&lt;main&gt;</code> に <code>flex-1</code> で、フッターが常に最下部に張り付く</li>
+      <li>ナビ・フッターは <code>bg-secondary text-white</code></li>
+      <li>ナビ右の「Register｜Log in」は <code>route('register')</code> / <code>route('login')</code> へ</li>
+    </ul>
+    <p><strong>確認：</strong>login画面を開き、青ナビ・クリーム背景・青フッターが出ればOK（カード中身はまだBreezeのまま）。</p>
+
+    <div class="step-head"><span class="step-num">2</span><h3>カードの中身を組む（login.blade.php）</h3></div>
+    <p>カード内を上から順に。</p>
+    <table>
+      <tr><th>要素</th><th>ポイント</th></tr>
+      <tr><td>見出し「Log in」</td><td>太字・中央寄せ（<code>text-2xl font-bold text-center</code> 等）</td></tr>
+      <tr><td>サブ文</td><td>「アカウントにログインしてください」<code>text-gray-500 text-center</code></td></tr>
+      <tr><td>E-MAILラベル＋必須</td><td>ラベル＋赤い必須バッジを横並び</td></tr>
+      <tr><td>メール入力欄</td><td>薄グレー背景・角丸。<code>placeholder="example@email.com"</code></td></tr>
+      <tr><td>PASSWORDラベル＋必須</td><td>同上</td></tr>
+      <tr><td>パスワード入力欄</td><td>同上。下に「英数字8文字以上」<code>text-sm text-gray-500</code></td></tr>
+      <tr><td>Log inボタン</td><td><code>w-full</code> の青ボタン（<code>bg-secondary text-white</code>）</td></tr>
+      <tr><td>新規登録リンク</td><td>「アカウントをお持ちでないですか？<u>新規登録はこちら</u>」/ リンク部は青</td></tr>
+    </table>
+    <p class="warn"><strong>消さないこと：</strong>フォームの <code>@csrf</code>、<code>name="email"</code> / <code>name="password"</code>、
+    <code>&lt;x-input-error&gt;</code>（バリデーションエラー表示）は機能に必須。見た目を変えても<strong>これらは残す</strong>。</p>
+
+    <div class="step-head"><span class="step-num">3</span><h3>必須バッジをコンポーネント化（任意だが推奨）</h3></div>
+    <p>「必須」バッジは login と register で繰り返すので、部品化しておくと再利用できる。</p>
+    <pre><code>&lt;!-- components/required-badge.blade.php --&gt;
+&lt;span class="px-2 py-0.5 bg-red-100 text-red-600 text-xs rounded"&gt;必須&lt;/span&gt;</code></pre>
+    <p>使うときは <code>&lt;x-required-badge /&gt;</code> と書くだけ。</p>
+
+    <div class="step-head"><span class="step-num">4</span><h3>ロゴの差し替え</h3></div>
+    <ul>
+      <li>ロゴ画像を <code>public/images/logo.png</code> に配置</li>
+      <li><code>components/application-logo.blade.php</code> を <code>&lt;img src="{{ asset('images/logo.png') }}" ...&gt;</code> に差し替え</li>
+      <li>画像が未用意なら、当面テキスト「Readoo!」で進めてOK</li>
+    </ul>
+
+    <div class="step-head"><span class="step-num">5</span><h3>最終確認</h3></div>
+    <ul class="checklist">
+      <li>青ナビ・クリーム背景・青フッターが表示される</li>
+      <li>メール・パスワード入力欄が正しく表示され、必須バッジが出る</li>
+      <li>実際にログインできる（@csrf / name属性が残っている）</li>
+      <li>バリデーションエラーが該当項目に表示される（誤入力で確認）</li>
+      <li>「新規登録はこちら」でregister画面へ遷移できる</li>
+      <li>register画面にも同じ枠（ナビ・背景・フッター）が出ている</li>
+    </ul>
+
+    <h2>規約リマインド</h2>
+    <div class="note">
+      <ul style="margin:0">
+        <li>Tailwindクラス順序：<strong>レイアウト → サイズ → スペース → 色 → テキスト → その他</strong></li>
+        <li>Bladeにはロジックを書かない（表示のみ）</li>
+        <li>退会など危険操作のボタンは別途 <strong>赤系（danger）</strong> を維持（今回は対象外）</li>
+        <li>コミットはConventional Commits（例：<code>feat: ログイン画面をブランドデザインに刷新</code>）</li>
+      </ul>
+    </div>
+
+    <h2>次にやること（このあとの画面）</h2>
+    <p>ログインができたら、同じ枠を活かして <strong>register画面</strong> → <strong>プロフィール/マイページ</strong> → <strong>ナビゲーション（ログイン後）</strong> の順に展開していく。</p>
+
+  </div>
+
+  <footer>
+    Readoo! プロジェクト 内部ドキュメント &mdash; ログイン画面リニューアル 手順書
+  </footer>
+</body>
+</html>
