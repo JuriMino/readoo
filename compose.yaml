@@ -21,6 +21,8 @@ services:
       dockerfile: docker/php/Dockerfile
     volumes:
       - ./src:/var/www/html
+    ports:
+      - "5173:5173"
     # 起動順序の制御（dbが起動したらappを起動する）
     depends_on:
       - db

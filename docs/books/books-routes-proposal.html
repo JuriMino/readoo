@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 書籍管理 ルート設計 提案</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--green), #22c55e); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--green); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .rec { background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid var(--green); border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .rec strong { color: var(--green); }
+    .badge { display:inline-block; font-size:.72rem; padding:.1rem .5rem; border-radius:999px; background:var(--green); color:#fff; margin-left:.4rem; vertical-align:middle; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>書籍管理（books） ルート設計 提案</h1>
+    <p>Readoo! &mdash; Book CRUD のルート定義方針</p>
+  </header>
+
+  <div class="container">
+
+    <h2>対象画面と要件</h2>
+    <table>
+      <tr><th>画面</th><th>HTTP / URL</th></tr>
+      <tr><td>書籍一覧</td><td>GET <code>/books</code></td></tr>
+      <tr><td>書籍登録</td><td>GET <code>/books/create</code> ／ POST <code>/books</code></td></tr>
+      <tr><td>書籍詳細</td><td>GET <code>/books/{book}</code></td></tr>
+      <tr><td>書籍編集</td><td>GET <code>/books/{book}/edit</code> ／ PUT・PATCH <code>/books/{book}</code></td></tr>
+      <tr><td>書籍削除</td><td>DELETE <code>/books/{book}</code></td></tr>
+    </table>
+    <ul>
+      <li>認証必須（未ログインはアクセス不可）</li>
+      <li>自分が登録した本にのみアクセス可（詳細・編集・削除）</li>
+      <li>ルート名は <code>books.index</code> のようなLaravel標準命名</li>
+    </ul>
+
+    <h2>結論：<code>Route::resource</code> を採用<span class="badge">推奨</span></h2>
+    <div class="rec">
+      <strong>理由：</strong>books は教科書的な7アクションCRUDであり、仕様の「RESTful 7アクション」と完全一致する。
+      1行で標準命名のルートが揃い、DRYで保守性が高い。個別並べ書きの柔軟性は今回不要。
+    </div>
+
+    <h2>1. ルート定義コード（写経用）</h2>
+    <p>既存の <code>Route::middleware('auth')->group()</code>（認証グループ）の中に1行追加する。</p>
+    <pre><code>use App\Http\Controllers\BookController;   // ファイル冒頭の use 群に追加
+
+Route::middleware('auth')-&gt;group(function () {
+    // 既存の profile ルート …
+
+    Route::resource('books', BookController::class);
+});</code></pre>
+    <div class="note">
+      <strong>verified ミドルウェアは付けない：</strong>メール認証はv1スコープ外。<code>profile</code> ルートも <code>auth</code> のみで揃えているため、
+      <code>books</code> も <code>auth</code> だけに統一する。
+    </div>
+
+    <h4>個別に書いた場合の等価コード（＝resourceが裏でやっていること）</h4>
+    <pre><code>Route::get('books',             [BookController::class, 'index'])-&gt;name('books.index');
+Route::get('books/create',      [BookController::class, 'create'])-&gt;name('books.create');
+Route::post('books',            [BookController::class, 'store'])-&gt;name('books.store');
+Route::get('books/{book}',      [BookController::class, 'show'])-&gt;name('books.show');
+Route::get('books/{book}/edit', [BookController::class, 'edit'])-&gt;name('books.edit');
+Route::put('books/{book}',      [BookController::class, 'update'])-&gt;name('books.update');
+Route::delete('books/{book}',   [BookController::class, 'destroy'])-&gt;name('books.destroy');</code></pre>
+
+    <h2>2. なぜこの書き方か</h2>
+
+    <h3>ルート名（books.index 等）</h3>
+    <p><code>Route::resource('books', ...)</code> はリソース名 <code>books</code> を接頭辞に、
+    <code>books.index / create / store / show / edit / update / destroy</code> を自動生成する。
+    手書きの <code>->name()</code> 不要でブレない。</p>
+
+    <h3>ミドルウェア：認証はルート、認可はPolicy</h3>
+    <div class="warn">
+      <strong>重要な切り分け：</strong>
+      <ul style="margin:.4rem 0 0">
+        <li><strong>認証（ログインの有無）＝<code>auth</code> ミドルウェア</strong>。グループで囲い全7ルートに一括適用。</li>
+        <li><strong>認可（自分の本だけ操作可）＝Policy</strong>。<u>ルートでは表現できない</u>。
+        <code>/books/{book}</code> の <code>{book}</code> がルートモデルバインディングで <code>Book</code> に解決され、
+        <code>BookPolicy</code> が「このユーザーの所有物か？」を判定する（Controller実装時）。</li>
+      </ul>
+      <p style="margin:.5rem 0 0">合言葉：<strong>ログインの有無＝認証＝ミドルウェア</strong> / <strong>他人のデータを触らせない＝認可＝Policy</strong>。</p>
+    </div>
+
+    <h3>resource vs 個別並べ書き</h3>
+    <table>
+      <tr><th>観点</th><th>Route::resource（推奨）</th><th>個別並べ書き</th></tr>
+      <tr><td>規約適合</td><td>RESTful 7アクションと完全一致</td><td>自分で7行書く</td></tr>
+      <tr><td>命名</td><td>標準名を自動生成（ブレない）</td><td>手書き（タイプミスの余地）</td></tr>
+      <tr><td>可読性・保守</td><td>1行で意図が明確</td><td>行数が増える</td></tr>
+      <tr><td>向くケース</td><td><strong>標準CRUD（今回）</strong></td><td>変則URL・一部アクションのみ・独自名</td></tr>
+    </table>
+    <p>将来一部だけにしたくなったら <code>->only([...])</code> / <code>->except([...])</code> で絞れる（今回は7つ全部使うので不要）。</p>
+
+    <h2>3. Controller に実装する7メソッド</h2>
+    <table>
+      <tr><th>メソッド</th><th>HTTP / URL</th><th>ルート名</th><th>役割</th><th>引数</th></tr>
+      <tr><td><code>index()</code></td><td>GET /books</td><td>books.index</td><td>一覧表示</td><td>なし</td></tr>
+      <tr><td><code>create()</code></td><td>GET /books/create</td><td>books.create</td><td>登録フォーム</td><td>なし</td></tr>
+      <tr><td><code>store()</code></td><td>POST /books</td><td>books.store</td><td>登録処理</td><td>FormRequest</td></tr>
+      <tr><td><code>show(Book $book)</code></td><td>GET /books/{book}</td><td>books.show</td><td>詳細表示</td><td><code>Book</code></td></tr>
+      <tr><td><code>edit(Book $book)</code></td><td>GET /books/{book}/edit</td><td>books.edit</td><td>編集フォーム</td><td><code>Book</code></td></tr>
+      <tr><td><code>update(Request, Book $book)</code></td><td>PUT/PATCH /books/{book}</td><td>books.update</td><td>更新処理</td><td>FormRequest + <code>Book</code></td></tr>
+      <tr><td><code>destroy(Book $book)</code></td><td>DELETE /books/{book}</td><td>books.destroy</td><td>削除処理</td><td><code>Book</code></td></tr>
+    </table>
+    <div class="key">
+      <strong>ルートモデルバインディング：</strong>URLパラメータ名 <code>{book}</code> とメソッド引数の型ヒント <code>Book $book</code> が対応すると、
+      IDから自動で <code>Book</code> を取得（<code>Book::find()</code> 手書き不要）。
+    </div>
+    <div class="note">
+      <strong>雛形生成（後で）：</strong><code>php artisan make:controller BookController --resource --model=Book</code> で7メソッドの雛形が作れる（今は提案のみ・実行不要）。
+    </div>
+
+    <h2>確認コマンド</h2>
+    <pre><code>docker compose exec app php artisan route:list --path=books</code></pre>
+    <p>7ルート（index/create/store/show/edit/update/destroy）が想定どおり生成されるか確認できる。</p>
+
+    <h2>このあとの全体の流れ（見通し）</h2>
+    <ol>
+      <li><code>Book</code> モデル＋マイグレーション（<code>user_id</code> 外部キー ← 所有者判定の土台）</li>
+      <li><code>Route::resource</code> 追加 ← <strong>今回の提案</strong></li>
+      <li><code>BookController</code>（7メソッド。ロジックは <code>BookService</code> へ分離）</li>
+      <li><code>BookPolicy</code>（所有者のみ show/edit/update/destroy 可）</li>
+      <li>FormRequest（バリデーション）</li>
+      <li>Blade（一覧・詳細・フォーム。エンティティ色は緑＝book）</li>
+      <li>Feature テスト</li>
+    </ol>
+
+  </div>
+
+  <footer>
+    Readoo! プロジェクト 内部ドキュメント &mdash; 書籍管理 ルート設計 提案
+  </footer>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! - Laravel Breeze 導入手順</title>
+  <style>
+    :root {
+      --orange: #E8510A;
+      --blue: #2D5BE3;
+      --bg: #fafafa;
+      --code-bg: #1e1e2e;
+      --code-fg: #e4e4e7;
+      --border: #e5e7eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+        "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.8;
+      color: var(--text);
+      background: var(--bg);
+    }
+    header {
+      background: linear-gradient(135deg, var(--orange), #f97316);
+      color: #fff;
+      padding: 2.5rem 1.5rem;
+      text-align: center;
+    }
+    header h1 { margin: 0 0 .5rem; font-size: 1.9rem; }
+    header p { margin: 0; opacity: .92; }
+    .container { max-width: 880px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 {
+      margin-top: 2.8rem;
+      padding-bottom: .4rem;
+      border-bottom: 3px solid var(--orange);
+      font-size: 1.4rem;
+    }
+    h3 { margin-top: 1.8rem; font-size: 1.12rem; color: var(--blue); }
+    .step {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--orange);
+      border-radius: 8px;
+      padding: 1.2rem 1.4rem;
+      margin: 1.2rem 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,.05);
+    }
+    .step-num {
+      display: inline-block;
+      background: var(--orange);
+      color: #fff;
+      width: 1.7rem; height: 1.7rem;
+      line-height: 1.7rem;
+      text-align: center;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: .9rem;
+      margin-right: .5rem;
+    }
+    pre {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      padding: 1rem 1.2rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: .9rem;
+      line-height: 1.6;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    p code, li code, td code {
+      background: #f1f1f4;
+      color: var(--orange);
+      padding: .1rem .4rem;
+      border-radius: 4px;
+      font-size: .88em;
+    }
+    .note {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+    }
+    .warn {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0;
+    }
+    .note strong, .warn strong { color: var(--orange); }
+    .warn strong { color: #dc2626; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      background: #fff;
+      font-size: .92rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: .6rem .8rem;
+      text-align: left;
+    }
+    th { background: #f9fafb; }
+    .badge {
+      display: inline-block;
+      background: var(--blue);
+      color: #fff;
+      font-size: .72rem;
+      padding: .15rem .55rem;
+      border-radius: 999px;
+      margin-left: .4rem;
+      vertical-align: middle;
+    }
+    footer {
+      text-align: center;
+      color: var(--muted);
+      font-size: .82rem;
+      padding: 2rem 1rem;
+      border-top: 1px solid var(--border);
+    }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before {
+      content: "☐";
+      position: absolute; left: 0;
+      color: var(--orange); font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Laravel Breeze 導入手順</h1>
+    <p>Readoo! &mdash; 認証機能（セッション認証）のセットアップガイド</p>
+  </header>
+
+  <div class="container">
+
+    <h2>前提環境</h2>
+    <table>
+      <tr><th>項目</th><th>内容</th></tr>
+      <tr><td>Laravel</td><td>13.14.0</td></tr>
+      <tr><td>PHP</td><td>8.5.7（要件 8.3 以上）</td></tr>
+      <tr><td>フロント構成</td><td>Blade + Tailwind CSS（モノリシック）</td></tr>
+      <tr><td>認証</td><td>Laravel Breeze（セッション認証）</td></tr>
+      <tr><td>Docker サービス</td><td><code>web</code>(Nginx) / <code>app</code>(PHP-FPM) / <code>db</code>(MySQL 9.4)</td></tr>
+    </table>
+
+    <div class="note">
+      <strong>重要：</strong> このプロジェクトは Docker 構成のため、すべての <code>php</code> /
+      <code>composer</code> / <code>npm</code> コマンドは <strong>app コンテナ内</strong>で実行します。
+      コマンドの先頭に <code>docker compose exec app</code> を付けるのが基本です。
+    </div>
+
+    <h2>導入ステップ</h2>
+
+    <div class="step">
+      <h3><span class="step-num">1</span>作業ブランチを作成</h3>
+      <p><code>main</code> への直接 push は禁止です。Issue を立てた上で作業ブランチを切ります。</p>
+      <pre><code>git switch -c feature/2-auth-breeze</code></pre>
+      <p class="note" style="margin-top:.8rem">
+        ブランチ名は <code>feature/(issue番号)-(概要)</code> の規約に合わせてください（issue番号は実際のものに置き換え）。
+      </p>
+    </div>
+
+    <div class="step">
+      <h3><span class="step-num">2</span>コンテナを起動</h3>
+      <pre><code>docker compose up -d
+docker compose ps   # web / app / db が Up になっているか確認</code></pre>
+    </div>
+
+    <div class="step">
+      <h3><span class="step-num">3</span>Breeze を Composer で導入</h3>
+      <p>Breeze 本体（開発時のみ使うスキャフォールドツール）を <code>--dev</code> でインストールします。</p>
+      <pre><code>docker compose exec app composer require laravel/breeze --dev</code></pre>
+    </div>
+
+    <div class="step">
+      <h3><span class="step-num">4</span>Breeze をインストール（Blade スタックを選択）</h3>
+      <p>認証用の Controller・Blade・ルートを生成します。スタックは必ず <strong>blade</strong> を指定します。</p>
+      <pre><code>docker compose exec app php artisan breeze:install blade</code></pre>
+      <div class="note">
+        <strong>対話プロンプトについて：</strong>
+        テスト用フレームワーク（Pest / PHPUnit）の選択を聞かれます。好みで選んで構いません。
+        引数で <code>blade</code> を渡しているため、スタック選択（Vue/React/API）はスキップされます。
+      </div>
+      <p>生成される主なもの：</p>
+      <table>
+        <tr><th>種別</th><th>場所</th></tr>
+        <tr><td>認証コントローラ</td><td><code>app/Http/Controllers/Auth/</code></td></tr>
+        <tr><td>プロフィール</td><td><code>app/Http/Controllers/ProfileController.php</code></td></tr>
+        <tr><td>ビュー</td><td><code>resources/views/auth/</code>、<code>profile/</code>、<code>dashboard.blade.php</code></td></tr>
+        <tr><td>ルート</td><td><code>routes/auth.php</code>（<code>web.php</code> から読み込み）</td></tr>
+      </table>
+    </div>
+
+    <div class="step">
+      <h3><span class="step-num">5</span>フロント資産をビルド</h3>
+      <p>Breeze は Tailwind / Vite の設定も追加します。Node 依存をインストールしてビルドします。</p>
+      <pre><code>docker compose exec app npm install
+docker compose exec app npm run build   # 本番ビルド
+# 開発中はホットリロードを使う場合：
+# docker compose exec app npm run dev</code></pre>
+    </div>
+
+    <div class="step">
+      <h3><span class="step-num">6</span>マイグレーションを実行</h3>
+      <p><code>users</code> など認証に必要なテーブルを作成します。</p>
+      <pre><code>docker compose exec app php artisan migrate</code></pre>
+      <div class="note">
+        <strong>確認：</strong> <code>.env</code> の DB 接続先が Docker の <code>db</code> サービスを指しているか
+        （<code>DB_HOST=db</code> / <code>DB_DATABASE=readoo</code> など）事前にチェックしてください。
+      </div>
+    </div>
+
+    <div class="step">
+      <h3><span class="step-num">7</span>動作確認</h3>
+      <p>ブラウザで以下にアクセスし、登録・ログイン・ログアウトが通るか確認します。</p>
+      <pre><code>http://localhost:8080/register
+http://localhost:8080/login</code></pre>
+      <p>未ログインで保護ページにアクセスした際、<strong>ログイン画面へリダイレクト</strong>されれば正常です。</p>
+    </div>
+
+    <h2>導入後に必要なカスタマイズ <span class="badge">Readoo! 固有</span></h2>
+    <p>Breeze は「足場」を置くだけなので、本プロジェクトの仕様に合わせて次の調整が必要です。</p>
+
+    <div class="warn">
+      <strong>① 退会の論理削除対応（必須）</strong>
+      <p>仕様では <code>users</code> は<strong>論理削除（SoftDeletes）</strong>。Breeze デフォルトの退会は物理削除のため、
+      <code>User</code> モデルへの <code>SoftDeletes</code> 適用・<code>deleted_at</code> カラム追加・退会処理の改修が必要です。</p>
+    </div>
+
+    <div class="warn">
+      <strong>② パスワードリセットの扱い（要判断）</strong>
+      <p>v1 スコープ外（メール送信を伴うリセット）ですが、Breeze は関連ルート・画面を生成します。
+      「残す／ルートを外す／ビューを削除」のいずれにするか決めてください。</p>
+    </div>
+
+    <div class="note">
+      <strong>③ ブランドカラーの適用</strong>
+      <p>生成ビューは素の Tailwind。メイン <code>#E8510A</code>（オレンジ）／サブ <code>#2D5BE3</code>（ブルー）を
+      <code>tailwind.config.js</code> やコンポーネントへ反映します。</p>
+    </div>
+
+    <div class="note">
+      <strong>④ アクセス制御</strong>
+      <p>保護したいルートを <code>auth</code> ミドルウェアでくくります。未ログイン→ログイン画面リダイレクトは
+      デフォルト挙動のため改修不要。<strong>他ユーザーのデータへのアクセス防止（認可）は別途実装</strong>が必要です。</p>
+    </div>
+
+    <h2>完了チェックリスト</h2>
+    <ul class="checklist">
+      <li>作業ブランチを作成した</li>
+      <li>Breeze（blade）をインストールした</li>
+      <li>npm でフロント資産をビルドした</li>
+      <li>マイグレーションが成功した</li>
+      <li>登録・ログイン・ログアウトが動作した</li>
+      <li>退会の SoftDeletes 対応方針を決めた</li>
+      <li>パスワードリセットの扱いを決めた</li>
+      <li>ブランドカラー適用方針を決めた</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! プロジェクト 内部ドキュメント &mdash; Laravel Breeze 導入手順
+  </footer>
+</body>
+</html>

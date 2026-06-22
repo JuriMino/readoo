@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 認証機能テスト 手順書</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--orange), #f97316); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--orange); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .9rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .step-head { display: flex; align-items: center; gap: .6rem; margin-top: 2rem; }
+    .step-num { display: inline-flex; align-items: center; justify-content: center; background: var(--orange); color: #fff; width: 2rem; height: 2rem; border-radius: 50%; font-weight: 700; flex: 0 0 auto; }
+    .step-head h3 { margin: 0; color: var(--text); }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "☐"; position: absolute; left: 0; color: var(--orange); font-size: 1.1rem; }
+    .del { color: var(--red); font-weight: 700; }
+    .fix { color: var(--blue); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>認証機能テスト 手順書</h1>
+    <p>Readoo! &mdash; Feature テスト（登録・ログイン・プロフィール・退会）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>このドキュメントのゴール</h2>
+    <div class="card">
+      <p>認証機能（新規登録・ログイン・ログアウト・プロフィール編集・退会）が正しく動くことを、
+      自動テスト（Feature テスト）で検証する。Breeze生成テストはカスタマイズ前提とズレているため、
+      <strong>まず土台を直してから実行</strong>する。</p>
+    </div>
+
+    <h2>前提知識</h2>
+    <h3>Unit テストと Feature テストの違い</h3>
+    <table>
+      <tr><th>種類</th><th>検証対象</th><th>場所</th></tr>
+      <tr><td>Unit テスト</td><td>1つのクラス・メソッドを単独で</td><td><code>tests/Unit/</code></td></tr>
+      <tr><td><strong>Feature テスト</strong></td><td>HTTPリクエスト→画面遷移・DBまで通しで</td><td><code>tests/Feature/</code></td></tr>
+    </table>
+    <p>今回のチェック項目（登録できる・ログインできる等）は通しの動作確認なので <strong>Feature テスト</strong>。</p>
+
+    <h3>テスト環境</h3>
+    <table>
+      <tr><th>項目</th><th>設定</th><th>意味</th></tr>
+      <tr><td>フレームワーク</td><td>PHPUnit</td><td>テスト実行ツール</td></tr>
+      <tr><td>テスト用DB</td><td>SQLite（メモリ上）</td><td>本番MySQLとは別・使い捨て・高速。本番データに触れない</td></tr>
+      <tr><td><code>RefreshDatabase</code></td><td>各テストでDBリセット</td><td>テスト間でデータが混ざらない</td></tr>
+      <tr><td>メール</td><td>arrayドライバ</td><td>実送信しない</td></tr>
+    </table>
+    <div class="key">
+      <strong>安心ポイント：</strong>テストは SQLite メモリDB上で動くので、<strong>本番・開発のMySQLデータには一切影響しない</strong>。何度でも実行してよい。
+    </div>
+
+    <!-- ================= STEP 0 ================= -->
+    <div class="step-head"><span class="step-num">0</span><h3>テストの土台を直す（最重要・これをしないと必ず失敗）</h3></div>
+    <div class="warn">
+      <strong>なぜ必要か：</strong>Breeze生成のファクトリ／テストは「<code>name</code>カラム・メール認証あり・物理削除」前提。
+      本プロジェクトは「<code>username</code>・メール認証なし・<strong>論理削除</strong>」にカスタマイズ済みなので、
+      <strong>実装が正しくてもテストが失敗する</strong>。先にテスト側を実装に合わせる。
+    </div>
+
+    <h4>① <code>database/factories/UserFactory.php</code> を修正</h4>
+    <p>存在しないカラム（<code>name</code> / <code>email_verified_at</code> / <code>remember_token</code>）を入れようとして落ちる。</p>
+    <pre><code>public function definition(): array
+{
+    return [
+        'username' =&gt; fake()-&gt;name(),
+        'email' =&gt; fake()-&gt;unique()-&gt;safeEmail(),
+        'password' =&gt; static::$password ??= Hash::make('password'),
+    ];
+}</code></pre>
+    <p><span class="del">削除：</span><code>email_verified_at</code> 行 ／ <code>remember_token</code> 行 ／ <code>unverified()</code> メソッド</p>
+
+    <h4>② スコープ外のテストファイルを削除</h4>
+    <table>
+      <tr><th>ファイル</th><th>理由</th></tr>
+      <tr><td><code>tests/Feature/Auth/EmailVerificationTest.php</code></td><td>メール認証はv1スコープ外</td></tr>
+      <tr><td><code>tests/Feature/Auth/PasswordResetTest.php</code></td><td>パスワードリセットはルート無効化済み</td></tr>
+      <tr><td><code>tests/Feature/ExampleTest.php</code></td><td><code>/</code> が200前提だが今は302リダイレクト</td></tr>
+    </table>
+    <p>※ <code>PasswordConfirmationTest.php</code> は使わない機能。消さなくても通る可能性あるが、気になれば削除。</p>
+
+    <h4>③ <code>RegistrationTest.php</code> を修正</h4>
+    <p>POSTデータの <code>'name'</code> → <span class="fix">'username'</span> に変更。</p>
+
+    <h4>④ <code>ProfileTest.php</code> を修正（3点）</h4>
+    <ul>
+      <li><code>'name'</code> → <span class="fix">'username'</span>、<code>$user-&gt;name</code> → <span class="fix">$user-&gt;username</span></li>
+      <li><code>email_verified_at</code> を使う行、および <code>test_email_verification_status...</code> メソッドを<span class="del">丸ごと削除</span></li>
+      <li>退会テストを<strong>論理削除対応</strong>に（下記）</li>
+    </ul>
+    <pre><code>// test_user_can_delete_their_account の末尾
+// 変更前： $this-&gt;assertNull($user-&gt;fresh());
+$this-&gt;assertSoftDeleted($user);</code></pre>
+    <div class="warn">
+      <strong>論理削除の落とし穴：</strong>SoftDeletes では退会後もレコードが残る（<code>deleted_at</code> が入るだけ）。
+      <code>fresh()</code> はスコープを無視して<strong>削除済みレコードも拾う</strong>ため <code>assertNull</code> だと失敗する。
+      論理削除専用の <strong><code>assertSoftDeleted()</code></strong> を使う。
+    </div>
+
+    <!-- ================= STEP 1 ================= -->
+    <div class="step-head"><span class="step-num">1</span><h3>テストを実行する</h3></div>
+    <pre><code># 全テスト
+docker compose exec app php artisan test
+
+# 特定ファイルだけ
+docker compose exec app php artisan test tests/Feature/ProfileTest.php
+
+# テスト名で絞り込み（メソッド名の一部でOK）
+docker compose exec app php artisan test --filter=test_new_users_can_register</code></pre>
+
+    <!-- ================= STEP 2 ================= -->
+    <div class="step-head"><span class="step-num">2</span><h3>結果を読む</h3></div>
+    <table>
+      <tr><th>表示</th><th>意味</th></tr>
+      <tr><td>緑 / <code>PASS</code> / <code>.</code></td><td>成功</td></tr>
+      <tr><td>赤 / <code>FAIL</code></td><td>失敗。「期待値 vs 実際値」が出るのでそこを読む</td></tr>
+      <tr><td><code>could not find driver</code></td><td>コンテナにSQLite拡張が無い。<code>docker compose exec app php -m | grep sqlite</code> で確認</td></tr>
+    </table>
+
+    <h2>チェックリストとテストの対応</h2>
+    <table>
+      <tr><th>動作確認したい項目</th><th>担当テスト</th></tr>
+      <tr><td>新規登録できる</td><td><code>RegistrationTest</code></td></tr>
+      <tr><td>ログイン / ログアウト</td><td><code>AuthenticationTest</code></td></tr>
+      <tr><td>My Page・プロフィール画面表示</td><td><code>ProfileTest::test_profile_page_is_displayed</code></td></tr>
+      <tr><td>ユーザー情報変更（名前・メール）</td><td><code>ProfileTest::test_profile_information_can_be_updated</code></td></tr>
+      <tr><td>パスワード変更</td><td><code>PasswordUpdateTest</code></td></tr>
+      <tr><td>退会（論理削除）</td><td><code>ProfileTest::test_user_can_delete_their_account</code></td></tr>
+      <tr><td>未ログイン→ログイン画面へ</td><td><strong>未作成（自分で1本足す）</strong></td></tr>
+    </table>
+
+    <h2>発展：自分でテストを1本書いてみる</h2>
+    <p>「未ログインで <code>/profile</code> にアクセスすると login へリダイレクトされる」を検証するテスト。
+    <code>ProfileTest.php</code> に追加してみると練習になる。</p>
+    <pre><code>public function test_guest_is_redirected_to_login(): void
+{
+    $response = $this-&gt;get('/profile');
+
+    $response-&gt;assertRedirect('/login');
+}</code></pre>
+    <p>ポイント：ログインしていない状態（<code>actingAs</code> を呼ばない）で保護ページにアクセスし、
+    <code>assertRedirect('/login')</code> でログイン画面へ飛ばされることを確認する（仕様：未ログインはリダイレクト）。</p>
+
+    <h2>完了チェックリスト</h2>
+    <ul class="checklist">
+      <li>UserFactory を username / email / password だけに修正した</li>
+      <li>EmailVerificationTest / PasswordResetTest / ExampleTest を削除した</li>
+      <li>RegistrationTest の name → username を直した</li>
+      <li>ProfileTest の name → username、email_verified_at 削除、退会を assertSoftDeleted に直した</li>
+      <li><code>php artisan test</code> で全テストが緑になった</li>
+      <li>（発展）未ログインのリダイレクトテストを自分で追加した</li>
+    </ul>
+
+    <h2>用語メモ（あとで見返す用）</h2>
+    <table>
+      <tr><th>用語</th><th>意味</th></tr>
+      <tr><td><code>RefreshDatabase</code></td><td>各テストでDBをまっさらに作り直すトレイト</td></tr>
+      <tr><td><code>User::factory()->create()</code></td><td>テスト用のダミーユーザーを生成（UserFactoryの定義に従う）</td></tr>
+      <tr><td><code>actingAs($user)</code></td><td>そのユーザーでログイン済みの状態にする</td></tr>
+      <tr><td><code>assertOk() / assertStatus(200)</code></td><td>HTTP 200 が返ったか</td></tr>
+      <tr><td><code>assertRedirect('/login')</code></td><td>指定先へリダイレクトされたか</td></tr>
+      <tr><td><code>assertSessionHasNoErrors()</code></td><td>バリデーションエラーが無いか</td></tr>
+      <tr><td><code>assertSessionHasErrorsIn('userDeletion', 'password')</code></td><td>名前付きエラーバッグにエラーがあるか</td></tr>
+      <tr><td><code>assertSoftDeleted($user)</code></td><td>論理削除された（deleted_atが入った）か</td></tr>
+      <tr><td><code>assertAuthenticated() / assertGuest()</code></td><td>ログイン中か / 未ログインか</td></tr>
+    </table>
+
+  </div>
+
+  <footer>
+    Readoo! プロジェクト 内部ドキュメント &mdash; 認証機能テスト 手順書
+  </footer>
+</body>
+</html>
