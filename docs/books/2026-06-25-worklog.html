@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 書籍管理 作業記録 2026-06-25</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--green), #22c55e); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--green); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>書籍管理（books） 作業記録</h1>
+    <p>2026-06-25 &mdash; タスク6 ビュー（index 一覧 / create 登録フォーム）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>Figmaモックに合わせて<strong>一覧（index）</strong>と<strong>新規登録（create）</strong>の画面を実装。
+      登録処理（store）までブラウザで一気通貫の動作確認OK。
+      表示用ラベルを <code>Book</code> モデルに定数化し、一覧表示・セレクト選択肢を一元管理した。
+      タイポ・タグ閉じ位置など<strong>HTML/クラス由来の不具合を複数修正</strong>（学び多め）。
+      残るは show（詳細）＋削除モーダル、細かいCSS調整。</p>
+    </div>
+    <ul class="checklist">
+      <li>Book モデルに <code>STATUSES</code> / <code>GENRES</code> 定数を追加（ラベル一元管理）</li>
+      <li>index：テーブル表示＋ページネーション（<code>paginate(15)</code>）＋空状態</li>
+      <li>create：3セクション構成フォーム（基本情報／読書期間／本文情報）</li>
+      <li>セレクト選択肢を定数から自動生成（DRY）</li>
+      <li><code>optional-badge</code> コンポーネント（「任意」バッジ）を新規作成</li>
+      <li>登録 → 一覧リダイレクト → フラッシュ表示 まで確認</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① 表示ラベルの一元管理（Bookモデルの定数）</h2>
+    <p>ジャンル/ステータスの日本語ラベルは index・create・show の3画面で必要。毎回マップを書くと重複するので、
+    <strong>Bookモデルに定数として集約</strong>した。</p>
+    <pre><code>class Book extends Model
+{
+    public const STATUSES = [
+        'unread' =&gt; '未読', 'reading' =&gt; '読書中', 'finished' =&gt; '読了',
+    ];
+    public const GENRES = [
+        'business' =&gt; 'ビジネス', 'self_help' =&gt; '自己啓発', /* … 全13種 */ 'other' =&gt; 'その他',
+    ];</code></pre>
+    <div class="key">
+      <strong>効果（DRY）：</strong>
+      <ul>
+        <li>一覧表示：<code>Book::GENRES[$book-&gt;genre]</code> で「ビジネス」を取得</li>
+        <li>セレクト選択肢：<code>@foreach (Book::GENRES as $value =&gt; $label)</code> で <strong>選択肢を自動生成</strong></li>
+        <li>ジャンル追加時も<strong>モデル1か所</strong>を直すだけで全画面に反映。値（DB保存値）と表示（日本語）が常に一致する。</li>
+      </ul>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>② index（一覧・テーブル版）</h2>
+    <p>モックがテーブル＋ページネーションだったため、コントローラを <code>get()</code> → <code>paginate(15)</code> に変更。</p>
+    <pre><code>// BookController@index
+$books = $user-&gt;books()-&gt;latest()-&gt;paginate(15);</code></pre>
+    <h4>押さえどころ</h4>
+    <table>
+      <tr><th>記述</th><th>意味</th></tr>
+      <tr><td><code>{{ $books-&gt;links() }}</code></td><td><code>paginate()</code> にしたことで使えるページ送りUI（Laravel 11+はデフォルトTailwind用）</td></tr>
+      <tr><td><code>$book-&gt;started_at?-&gt;format('Y-m-d')</code></td><td><code>date</code> キャストでCarbon化。<strong><code>?-&gt;</code>（ヌル安全）</strong>でnullなら呼ばず、<code>?? '—'</code> で未設定はダッシュ表示</td></tr>
+      <tr><td><code>route('books.show', $book)</code></td><td>モデルを渡すだけでURL生成（idは自動補完）</td></tr>
+      <tr><td><code>@if ($books-&gt;isEmpty())</code></td><td>0冊のときは「最初の1冊を登録する」空状態を表示（リスト枠は1件以上のときだけ出す）</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2>③ create（登録フォーム）</h2>
+    <p>基本情報／読書期間／本文情報の3セクション。必須は <code>x-required-badge</code>、任意は新規作成した
+    <code>x-optional-badge</code> を使用。</p>
+    <h4>押さえどころ</h4>
+    <ul>
+      <li><strong>セレクトを定数から生成</strong>：<code>@foreach (Book::GENRES as $value =&gt; $label)</code>。<code>value</code>＝DB保存値、表示＝日本語。</li>
+      <li><strong><code>@selected(...)</code></strong>：条件trueで <code>selected</code> 属性を出力するBlade構文。バリデーションエラーで戻ったとき前回選択を復元。</li>
+      <li><strong><code>old('status', 'unread')</code></strong>：第2引数は old値が無いときの初期値。初回表示で「未読」を選択状態に。</li>
+      <li><strong>textareaのold値は「タグの間」</strong>に置く（input は <code>value=""</code>）。<code>&gt;{{ old('summary') }}&lt;/textarea&gt;</code> のように空白・改行を入れず密着させる（間の空白が初期値に混入するため）。</li>
+      <li><strong>Cancelは <code>&lt;a&gt;</code>、Createは <code>&lt;button type="submit"&gt;</code></strong>。送信するのはCreateだけ。</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>④ 今日詰まった不具合と修正（学び多め）</h2>
+    <p>本日は写経時の<strong>タイポ・タグ閉じ位置</strong>由来の不具合が連発した。いずれも「PHPの構文エラー」にはならず、
+    画面表示で初めて気づくタイプ。</p>
+    <table>
+      <tr><th>症状</th><th>原因</th><th>修正</th></tr>
+      <tr><td>登録画面で <code>Undefined variable $messages</code>（500）</td>
+          <td><code>x-input-error</code> を <span class="bug">:message</span>（単数）で渡していた（9か所）</td>
+          <td><span class="ok">:messages</span>（複数）に統一</td></tr>
+      <tr><td>見出し・フォームが全幅で <code>max-w-3xl</code> が効かない</td>
+          <td><code>&lt;/div&gt;</code> の閉じ位置が早く、中央寄せ枠が<strong>パンくずだけ</strong>を囲んでいた</td>
+          <td>閉じ <code>&lt;/div&gt;</code> を <code>&lt;/form&gt;</code> の後（末尾）へ移動</td></tr>
+      <tr><td>2カラムが横並びにならない</td>
+          <td><span class="bug">gird-cols-2</span> / <span class="bug">gap06</span> のタイポ</td>
+          <td><span class="ok">grid-cols-2</span> / <span class="ok">gap-6</span></td></tr>
+      <tr><td>入力欄の背景グレーが出ない</td>
+          <td><span class="bug">bg-grau-50</span>（grau）</td>
+          <td><span class="ok">bg-gray-50</span></td></tr>
+      <tr><td>出版社が空で登録できない</td>
+          <td>「任意」項目の publisher に <code>required</code> を付けていた</td>
+          <td><code>required</code> を削除</td></tr>
+      <tr><td>ステータスの初期選択が未読にならない</td>
+          <td><code>old('status', <span class="bug">'old'</span>)</code> と存在しない値を初期値に</td>
+          <td><code>old('status', <span class="ok">'unread'</span>)</code></td></tr>
+    </table>
+
+    <div class="key">
+      <strong>今日の最大の学び：Tailwindは「存在しないクラスを黙って無視する」。</strong>
+      タイプミスしてもエラーは出ず、ただ「効かない」だけ。だから
+      <strong>「スタイルが効かない＝まずクラス名のスペルを疑う」</strong>が鉄則。
+      <code>gird</code> / <code>grau</code> / <code>gap06</code> はその典型。
+    </div>
+    <div class="note">
+      <strong>もう一つの学び：<code>max-w-*</code> や <code>mx-auto</code> が効かないように見えるとき、
+      クラスではなく「対象がその枠の“外”に出ている」ことが多い。</strong>
+      原因は <code>&lt;/div&gt;</code> の閉じ位置ズレ。ネストが深いBladeは閉じタグに
+      <code>{{-- セクション終わり --}}</code> 等のコメントを添えると迷子になりにくい。
+    </div>
+    <div class="warn">
+      <strong>再発した罠：<code>x-input-error</code> は <code>:messages</code>（複数形）。</strong>
+      <code>input-error.blade.php</code> は <code>@props(['messages'])</code> でデフォルトが無いため、
+      渡し忘れ／単数形だと即500。保険として <code>@props(['messages' =&gt; null])</code> を入れておくとクラッシュしない。
+      （プロフィール画面でも踏んだのと同じパターン）
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>⑤ 完成状況と残課題</h2>
+    <h4>本日完成</h4>
+    <ul class="checklist">
+      <li>Bookモデル定数（STATUSES / GENRES）</li>
+      <li>index 一覧（テーブル・ページネーション・空状態）</li>
+      <li>create 登録フォーム ＋ optional-badge コンポーネント</li>
+      <li>store までの登録フロー動作確認</li>
+    </ul>
+    <h4>次にやること</h4>
+    <ul class="todo">
+      <li><strong>show（詳細）＋削除モーダル</strong>：基本情報・本文情報の表示、編集/削除アイコン、<code>x-modal</code> での削除確認。<br>
+        ※モック下部の「続けて知識／続けて行動」は Knowledge / Action モデル未実装のため<strong>今回スコープ外</strong>。</li>
+      <li><strong>edit（編集フォーム）</strong>：create とほぼ同形＋既存値の <code>value</code> 反映、<code>@method('PATCH')</code>。</li>
+      <li><strong>細かいCSS調整</strong>（本日は後回しにした見た目の微修正）。</li>
+      <li><strong>並び替え</strong>（「タイトルで並び替え」）：クエリパラメータで後付け。</li>
+      <li><strong>MyPage導線</strong>：「Book List」<code>href="#"</code> → <code>route('books.index')</code>。</li>
+      <li><strong>Featureテスト</strong>：CRUD＋「他人の本にアクセス不可（403）」。</li>
+      <li><strong>退会時の物理削除</strong>：<code>ProfileController::destroy</code> で <code>$user-&gt;books()-&gt;withTrashed()-&gt;forceDelete()</code>（論理削除ではcascadeが発火しないため別途必要）。</li>
+    </ul>
+
+    <div class="note">
+      <strong>別件メモ：</strong><code>mypage.blade.php</code> の <code>{{ Auth::user()-&gt;usernameさん }}</code> は
+      <code>さん</code> までがプロパティ名扱いになり挨拶が空欄になる。
+      <code>{{ Auth::user()-&gt;username }}さん</code> が正。
+    </div>
+
+  </div>
+
+  <footer>
+    Readoo! 開発記録 / 2026-06-25 &mdash; books ビュー（index / create）実装
+  </footer>
+</body>
+</html>

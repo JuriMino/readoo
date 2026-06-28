@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use App\Models\Book;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -85,6 +86,51 @@ class ProfileTest extends TestCase
         $response = $this->get('/profile');
 
         $response->assertRedirect('/login');
+    }
+
+    // 退会すると、紐づく本は物理削除される（論理削除済みの本も含めて消える）
+    public function test_account_deletion_force_deletes_books(): void
+    {
+        $user        = User::factory()->create();
+        $activeBook  = Book::factory()->for($user)->create();
+        $trashedBook = Book::factory()->for($user)->create();
+        $trashedBook->delete(); //事前に論理削除しておく
+
+        $this->actingAs($user)
+            ->delete('/profile', ['password' => 'password'])
+            ->assertRedirect('/');
+
+        $this->assertSoftDeleted($user);    // ユーザーは論理削除
+        $this->assertDatabaseMissing('books',['id' => $activeBook->id]);    // 本は物理削除
+        $this->assertDatabaseMissing('books',['id' => $trashedBook->id]);   // 論理削除済みも物理削除
+    }
+
+    // 退会後、同じメールアドレスで再登録できる（メール退避の確認）
+    public function test_email_can_be_reused_after_account_deletion(): void
+    {
+        $user = User::factory()->create(['email' => 'reuse@example.com']);
+
+        $this->actingAs($user)
+            ->delete('/profile',['password' => 'password']);
+
+        // 退会者のメールアドレスは退避され、元アドレスを使う「現役ユーザー」はいない
+        $this->assertDatabaseMissing('users',[
+            'email'      => 'reuse@example.com',
+            'deleted_at' => null,
+        ]);
+
+        // 同じメールアドレスで新規登録できる
+        $this->post('/register',[
+            'username'              => 'New User',
+            'email'                 => 'reuse@example.com',
+            'password'              => 'password',
+            'password_confirmation' => 'password',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('users',[
+            'email'      => 'reuse@example.com',
+            'deleted_at' => null,
+        ]);
     }
 
 }

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 書籍管理 作業記録 2026-06-26</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--green), #22c55e); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--green); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>書籍管理（books） 作業記録</h1>
+    <p>2026-06-26 &mdash; タスク6 ビュー（show 詳細 / 削除機能）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>Figmaモックに合わせて<strong>詳細画面（show）</strong>を実装し、<strong>削除機能（destroy）</strong>を
+      <code>x-modal</code> による確認モーダル経由でつないだ。詳細表示・削除ともにブラウザで動作確認OK。
+      削除は<strong>論理削除（SoftDeletes）</strong>で、一覧から消えるが <code>deleted_at</code> に退避される挙動を確認。
+      これで <strong>index / create / show ＋削除</strong>が揃い、CRUDの「R・D」が完成。残りは edit（編集）＋ update。</p>
+    </div>
+    <ul class="checklist">
+      <li>show（詳細）：基本情報 <code>&lt;dl&gt;</code> ＋ 本文情報、編集/削除アイコン</li>
+      <li>削除：<code>x-modal</code> 確認モーダル → <code>@method('delete')</code> で destroy へ</li>
+      <li>SoftDeletes による論理削除を確認（物理削除ではない）</li>
+      <li>削除後 → 一覧リダイレクト → フラッシュ表示</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① show（詳細表示）</h2>
+    <p>ルートモデルバインディングで <code>Book $book</code> を受け取り、Policy（<code>view</code>）で
+    <strong>本人の本だけ</strong>表示。基本情報は <code>&lt;dl&gt;</code>（定義リスト）で「項目名＋値」を表現した。</p>
+    <h4>押さえどころ</h4>
+    <table>
+      <tr><th>記述</th><th>意味</th></tr>
+      <tr><td><code>&lt;dl&gt; / &lt;dt&gt; / &lt;dd&gt;</code></td><td>定義リスト。<code>dt</code>＝項目名（タイトル等）、<code>dd</code>＝値。意味的に「ラベルと値の対」を表す正しいタグ</td></tr>
+      <tr><td><code>grid grid-cols-2</code></td><td><strong><code>grid</code> と <code>grid-cols-2</code> はセットで必須</strong>。<code>grid</code> が無いと2カラムにならない（本日も踏んだ → 後述）</td></tr>
+      <tr><td><code>col-span-2</code></td><td>タイトルだけ全幅。グリッド内で2カラム分ぶち抜く</td></tr>
+      <tr><td><code>whitespace-pre-wrap</code></td><td>要約・メモの<strong>改行をそのまま表示</strong>。通常HTMLは改行を無視するので必須</td></tr>
+      <tr><td><code>$book-&gt;started_at?-&gt;format('Y-m-d') ?? '-'</code></td><td>ヌル安全演算子で未設定はダッシュ表示（index と同じ作法）</td></tr>
+    </table>
+    <div class="key">
+      <strong>編集/削除アイコンの違い：</strong>
+      <ul>
+        <li>編集 = <code>&lt;a href="{{ route('books.edit', $book) }}"&gt;</code>（<strong>画面遷移</strong>するのでリンク）</li>
+        <li>削除 = <code>&lt;button type="button" x-on:click="$dispatch('open-modal', ...)"&gt;</code>（<strong>モーダルを開くだけ</strong>でその場では送信しない）</li>
+      </ul>
+      「遷移するもの＝<code>a</code>」「その場で何か起こすもの＝<code>button</code>」の使い分け。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>② 削除機能（モーダル ＋ destroy）</h2>
+    <p>誤操作防止のため<strong>確認モーダル</strong>を挟む。Breeze 同梱の <code>x-modal</code>（Alpine.js）を、
+    退会フォーム（profile）と同じパターンで流用した。</p>
+    <pre><code>{{-- 詳細画面のアイコン側：モーダルを開くだけ --}}
+&lt;button type="button" x-data="" x-on:click.prevent="$dispatch('open-modal', 'confirm-book-deletion')"&gt; … &lt;/button&gt;
+
+{{-- モーダル本体：実際に送信するフォーム --}}
+&lt;x-modal name="confirm-book-deletion" focusable&gt;
+    &lt;form action="{{ route('books.destroy', $book) }}" method="post"&gt;
+        @csrf
+        @method('delete')   {{-- ← HTMLはDELETEを送れないのでPOST＋偽装 --}}
+        …
+    &lt;/form&gt;
+&lt;/x-modal&gt;</code></pre>
+    <table>
+      <tr><th>記述</th><th>意味</th></tr>
+      <tr><td><code>$dispatch('open-modal', 'confirm-book-deletion')</code></td><td>名前付きでモーダルを開くAlpineイベント。<code>name</code> と一致させる</td></tr>
+      <tr><td><code>$dispatch('close')</code></td><td>Cancelボタンで閉じる</td></tr>
+      <tr><td><code>@method('delete')</code></td><td>HTMLフォームはGET/POSTしか送れない。<code>_method=DELETE</code> を仕込んでLaravelに「DELETEとして扱わせる」</td></tr>
+      <tr><td><code>@csrf</code></td><td>CSRF対策トークン。POST系は必須（無いと419）</td></tr>
+    </table>
+
+    <div class="key">
+      <strong>SoftDeletes（論理削除）：</strong>
+      <code>$book-&gt;delete()</code> はレコードを<strong>消さず</strong> <code>deleted_at</code> に日時を入れるだけ。
+      以降 <code>$user-&gt;books()</code> の通常クエリからは自動で除外され、一覧から消える。
+      ルートモデルバインディングも<strong>論理削除済みは404扱い</strong>になるため、削除済みURLを直叩きしても詳細は開けない。
+      物理削除が必要なのは「退会時」だけ（後述の残課題 <code>forceDelete()</code>）。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>③ 確認中に見つかった要修正点（show.blade.php）</h2>
+    <p>写経した <code>show.blade.php</code> を見直したところ、<strong>画面では気づきにくい不具合</strong>が残っていた。
+    いずれも PHP エラーにはならず、表示や保存値で初めて分かるタイプ。</p>
+    <table>
+      <tr><th>症状</th><th>原因</th><th>修正</th></tr>
+      <tr><td><strong>メモ欄に「要約」と同じ内容が出る</strong>（機能バグ）</td>
+          <td>メモの <code>dd</code> が <span class="bug">{{ $book-&gt;summary }}</span>（コピペミス）</td>
+          <td><span class="ok">{{ $book-&gt;memo ?? '-' }}</span></td></tr>
+      <tr><td><strong>基本情報が2カラムにならず縦並び</strong></td>
+          <td><code>&lt;dl&gt;</code> に <span class="bug">grid-cols-2</span> はあるが <strong><code>grid</code> が無い</strong></td>
+          <td><span class="ok">grid grid-cols-2</span></td></tr>
+      <tr><td>パンくずの文字色が効かない</td>
+          <td><span class="bug">rexr-gray-400</span>（タイポ）</td>
+          <td><span class="ok">text-gray-400</span></td></tr>
+      <tr><td>削除アイコンのホバー色が効かない</td>
+          <td><span class="bug">hovder:text-red-600</span>（タイポ）</td>
+          <td><span class="ok">hover:text-red-600</span></td></tr>
+      <tr><td>本文情報の見出し色が効かない</td>
+          <td><span class="bug">text-grau-700</span>（grau）</td>
+          <td><span class="ok">text-gray-700</span></td></tr>
+    </table>
+    <div class="warn">
+      <strong>昨日の教訓が再発：</strong>
+      <code>grid-cols-2</code> 抜けの <code>grid</code>、<code>grau</code> / <code>rexr</code> / <code>hovder</code> のタイポ。
+      <strong>「スタイルが効かない＝まずクラス名のスペル」「<code>grid-cols-*</code> は <code>grid</code> とセット」</strong>を改めて徹底する。
+      Tailwindは存在しないクラスを黙って無視するため、<strong>レビュー（人の目 or 差分確認）でしか拾えない</strong>のがポイント。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>④ 完成状況と残課題</h2>
+    <h4>本日完成</h4>
+    <ul class="checklist">
+      <li>show 詳細表示（基本情報 <code>&lt;dl&gt;</code> ／ 本文情報）</li>
+      <li>削除確認モーダル（<code>x-modal</code>）＋ destroy（論理削除）</li>
+      <li>削除 → 一覧リダイレクト → フラッシュ確認</li>
+    </ul>
+    <h4>次にやること</h4>
+    <ul class="todo">
+      <li><strong>show.blade.php の上記5点を修正</strong>（特にメモ＝要約バグと <code>grid</code> 抜け）。</li>
+      <li><strong>edit（編集フォーム）＋ update</strong>：create とほぼ同形。既存値を <code>old('title', $book-&gt;title)</code> で初期表示、<code>@method('PATCH')</code>、日付は <code>?-&gt;format('Y-m-d')</code> で整形して <code>value</code> に。
+        ※ドラフトは提示済み。写経 → 動作確認へ。</li>
+      <li><strong>細かいCSS調整</strong>（積み残し分）。</li>
+      <li><strong>並び替え</strong>（タイトル順）：クエリパラメータで後付け。</li>
+      <li><strong>MyPage導線</strong>：「Book List」<code>href="#"</code> → <code>route('books.index')</code>。<code>{{ Auth::user()-&gt;usernameさん }}</code> → <code>{{ Auth::user()-&gt;username }}さん</code>。</li>
+      <li><strong>Featureテスト</strong>：CRUD＋「他人の本にアクセス不可（403）」。</li>
+      <li><strong>退会時の物理削除</strong>：<code>ProfileController::destroy</code> で <code>$user-&gt;books()-&gt;withTrashed()-&gt;forceDelete()</code>（論理削除では本当には消えないため別途必要）。</li>
+    </ul>
+
+    <div class="note">
+      <strong>CRUD進捗：</strong>
+      <code>index</code>（一覧）／ <code>create+store</code>（登録）／ <code>show</code>（詳細）／ <code>destroy</code>（削除）まで完成。
+      残るは <code>edit+update</code>（編集）のみで、書籍管理の画面が一通り揃う。
+    </div>
+
+  </div>
+
+  <footer>
+    Readoo! 開発記録 / 2026-06-26 &mdash; books ビュー（show / 削除機能）実装
+  </footer>
+</body>
+</html>
