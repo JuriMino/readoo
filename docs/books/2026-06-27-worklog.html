@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 書籍管理 作業記録 2026-06-27</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--green), #22c55e); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--green); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>書籍管理（books） 作業記録</h1>
+    <p>2026-06-27 &mdash; show 仕上げ（バッジ／登録日）＋ edit 編集機能 → CRUD完成</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>前日に写経した <code>show</code> の不具合5点を修正し、Figmaモックに合わせて
+      <strong>ステータスをバッジ化</strong>＋<strong>登録日（created_at）</strong>を追加。
+      最後に <strong>edit（編集フォーム）＋ update</strong> を実装し、
+      これで <strong>書籍管理のCRUD（index / create / show / edit / 削除）が全て完成</strong>した。
+      モック下部の「紐づく知識／行動」は Knowledge / Action モデル未実装のため<strong>今回は保留</strong>
+      （モデル実装時にリレーション付きの本物のセクションとして作る方針）。</p>
+    </div>
+    <ul class="checklist">
+      <li>show の要修正5点を修正（メモ＝要約バグ、<code>grid</code> 抜け、タイポ3件）</li>
+      <li>ステータスをバッジ化（<code>&lt;span&gt;</code> ＋ <code>inline-block rounded-full</code>）</li>
+      <li>基本情報を <code>grid-cols-6</code> 化し、日付3つ（読書開始／読了／登録）を横3列に</li>
+      <li>登録日 <code>created_at</code> を追加</li>
+      <li>edit（編集フォーム）＋ update を実装 → 動作確認</li>
+      <li><strong>books CRUD 完成</strong></li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① show の修正（前日写経分の不具合）</h2>
+    <p>前日の <code>show.blade.php</code> には、PHPエラーにならず見た目・保存値で初めて分かる不具合が残っていた。</p>
+    <table>
+      <tr><th>症状</th><th>原因</th><th>修正</th></tr>
+      <tr><td><strong>メモ欄に「要約」と同じ内容</strong>（機能バグ）</td>
+          <td>メモの <code>dd</code> が <span class="bug">{{ $book-&gt;summary }}</span></td>
+          <td><span class="ok">{{ $book-&gt;memo ?? '-' }}</span></td></tr>
+      <tr><td>基本情報が2カラムにならない</td>
+          <td><span class="bug">grid-cols-2</span> はあるが <code>grid</code> 抜け</td>
+          <td><span class="ok">grid grid-cols-2</span>（最終的に <code>grid-cols-6</code> へ）</td></tr>
+      <tr><td>パンくずの色が効かない</td><td><span class="bug">rexr-gray-400</span></td><td><span class="ok">text-gray-400</span></td></tr>
+      <tr><td>削除アイコンのホバー色が効かない</td><td><span class="bug">hovder:text-red-600</span></td><td><span class="ok">hover:text-red-600</span></td></tr>
+      <tr><td>本文情報の見出し色が効かない</td><td><span class="bug">text-grau-700</span></td><td><span class="ok">text-gray-700</span></td></tr>
+    </table>
+    <div class="warn">
+      <strong>教訓の再確認：</strong>「スタイルが効かない＝まずクラス名のスペル」「<code>grid-cols-*</code> は <code>grid</code> とセット」。
+      Tailwindは存在しないクラスを黙って無視するため、<strong>レビュー（人の目／差分確認）でしか拾えない</strong>。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>② ステータスのバッジ化 ＋ 登録日</h2>
+    <p>モックに合わせ、ステータスを錠剤型バッジに。さらに登録日（<code>created_at</code>）を追加し、
+    日付3つを横3列に並べるため基本情報の <code>&lt;dl&gt;</code> を <strong><code>grid-cols-6</code></strong> 化した。</p>
+    <pre><code>&lt;dd class="mt-1"&gt;
+    &lt;span class="inline-block px-3 py-1 rounded-full text-xs font-bold {{ $statusStyles[$book-&gt;status] }}"&gt;
+        {{ \App\Models\Book::STATUSES[$book-&gt;status] }}
+    &lt;/span&gt;
+&lt;/dd&gt;</code></pre>
+    <table>
+      <tr><th>記述</th><th>意味</th></tr>
+      <tr><td><code>&lt;span&gt; + inline-block</code></td><td><code>dd</code> はブロック要素で全幅。<code>span</code>＋<code>inline-block</code> で<strong>中身の幅だけ</strong>に収め、帯にならないバッジへ</td></tr>
+      <tr><td><code>rounded-full</code></td><td>錠剤型の丸み（<code>rounded-lg</code> は角丸四角）。一覧 <code>index</code> のバッジと統一</td></tr>
+      <tr><td><code>grid grid-cols-6</code></td><td>2列（<code>col-span-3</code>）も3列（<code>col-span-2</code>）も割れる土台。タイトルは <code>col-span-6</code></td></tr>
+      <tr><td><code>$book-&gt;created_at-&gt;format('Y-m-d')</code></td><td><strong><code>created_at</code> は必ず値があるので <code>?-&gt;</code> 不要</strong>。任意項目の <code>started_at</code> 等は <code>?-&gt;</code> が要る、の対比で理解</td></tr>
+    </table>
+    <div class="key">
+      <strong>col-span の配分（grid-cols-6）：</strong>
+      タイトル＝<code>col-span-6</code>（全幅）／ 著者・出版社・ジャンル・ステータス＝<code>col-span-3</code>（2列）／
+      読書開始日・読了日・登録日＝<code>col-span-2</code>（3列）。6を分母にすると2列・3列を1つのグリッドで両立できる。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>③ edit（編集フォーム）＋ update</h2>
+    <p>create とほぼ同形。違いは<strong>3点だけ</strong>。</p>
+    <table>
+      <tr><th>箇所</th><th>create</th><th>edit</th></tr>
+      <tr><td>送信先</td><td><code>route('books.store')</code></td><td><code>route('books.update', $book)</code></td></tr>
+      <tr><td>メソッド</td><td>POST</td><td>POST ＋ <code>@method('PATCH')</code></td></tr>
+      <tr><td>初期値</td><td><code>old('title')</code></td><td><code>old('title', $book-&gt;title)</code></td></tr>
+      <tr><td>セレクト</td><td><code>@selected(old('status','unread') === $value)</code></td><td><code>@selected(old('status', $book-&gt;status) === $value)</code></td></tr>
+      <tr><td>日付</td><td><code>old('started_at')</code></td><td><code>old('started_at', $book-&gt;started_at?-&gt;format('Y-m-d'))</code></td></tr>
+    </table>
+    <div class="key">
+      <strong>最重要3点：</strong>
+      <ul>
+        <li><strong><code>old('title', $book-&gt;title)</code></strong> … 第2引数にDB値。初回＝DB値、エラーで戻ったとき＝入力中の値、を両立。全項目この形。</li>
+        <li><strong><code>@method('PATCH')</code></strong> … HTMLはPATCHを送れないのでPOST＋偽装（削除の <code>@method('delete')</code> と同じ理屈）。</li>
+        <li><strong><code>$book-&gt;started_at?-&gt;format('Y-m-d')</code></strong> … <code>&lt;input type="date"&gt;</code> の value は <code>YYYY-MM-DD</code> 形式必須。Carbonをformatで整形（nullなら空）。</li>
+      </ul>
+    </div>
+    <div class="note">
+      <strong>将来のリファクタ候補：</strong>create と edit はフォーム部分がほぼ同一。実務では
+      <code>books/partials/_form.blade.php</code> に切り出して両方から <code>@include</code> するのが定石。
+      今は「まず動かす」優先で別ファイルにしている。CRUD一段落後の練習として共通化するとよい。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>④ 完成状況と残課題</h2>
+    <h4>CRUD 完成</h4>
+    <ul class="checklist">
+      <li>index（一覧）／ create+store（登録）／ show（詳細）／ edit+update（編集）／ destroy（削除）</li>
+    </ul>
+    <h4>次にやること（仕上げ・横断）</h4>
+    <ul class="todo">
+      <li><strong>MyPage導線</strong>：「Book List」<code>href="#"</code> → <code>route('books.index')</code>。<code>{{ Auth::user()-&gt;usernameさん }}</code> → <code>{{ Auth::user()-&gt;username }}さん</code>（挨拶が空欄になるバグ）。</li>
+      <li><strong>退会時の物理削除</strong>：<code>ProfileController::destroy</code> で <code>$user-&gt;books()-&gt;withTrashed()-&gt;forceDelete()</code>（論理削除のままだと退会してもデータが残る／セキュリティ観点で重要）。</li>
+      <li><strong>Featureテスト</strong>：CRUD＋「他人の本にアクセス不可（403）」。</li>
+      <li><strong>並び替え</strong>（タイトル順）：クエリパラメータで後付け。</li>
+      <li><strong>細かいCSS調整</strong>（積み残し分）。</li>
+      <li><strong>知識／行動（Knowledge / Action）</strong>：モデル・テーブル・リレーション設計から。詳細画面下部の「紐づく知識／行動」を本物のデータでつなぐ。</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発記録 / 2026-06-27 &mdash; show 仕上げ ＋ edit 実装（books CRUD 完成）
+  </footer>
+</body>
+</html>

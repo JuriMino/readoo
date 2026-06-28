@@ -6,6 +6,7 @@ use App\Http\Requests\ProfileUpdateRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\View\View;
 
@@ -46,7 +47,19 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        $user->delete();
+        DB::transaction(function () use ($user){
+            // 本を物理削除 → 知識・行動はDBのカスケード制約で自動的に物理削除される
+            $user->books()->withTrashed()->forceDelete();
+
+            // メールアドレスを退避して元アドレスを解放
+            $user->email = $user->email.'_deleted_'.$user->id;
+            $user->save();
+
+            // ユーザー本体は論理削除（記録を残す）
+            $user->delete();
+
+        });
+
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

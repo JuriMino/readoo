@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 書籍管理 作業記録 2026-06-23</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--green), #22c55e); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--green); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .policy-box { background: #fff; border: 2px solid var(--green); border-radius: 10px; padding: 1.1rem 1.3rem; margin: 1.2rem 0; }
+    .rw { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .norw { background:#f1f5f9; color:#475569; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>書籍管理（books） 作業記録</h1>
+    <p>2026-06-23 &mdash; ルート定義・Bookモデル・BookPolicy</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>書籍管理機能（Book CRUD）の<strong>土台づくり</strong>を実施。ルート定義（<code>Route::resource</code>）、
+      <code>Book</code> モデル（Fillable・casts・SoftDeletes・リレーション）、所有者制限の <code>BookPolicy</code> まで完成。
+      画面・コントローラはまだ未着手で、次回以降に実装する。</p>
+    </div>
+    <ul class="checklist">
+      <li>books の7ルートを <code>Route::resource</code> で定義（認証グループ内）</li>
+      <li>Book モデル：Fillable / casts / SoftDeletes / user() リレーション</li>
+      <li>User モデル：books() リレーション</li>
+      <li>BookPolicy：所有者制限（view/update/delete）を実装</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① ルート定義</h2>
+    <pre><code>use App\Http\Controllers\BookController;
+
+Route::middleware('auth')-&gt;group(function () {
+    // 既存の profile ルート …
+    Route::resource('books', BookController::class);
+});</code></pre>
+    <p>1行で7ルート（index/create/store/show/edit/update/destroy）が標準命名（<code>books.index</code> 等）で生成される。
+    詳細は <code>docs/books/books-routes-proposal.html</code> 参照。</p>
+    <div class="note">
+      <strong>採用理由：</strong>books は教科書的な7アクションCRUDで仕様の「RESTful 7アクション」と完全一致するため <code>Route::resource</code> を採用。
+      個別並べ書きより DRY で保守性が高い。<code>verified</code> ミドルウェアはメール認証がv1スコープ外なので付けず <code>auth</code> のみ。
+    </div>
+
+    <h2>② Book モデル</h2>
+    <table>
+      <tr><th>項目</th><th>内容</th></tr>
+      <tr><td>Fillable</td><td><code>title / author / publisher / status / genre / started_at / finished_at / summary / memo</code></td></tr>
+      <tr><td>casts</td><td><code>started_at</code> / <code>finished_at</code> を <code>date</code></td></tr>
+      <tr><td>SoftDeletes</td><td>トレイト適用（通常の本削除＝論理削除）</td></tr>
+      <tr><td>リレーション</td><td><code>user(): BelongsTo</code>（本は1ユーザーに属する）</td></tr>
+    </table>
+    <p>User モデルには逆向きの <code>books(): HasMany</code> を追加。</p>
+
+    <!-- ============================================================ -->
+    <h2>③ BookPolicy（所有者制限）＜詳しく＞</h2>
+
+    <h3>そもそも「ポリシー（Policy）」とは何か</h3>
+    <div class="policy-box">
+      <p><strong>Policy ＝「あるモデルに対して、このユーザーは何をしてよいか」を判定する“認可ルール”の専用クラス。</strong></p>
+      <p>Readoo! の要件「<strong>自分が登録した本にしかアクセスできない</strong>（詳細・編集・削除）」を実現する中心。
+      <code>BookPolicy</code> は <code>Book</code> 専用で、操作ごとにメソッド（<code>view</code> / <code>update</code> / <code>delete</code> …）を持ち、
+      各メソッドが <strong>true（許可）/ false（拒否）</strong> を返す。</p>
+    </div>
+
+    <h4>なぜ Policy が必要か（認証では足りない）</h4>
+    <table>
+      <tr><th></th><th>見るもの</th><th>担当</th></tr>
+      <tr><td>認証（authentication）</td><td>ログインしているか？</td><td><code>auth</code> ミドルウェア</td></tr>
+      <tr><td><strong>認可（authorization）</strong></td><td>ログイン済みの上で<strong>この本を操作してよいか？</strong></td><td><strong>Policy</strong></td></tr>
+    </table>
+    <p><code>auth</code> は「ログインの有無」しか見ないので、「<strong>この本があなたのものか</strong>」は判定できない。そこを Policy が担う。
+    合言葉：<strong>ログインの有無＝認証＝ミドルウェア／他人のデータを触らせない＝認可＝Policy</strong>。</p>
+
+    <h4>なぜ Controller に直接書かず Policy に分けるのか</h4>
+    <ul>
+      <li><strong>一元管理</strong>：所有者ルールが1か所に集約（各メソッドにコピペが散らばらない）</li>
+      <li><strong>Fat Controller回避</strong>：規約どおり認可ロジックをコントローラから追い出せる</li>
+      <li><strong>再利用</strong>：Controller（<code>authorizeResource</code>）でも Blade（<code>@can</code>）でも同じルールを使える</li>
+    </ul>
+
+    <h3>今回の中身：書き換えたもの / 書き換えなかったもの</h3>
+    <p><code>php artisan make:policy</code> で生成した雛形は<strong>全メソッドが <code>return false</code>（＝全部禁止）</strong>。
+    そこから必要なメソッドだけ中身を変えた。<strong>「<code>$book</code> を受け取るかどうか」で書き方が3パターンに分かれる</strong>のがポイント。</p>
+
+    <table>
+      <tr><th>メソッド</th><th>対応アクション</th><th>$book</th><th>対応</th><th>中身</th></tr>
+      <tr><td><code>viewAny</code></td><td>index（一覧）</td><td>なし</td><td><span class="rw">書き換え</span></td><td><code>return true;</code></td></tr>
+      <tr><td><code>view</code></td><td>show（詳細）</td><td>あり</td><td><span class="rw">書き換え</span></td><td>所有者チェック</td></tr>
+      <tr><td><code>create</code></td><td>create/store</td><td>なし</td><td><span class="rw">書き換え</span></td><td><code>return true;</code></td></tr>
+      <tr><td><code>update</code></td><td>edit/update</td><td>あり</td><td><span class="rw">書き換え</span></td><td>所有者チェック</td></tr>
+      <tr><td><code>delete</code></td><td>destroy（削除）</td><td>あり</td><td><span class="rw">書き換え</span></td><td>所有者チェック</td></tr>
+      <tr><td><code>restore</code></td><td>（v1未使用）</td><td>あり</td><td><span class="norw">そのまま</span></td><td><code>return false;</code></td></tr>
+      <tr><td><code>forceDelete</code></td><td>（v1未使用）</td><td>あり</td><td><span class="norw">そのまま</span></td><td><code>return false;</code></td></tr>
+    </table>
+
+    <h4>パターンA：所有者チェックにした（view / update / delete）</h4>
+    <pre><code>public function update(User $user, Book $book): bool
+{
+    // ログイン中ユーザーのidと、本の持ち主(user_id)が一致するか
+    return $user-&gt;id === $book-&gt;user_id;
+}</code></pre>
+    <p><strong>理由：</strong>この3つは<strong>特定の本（<code>$book</code>）を対象とする操作</strong>。
+    引数で <code>$book</code> を受け取れるので「その本の <code>user_id</code> ＝ ログインユーザーか」を判定できる。
+    これが要件「自分の本だけ詳細・編集・削除できる」の本体。</p>
+
+    <h4>パターンB：true にした（viewAny / create）</h4>
+    <pre><code>public function viewAny(User $user): bool
+{
+    return true;
+}</code></pre>
+    <p><strong>理由：</strong>この2つは<strong>特定の本が存在しない</strong>操作。</p>
+    <ul>
+      <li><strong>viewAny（一覧）</strong>：対象は「本の集合」で個別の <code>$book</code> が無い → 所有者判定のしようがない。
+      「自分の本だけ表示」は<strong>Policyではなくコントローラのクエリ</strong>（<code>auth()-&gt;user()-&gt;books</code>）で実現する。
+      Policyは「一覧ページにアクセスしてよいか」だけ見るので <code>true</code>。</li>
+      <li><strong>create（登録）</strong>：これから作る本なので<strong>まだ持ち主が存在しない</strong> → 所有者チェック不可。ログイン済みなら誰でも作成可なので <code>true</code>。</li>
+    </ul>
+    <div class="warn">
+      <strong>ここを false のままにすると壊れる：</strong>雛形の初期値 <code>false</code> のままだと、
+      <code>authorizeResource</code> 経由で <strong>一覧(index)と登録(create/store)が403</strong>になる。必ず <code>true</code> に変える。
+    </div>
+
+    <h4>パターンC：false のまま（restore / forceDelete）</h4>
+    <p><strong>理由：</strong>v1には「復元（restore）」機能が無く、<code>forceDelete</code>（退会時の物理削除）は
+    <strong>コード内で直接呼ぶ</strong>もので Policy 経由ではない。どのルートからも到達しないので、
+    <strong>デフォルトの <code>false</code>（安全側＝拒否）のまま</strong>でよい。</p>
+
+    <div class="note">
+      <strong>未使用 import の補足：</strong>雛形が付ける <code>use Illuminate\Auth\Access\Response;</code> は今回未使用（<code>bool</code> で返しているため）。
+      残してもエラーにならないが削除可。<code>Response::deny('理由')</code> のように<strong>拒否理由メッセージを返したいとき</strong>に使うもの。
+    </div>
+
+    <h4>このPolicyがどう呼ばれるか（次回 Controller で）</h4>
+    <pre><code>// BookController の中で1行書くと、各アクションに対応するPolicyが自動チェックされる
+$this-&gt;authorizeResource(Book::class, 'book');
+//   show → view / update → update / destroy → delete が自動適用、他人の本は403</code></pre>
+    <p>Bladeでは <code>@can('update', $book) … @endcan</code> で「自分の本のときだけ編集ボタン表示」も可能。</p>
+
+    <!-- ============================================================ -->
+    <h2>★ その他の押さえておくべきポイント</h2>
+
+    <div class="warn">
+      <strong>① user_id は Fillable に入れない（セキュリティ）</strong>
+      <p>持ち主は<strong>サーバー側で <code>$book-&gt;user_id = auth()-&gt;id()</code> として設定</strong>する。
+      Fillableに入れるとリクエスト改ざんで<strong>他人の user_id で本を作れてしまう</strong>（マスアサインメント脆弱性）。
+      Policyの所有者判定が信頼できるのは、user_id を入力させていないからこそ。</p>
+    </div>
+
+    <div class="note">
+      <strong>② SoftDeletes と退会時の物理削除（落とし穴）</strong>
+      <ul style="margin:.4rem 0 0">
+        <li>通常の本削除＝論理削除（SoftDeletesトレイト）</li>
+        <li>退会時は紐づく本を物理削除する想定だが、FKの <code>cascadeOnDelete()</code> は
+        <strong>ユーザーが物理削除されたときだけ発火</strong>。退会＝ユーザーの論理削除なので<strong>cascadeは効かない</strong>。</li>
+        <li>→ 退会処理で <code>$user-&gt;books()-&gt;withTrashed()-&gt;forceDelete()</code> を明示的に呼ぶ必要がある（将来実装）。</li>
+      </ul>
+    </div>
+
+    <div class="key">
+      <strong>③ ルートモデルバインディング</strong>
+      <p>URLの <code>{book}</code> とコントローラ引数 <code>Book $book</code> が対応すると、IDから自動で <code>Book</code> を取得（<code>find()</code> 不要）。
+      この <code>$book</code> がそのまま Policy に渡って所有者判定される。</p>
+    </div>
+
+    <div class="note">
+      <strong>④ casts は手動と自動を区別</strong>
+      <p>手動で書くのは <code>started_at</code> / <code>finished_at</code>（date型）だけ。
+      <code>created_at</code> / <code>updated_at</code> と <code>deleted_at</code> は<strong>自動でcast</strong>されるので書かない。</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>疑問に思ったところ（Q&A）</h2>
+
+    <div class="qa">
+      <strong>Q. Book に Hidden は不要？ casts は date項目だけ？</strong>
+      <p>A. その通り。Hidden は password 等の秘匿情報用で Book には不要。casts は <code>started_at</code>/<code>finished_at</code> を <code>date</code>。
+      cast するとCarbonになり <code>->format('Y/m/d')</code> 等が使える。</p>
+    </div>
+
+    <div class="qa">
+      <strong>Q. BookPolicy とは？</strong>
+      <p>A. 「この本にこのユーザーが何をしてよいか」を判定する認可ルールの置き場所。
+      要件「自分の本だけ操作可」を <code>$user-&gt;id === $book-&gt;user_id</code> で表現。
+      Controllerで <code>authorizeResource</code>、Bladeで <code>@can</code> として使う。認可ロジックを集約してFat Controllerを防ぐ。（詳細は上の③）</p>
+    </div>
+
+    <div class="qa">
+      <strong>Q. update以外のPolicyメソッドも同じ書き換え？</strong>
+      <p>A. 同じではない。<code>$book</code> を持つ view/delete は update と同じ所有者チェック。
+      <code>$book</code> を持たない viewAny/create は <code>true</code>。restore/forceDelete は v1未使用で false のまま。（上の3パターン参照）</p>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>残課題・次にやること</h2>
+    <ul>
+      <li><strong>BookController</strong>（7メソッド）を作成 → <code>authorizeResource(Book::class, 'book')</code> でPolicy連携</li>
+      <li>各メソッドの実装ポイント：index＝自分の本だけ取得（<code>auth()-&gt;user()-&gt;books</code>）、store＝<code>user_id</code> をサーバーセット</li>
+      <li>ビジネスロジックは <strong>BookService</strong> に分離（Fat Controller禁止）</li>
+      <li>FormRequest でバリデーション</li>
+      <li>Blade（一覧・詳細・フォーム。エンティティ色は緑＝book）</li>
+      <li>My Page の「Book List」仮リンク（<code>href="#"</code>）を <code>route('books.index')</code> に接続</li>
+      <li>Feature テスト（所有者以外は403、CRUDが通る 等）</li>
+      <li>退会時の本の物理削除（<code>forceDelete</code>）対応</li>
+      <li>（軽微）BookPolicy の未使用 import <code>Response</code> を削除</li>
+    </ul>
+
+    <h2>関連ドキュメント</h2>
+    <ul>
+      <li><code>docs/books/books-routes-proposal.html</code> … ルート設計の提案</li>
+      <li><code>docs/auth-feature-summary.html</code> … 認証機能の総括（Service分離・テストの型）</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! プロジェクト 内部ドキュメント &mdash; 書籍管理 作業記録 2026-06-23
+  </footer>
+</body>
+</html>

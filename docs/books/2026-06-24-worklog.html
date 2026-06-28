@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 書籍管理 作業記録 2026-06-24</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--green), #22c55e); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--green); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .layer-box { background: #fff; border: 2px solid var(--green); border-radius: 10px; padding: 1.1rem 1.3rem; margin: 1.2rem 0; }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>書籍管理（books） 作業記録</h1>
+    <p>2026-06-24 &mdash; BookController（CRUD 7メソッド）・BookRequest 完成</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>昨日完成した土台（ルート・Bookモデル・BookPolicy）の上に、<strong>コントローラ層</strong>を実装。
+      <code>BookController</code> の CRUD 7メソッドに認可（<code>$this-&gt;authorize()</code>）を組み込み、
+      バリデーションを <code>BookRequest</code>（FormRequest）に共通化した。
+      これで<strong>書籍機能のロジックは一通り完成</strong>。残るは画面（Blade）・導線・テスト。</p>
+    </div>
+    <ul class="checklist">
+      <li>BookController：index / create / store / show / edit / update / destroy を実装</li>
+      <li>各メソッドに <code>$this-&gt;authorize()</code> で認可を付与（所有者制限）</li>
+      <li>ルートモデルバインディングで <code>Book $book</code> を自動解決</li>
+      <li>BookRequest を作成し、store / update のバリデーションを1か所に集約</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① 認可の組み込み方 ― なぜ <code>authorizeResource</code> を使わなかったか</h2>
+    <div class="warn">
+      <strong>重要な判明事項：</strong>当初 <code>authorizeResource()</code> をコンストラクタで使う予定だったが、
+      <strong>Laravel 11以降では動かない</strong>。ベースの <code>Controller.php</code> が空クラスになり、
+      <code>middleware()</code> メソッドを持たなくなったため。<code>authorizeResource()</code> は内部で
+      <code>$this-&gt;middleware()</code> を呼ぶので、呼ぶと <code>Call to undefined method middleware()</code> で落ちる。
+    </div>
+    <table>
+      <tr><th>方法</th><th>書き方</th><th>評価</th></tr>
+      <tr><td><strong>A. 各メソッドで <code>$this-&gt;authorize()</code></strong>（採用）</td><td>メソッド冒頭に1行ずつ</td><td>認可が目に見える・学習向き・確実</td></tr>
+      <tr><td>B. <code>HasMiddleware</code> + <code>can:</code> ミドルウェア</td><td>static <code>middleware()</code> を実装</td><td>自動だが記述が冗長</td></tr>
+    </table>
+    <p>採用にあたり、空のベースControllerには <code>$this-&gt;authorize()</code> が無いので、
+    <code>BookController</code> に <code>use AuthorizesRequests;</code> トレイトを追加した。</p>
+    <pre><code>use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
+class BookController extends Controller
+{
+    use AuthorizesRequests; // $this-&gt;authorize() が使えるようになる</code></pre>
+
+    <h4>authorize の2つの渡し方（重要）</h4>
+    <table>
+      <tr><th>場面</th><th>書き方</th><th>理由</th></tr>
+      <tr><td>一覧・作成（対象の本がまだ無い）</td><td><code>authorize('viewAny', Book::class)</code></td><td><strong>クラス名</strong>を渡す</td></tr>
+      <tr><td>詳細・編集・更新・削除（特定の本）</td><td><code>authorize('view', $book)</code></td><td><strong>インスタンス</strong>を渡す（所有者比較のため）</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2>② index ― 一覧の本当の防御は「クエリの絞り込み」</h2>
+    <pre><code>public function index()
+{
+    $this-&gt;authorize('viewAny', Book::class);
+
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+    $books = $user-&gt;books()-&gt;latest()-&gt;get();
+
+    return view('books.index', ['books' =&gt; $books]);
+}</code></pre>
+    <div class="key">
+      <strong>押さえどころ：</strong><code>viewAny</code> は <code>return true</code> なので「ログインしていれば通る」関門にすぎない。
+      一覧で他人の本が漏れないのは <code>$user-&gt;books()</code> の時点で <strong>WHERE user_id = 自分のID</strong> が自動で付くから。
+      <strong>一覧の所有者保護はPolicyではなく「リレーション経由のクエリ絞り込み」が担う</strong>、という役割分担を理解すること。
+    </div>
+    <p><code>latest()</code> ＝ <code>orderBy('created_at', 'desc')</code> の短縮（新しい順）。</p>
+
+    <h3>IDE警告の話：<code>auth()-&gt;user()</code> / <code>Auth::user()</code> に出る赤線</h3>
+    <div class="note">
+      <strong>これは実行エラーではなく、IDE（Intelephense）の誤検知。</strong>
+      <code>auth()</code> の戻り値は <code>Factory</code> インターフェース型で <code>user()</code> を持たない、と判定されるため。
+      <code>Auth::user()</code> に変えても今度は戻り値 <code>Authenticatable</code> に <code>books()</code> が無いと言われ、警告場所がズレるだけ。
+    </div>
+    <p>根本原因は「戻り値がインターフェース型で、IDEが具象 <code>App\Models\User</code> だと分からない」こと。
+    <strong>変数に型を教える1行</strong>で解決する（実行には無影響のコメント）：</p>
+    <pre><code>/** @var \App\Models\User $user */
+$user = Auth::user();
+$books = $user-&gt;books()-&gt;latest()-&gt;get();</code></pre>
+    <p><code>auth()</code> と <code>Auth::</code> は機能同じ（好みでよい）。<code>Auth::</code> 使用時は <code>use Illuminate\Support\Facades\Auth;</code> が必要。
+    根本的に消すなら <code>barryvdh/laravel-ide-helper</code> 導入も手だが、今回は <code>@var</code> で十分。</p>
+
+    <!-- ============================================================ -->
+    <h2>③ store ― user_id を守る「3重の防御」（最重要）</h2>
+    <pre><code>public function store(BookRequest $request)
+{
+    $this-&gt;authorize('create', Book::class);
+
+    $validated = $request-&gt;validated(); // BookRequestで検証済み
+
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+    $user-&gt;books()-&gt;create($validated); // user_id を自動セット
+
+    return redirect()-&gt;route('books.index')-&gt;with('status', '書籍を登録しました');
+}</code></pre>
+    <div class="layer-box">
+      <p><strong>「登録する本の持ち主は必ず本人」を、3つの仕組みが重なって保証している：</strong></p>
+      <ol>
+        <li><code>$validated</code> に <code>user_id</code> が入らない … <code>validated()</code> は検証ルールに書いたキーだけを返す。フォームに <code>&lt;input name="user_id"&gt;</code> を偽装されても検証対象外なので無視される。</li>
+        <li>Bookの <code>#[Fillable]</code> に <code>user_id</code> を入れていない … 仮に混入してもFillable外は弾かれる（mass assignment対策）。</li>
+        <li><code>$user-&gt;books()-&gt;create()</code> が <code>user_id = 自分のID</code> を自動付与 … hasManyリレーション経由で作るので、自分で <code>$book-&gt;user_id = ...</code> と書く必要がない。</li>
+      </ol>
+    </div>
+
+    <h3>疑問：最後の <code>with('status', ...)</code> はbooksテーブルのstatusカラム？</h3>
+    <div class="qa">
+      <strong>→ 全くの別物。</strong>たまたま同じ単語なだけ。
+    </div>
+    <table>
+      <tr><th></th><th>場所</th><th>意味</th><th>値の例</th></tr>
+      <tr><td>booksの <code>status</code> カラム</td><td>DB / <code>$validated['status']</code></td><td>本の<strong>読書状態</strong></td><td><code>unread</code>/<code>reading</code>/<code>finished</code></td></tr>
+      <tr><td><code>with('status', ...)</code></td><td>セッションのフラッシュデータ</td><td>画面に出す<strong>お知らせ文</strong></td><td>「書籍を登録しました」</td></tr>
+    </table>
+    <p><code>with('status', ...)</code> はリダイレクト先に1回だけ渡すフラッシュメッセージ（DBは触らない）。
+    キー名が <code>'status'</code> なのは、Breeze生成ビューが <code>session('status')</code> を読む作りに合わせているため
+    （プロフィール更新でも同じ仕組みを使用）。紛らわしければ別名にもできるが、既存と統一する方が楽。</p>
+
+    <!-- ============================================================ -->
+    <h2>④ show / edit / update / destroy ― 認可の本番</h2>
+
+    <h3>ルートモデルバインディング（<code>string $id</code> → <code>Book $book</code>）</h3>
+    <div class="key">
+      <strong>引数の型を <code>Book</code> にするだけで、Laravelが <code>/books/5</code> の <code>5</code> から
+      <code>Book::findOrFail(5)</code> を自動実行して <code>$book</code> に入れてくれる。</strong>
+      <ul>
+        <li>自分で <code>Book::find($id)</code> を書く必要がない</li>
+        <li>該当IDが無ければ<strong>自動で404</strong></li>
+        <li>SoftDeletesのおかげで、<strong>論理削除済みの本も自動404</strong>（URL直打ちされても安全）</li>
+      </ul>
+    </div>
+
+    <pre><code>public function show(Book $book)    { $this-&gt;authorize('view', $book);   return view('books.show', ['book' =&gt; $book]); }
+public function edit(Book $book)    { $this-&gt;authorize('update', $book); return view('books.edit', ['book' =&gt; $book]); }
+
+public function update(BookRequest $request, Book $book)
+{
+    $this-&gt;authorize('update', $book);
+    $book-&gt;update($request-&gt;validated());
+    return redirect()-&gt;route('books.show', $book)-&gt;with('status', '書籍を更新しました');
+}
+
+public function destroy(Book $book)
+{
+    $this-&gt;authorize('delete', $book);
+    $book-&gt;delete(); // SoftDeletesなので deleted_at が入るだけ（物理削除しない）
+    return redirect()-&gt;route('books.index')-&gt;with('status', '書籍を削除しました');
+}</code></pre>
+
+    <div class="warn">
+      <strong>認可失敗は「403」が正解（認証の「ログイン画面リダイレクト」と混同しない）：</strong>
+      他人の本のURL（例 <code>/books/3</code>）を直打ちすると <code>authorize('view', $book)</code> が
+      <code>$user-&gt;id === $book-&gt;user_id</code> で弾き、<strong>403 Forbidden</strong> を返す。
+      「未ログイン→ログイン画面へリダイレクト」は<strong>認証</strong>（<code>auth</code>ミドルウェア）の話で、別レイヤー。
+      <strong>ログイン済みだが権限が無い＝認可＝403</strong>。
+    </div>
+
+    <h4>能力名の対応関係</h4>
+    <p>Policyに <code>edit</code> メソッドは作らない。「<strong>編集フォームを開ける＝更新できる権限がある人</strong>」なので、
+    <code>edit</code> も <code>update</code> 能力で判定する。同様に <code>create↔store</code>、<code>view↔show</code>。</p>
+
+    <!-- ============================================================ -->
+    <h2>⑤ BookRequest（FormRequestでバリデーション共通化）</h2>
+    <p>生成コマンド：<code>docker compose exec app php artisan make:request BookRequest</code></p>
+    <pre><code>class BookRequest extends FormRequest
+{
+    public function authorize(): bool
+    {
+        return true; // 認可はController側のPolicy($this-&gt;authorize)で実施
+    }
+
+    public function rules(): array
+    {
+        return [
+            'title'       =&gt; ['required', 'string', 'max:255'],
+            'author'      =&gt; ['required', 'string', 'max:100'],
+            'publisher'   =&gt; ['nullable', 'string', 'max:100'],
+            'status'      =&gt; ['required', 'in:unread,reading,finished'],
+            'genre'       =&gt; ['required', 'in:business,self_help,technology,...,other'],
+            'started_at'  =&gt; ['nullable', 'date'],
+            'finished_at' =&gt; ['nullable', 'date', 'after_or_equal:started_at'],
+            'summary'     =&gt; ['nullable', 'string'],
+            'memo'        =&gt; ['nullable', 'string'],
+        ];
+    }
+
+    public function attributes(): array // エラー文の項目名を日本語に
+    {
+        return ['title' =&gt; 'タイトル', 'author' =&gt; '著者', /* … */];
+    }
+}</code></pre>
+    <p>Controller側は引数を <code>Request</code> → <code>BookRequest</code> に変え、ルール配列を削除して
+    <code>$request-&gt;validated()</code> を使う。これで store / update の重複が消える（DRY）。</p>
+
+    <div class="key">
+      <strong>FormRequestの押さえどころ：</strong>
+      <ul>
+        <li><strong>検証タイミング</strong>：メソッドの中身が動く<strong>前</strong>に自動で検証 → NGなら自動リダイレクト＆エラー表示。コントローラ内は「検証済み」が保証される。</li>
+        <li><code>$request-&gt;validated()</code>：<strong>検証を通過したキーだけ</strong>を返す。<code>all()</code> と違いルール外（偽装 <code>user_id</code> 等）は入らない → これもmass assignment対策の一部。</li>
+        <li><code>authorize(): bool</code>：今回は所有者チェックをController側に集約したので <code>true</code>（素通し）。<strong>生成直後の値が <code>false</code> だと全リクエスト403になるので注意。</strong></li>
+        <li><code>after_or_equal:started_at</code>：読了日が開始日より前にならない相関チェック（両方入力時のみ作動）。</li>
+      </ul>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>⑥ 今日詰まった点・修正したバグ</h2>
+    <table>
+      <tr><th>箇所</th><th>誤り</th><th>正</th><th>影響</th></tr>
+      <tr><td>store ルール</td><td><span class="bug">'requied'</span></td><td><span class="ok">'required'</span></td><td>存在しないルール名 → 検証時に <code>BadMethodCallException</code> で落ちる</td></tr>
+      <tr><td>edit 認可</td><td><span class="bug">authorize('updtae', ...)</span></td><td><span class="ok">authorize('update', ...)</span></td><td>該当能力が無く<strong>常に403</strong> → 編集フォームが開けない</td></tr>
+    </table>
+    <div class="note">
+      <strong>教訓：</strong>バリデーションルール名と authorize の能力名は<strong>文字列</strong>なので、タイプミスしてもPHPは構文エラーを出さない。
+      実行して初めて「例外」または「常に403」という形で表面化する。<strong>文字列指定は写経時に特に注意</strong>。
+    </div>
+
+    <h3>コメントの書き方メモ</h3>
+    <div class="qa">
+      <strong><code>// BookRequestで検証済み</code> は良いコメント。</strong>
+      コードを読んでも分からない「<strong>どこで・なぜ検証されたか</strong>」という背景を補っているため。
+      FormRequestは「メソッドに入る前に裏で検証が走る」というコードに現れない仕組みなので、明示する価値がある。
+      （逆に <code>// validatedを実行</code> のようにコードをなぞるだけのコメントは不要。）
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>⑦ 完成状況と残課題</h2>
+    <h4>完成（書籍機能のロジック層）</h4>
+    <ul class="checklist">
+      <li>ルート <code>Route::resource</code></li>
+      <li>Bookモデル（Fillable / casts / SoftDeletes / リレーション）</li>
+      <li>BookPolicy（所有者チェック）</li>
+      <li>BookController（CRUD 7メソッド ＋ authorize）</li>
+      <li>BookRequest（バリデーション共通化）</li>
+    </ul>
+    <h4>次にやること</h4>
+    <ul class="todo">
+      <li><strong>タスク6：Bladeビュー</strong> … <code>resources/views/books/</code> に index / create / edit / show（ブックカラー＝緑系）。<br>
+        進め方の推奨：①index（ページが開ける）→②create（実際に登録できる）→③show / edit、の順で1枚ずつ。</li>
+      <li><strong>タスク7：導線接続</strong> … MyPageの「書籍一覧」<code>href="#"</code> を <code>route('books.index')</code> に変更。</li>
+      <li><strong>タスク8：Featureテスト</strong> … 一覧/登録/更新/削除＋<strong>「他人の本にアクセスできない（403）」認可テスト</strong>。</li>
+    </ul>
+    <div class="warn">
+      <strong>別枠の要対応（退会時の物理削除）：</strong>
+      ユーザーを<strong>論理削除</strong>しても <code>cascadeOnDelete</code> は発火しない（物理DELETE時のみ）。
+      退会＝アカウント論理削除のとき本も物理削除する仕様なので、<code>ProfileController::destroy</code> 内で
+      <code>$user-&gt;books()-&gt;withTrashed()-&gt;forceDelete()</code> を呼ぶ処理が別途必要。
+    </div>
+
+  </div>
+
+  <footer>
+    Readoo! 開発記録 / 2026-06-24 &mdash; BookController・BookRequest 実装
+  </footer>
+</body>
+</html>

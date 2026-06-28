@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 退会機能＋テスト 作業記録 2026-06-28</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--green), #22c55e); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--green); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>退会時の削除設計 ＋ Featureテスト 作業記録</h1>
+    <p>2026-06-28 &mdash; 退会処理（物理/論理の使い分け・メール退避）＋ CRUD/認可/退会のテスト一式</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>退会処理（<code>ProfileController::destroy</code>）を設計に沿って実装。
+      <strong>ユーザー本体は論理削除／本・知識・行動は物理削除</strong>という使い分けを、
+      DBのカスケード制約とトランザクションで安全に実現した。さらにMySQL特有の制約に対応するため
+      <strong>退会時にメールアドレスを退避</strong>し、同じメールでの再登録を可能にした。
+      後半は <strong>Featureテストを一式（計20本）</strong>作成し、CRUD・認可（他人の本は403）・
+      退会時の削除挙動を自動テストで固めた。</p>
+    </div>
+    <ul class="checklist">
+      <li>退会：ユーザー＝論理削除／本＝物理削除（知識・行動はカスケードで連鎖物理削除）</li>
+      <li><code>DB::transaction</code> で中途半端な状態を防止</li>
+      <li>退会時にメール退避（<code>email_deleted_◯</code>）→ 同じメールで再登録可能に</li>
+      <li>BookFactory ＋ Bookモデルに <code>HasFactory</code> を追加（テスト基盤）</li>
+      <li>Featureテスト：CRUD 9本／認可 4本／退会 2本（既存5本＋追加2本）</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① 退会時の削除設計（物理 / 論理の使い分け）</h2>
+    <p>「削除」と一口に言っても2種類ある。Readoo!では操作の意味で使い分けることにした。</p>
+    <table>
+      <tr><th>操作</th><th>対象</th><th>削除方法</th><th>理由</th></tr>
+      <tr><td>本単体の削除（詳細🗑️）</td><td>その本</td><td><strong>論理削除</strong> <code>$book-&gt;delete()</code></td><td>誤操作の復旧余地を残す</td></tr>
+      <tr><td>退会</td><td>ユーザー</td><td><strong>論理削除</strong> <code>$user-&gt;delete()</code></td><td>退会記録を残す</td></tr>
+      <tr><td>退会</td><td>本・知識・行動</td><td><strong>物理削除</strong> <code>forceDelete()</code></td><td>完全削除（個人データを残さない）</td></tr>
+    </table>
+
+    <h4>スキーマ構造（知識・行動は「本の子」）</h4>
+    <pre><code>User ──(user_id)──▶ Book ──(book_id)──▶ Knowledge ──(knowledge_id)──▶ Action
+                          └─(book_id)──────────────────────────────▶ Action</code></pre>
+    <p><code>knowledges.book_id</code> / <code>actions.book_id</code> / <code>actions.knowledge_id</code> はいずれも
+    <strong><code>cascadeOnDelete()</code></strong>。つまり本を物理削除すると、DBが知識・行動を自動で物理削除する。</p>
+
+    <pre><code>public function destroy(Request $request): RedirectResponse
+{
+    $request-&gt;validateWithBag('userDeletion', [
+        'password' =&gt; ['required', 'current_password'],
+    ]);
+
+    $user = $request-&gt;user();
+    Auth::logout();
+
+    DB::transaction(function () use ($user) {
+        // 本を物理削除 → 知識・行動はカスケード制約で自動的に物理削除される
+        $user-&gt;books()-&gt;withTrashed()-&gt;forceDelete();
+
+        // メールアドレスを退避して元アドレスを解放（同じメールで再登録できるように）
+        $user-&gt;email = $user-&gt;email . '_deleted_' . $user-&gt;id;
+        $user-&gt;save();
+
+        // ユーザー本体は論理削除（記録を残す）
+        $user-&gt;delete();
+    });
+
+    $request-&gt;session()-&gt;invalidate();
+    $request-&gt;session()-&gt;regenerateToken();
+
+    return Redirect::to('/');
+}</code></pre>
+
+    <table>
+      <tr><th>記述</th><th>意味</th></tr>
+      <tr><td><code>withTrashed()-&gt;forceDelete()</code></td><td>論理削除済みの本も含めて行ごと完全削除。これが知識・行動のカスケード削除のトリガー</td></tr>
+      <tr><td>知識・行動の削除コードが無い</td><td>DBの <code>cascadeOnDelete()</code> が自動処理（＆モデル未実装なので書けない）。将来モデルを作っても退会処理は変更不要</td></tr>
+      <tr><td><code>DB::transaction(...)</code></td><td>「本は消えたがユーザー処理で失敗」等の中途半端を防ぐ。エラー時は全部巻き戻る（オール・オア・ナッシング）</td></tr>
+      <tr><td>子→親の順</td><td>外部キー制約があるため、子（books）を先に消してから親（user）を処理</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2>② メールアドレスの再登録対応（MySQL特有の事情）</h2>
+    <p>ユーザーを論理削除にすると、<code>users.email</code> は <code>unique()</code> 制約のためレコードが残り、
+    <strong>同じメールで再登録できない</strong>問題が出る。</p>
+    <div class="warn">
+      <strong>MySQLでは「部分ユニークインデックス」が使えない。</strong>
+      PostgreSQLなら「<code>deleted_at IS NULL</code> の行だけにユニーク」できるが、MySQLは不可。
+      また「<code>(email, deleted_at)</code> の複合ユニーク」も、<strong>MySQLはNULLを互いに別物として扱う</strong>ため、
+      現役ユーザー（<code>deleted_at = NULL</code>）同士で同じメールが登録できてしまい一意性が壊れる。→ この手は使えない。
+    </div>
+    <div class="key">
+      <strong>採用：退会時にメールを退避して元アドレスを解放。</strong>
+      <code>aaa@example.com</code> → <code>aaa@example.com_deleted_5</code> に書き換える。
+      元アドレスが「未使用」になるので、登録側の標準ルール <code>unique:User::class</code> のまま再登録が通る。
+      <ul>
+        <li>退会者は SoftDeletes で<strong>そもそも認証時に取得されない</strong>（ログイン不可）→ メールを変えても無害</li>
+        <li><code>_deleted_5</code>（id）付与で退避後メールが<strong>絶対に衝突しない</strong>ことを保証</li>
+        <li>接尾辞を外せば元アドレスは復元可能＝記録は保持</li>
+      </ul>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>③ Featureテスト一式（計20本）</h2>
+    <p>テストは <strong>SQLiteメモリDB</strong> 上で動く（本番MySQLに触れない・使い捨て・高速）。
+    既存のBreezeテストと同じ PHPUnitスタイル＋<code>RefreshDatabase</code> で統一。</p>
+
+    <h4>準備：BookFactory ＋ HasFactory</h4>
+    <ul>
+      <li>Bookモデルに <code>use HasFactory;</code> を追加（無いと <code>Book::factory()</code> が使えない）</li>
+      <li><code>BookFactory</code> 新規作成。<code>'user_id' =&gt; User::factory()</code> で持ち主も自動生成</li>
+    </ul>
+    <div class="key">
+      <strong>FactoryはなぜFillableに無い <code>user_id</code> を入れられるのか：</strong>
+      Factoryは内部で <code>Model::unguarded()</code> によりmass assignment保護を一時的に外すため。
+      本番コード（コントローラ）では保護が効くので、アプリの安全性はそのまま。
+    </div>
+
+    <h4>テスト内訳</h4>
+    <table>
+      <tr><th>ファイル</th><th>本数</th><th>主な確認</th></tr>
+      <tr><td><code>BookTest</code></td><td>9</td><td>一覧は自分の本だけ／登録（<code>user_id</code>が自分）／バリデーション／詳細・編集・更新・論理削除／未ログインはlogin</td></tr>
+      <tr><td><code>BookAuthorizationTest</code></td><td>4</td><td>他人の本は show/edit/update/destroy すべて<strong>403</strong>。かつ<strong>データが変化しない</strong>ことまで確認</td></tr>
+      <tr><td><code>ProfileTest</code>（追加2）</td><td>2</td><td>退会で本は物理削除（論理削除済みも）／同じメールで再登録できる</td></tr>
+    </table>
+
+    <div class="key">
+      <strong>テストの勘どころ：</strong>
+      <ul>
+        <li><code>assertForbidden()</code>（403）＝認可エラー。未ログインの「login へリダイレクト」＝認証エラー。<strong>両者は別物</strong></li>
+        <li>403を返すだけでなく <code>assertDatabaseHas / assertNotSoftDeleted</code> で<strong>副作用が無い</strong>ことまで検証</li>
+        <li>退会の物理削除は <code>assertDatabaseMissing</code>（行ごと消滅）、論理削除は <code>assertSoftDeleted</code>（行は残る）で区別</li>
+        <li><code>assertDatabaseMissing/Has</code> は生テーブルを直接見るため、<code>'deleted_at' =&gt; null</code> を条件に足して「現役ユーザーだけ」に絞る</li>
+        <li><code>'user_id' =&gt; $user-&gt;id</code> のassertは<strong>mass assignment防御</strong>の確認（リクエストに含めていないのに自分のIDが入る）</li>
+      </ul>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>④ 今日詰まった点（テストのタイポ）</h2>
+    <p>テストメソッド名のタイポが連発したが、いずれも<strong>即 <code>BadMethodCallException</code></strong> で気づけた
+    （Tailwindのクラス名タイポが「黙って無視」されるのと対照的）。</p>
+    <table>
+      <tr><th>症状</th><th>原因</th><th>修正</th></tr>
+      <tr><td>Method ... does not exist</td><td><span class="bug">assertDontSeee</span>（e×3）</td><td><span class="ok">assertDontSee</span></td></tr>
+      <tr><td>undefined method ...</td><td><span class="bug">assertSessionHasNotErrors</span></td><td><span class="ok">assertSessionHasNoErrors</span></td></tr>
+    </table>
+    <div class="note">
+      <strong>スタックトレースの読み方：</strong>
+      エラー表示の <code>at .../ForwardsCalls.php:67</code> は「例外をthrowした<strong>フレームワーク内部</strong>の行」。
+      未定義メソッドは <code>__call</code> 経由で <code>ForwardsCalls</code> に転送され、そこでthrowされるため<strong>毎回67行目になる</strong>。
+      自分が直すべき行（例：<code>ProfileTest.php:128</code>）はスタックトレースを下に辿ると出てくる。
+      <code>php artisan test --filter=... -v</code> で全トレースを表示できる。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>⑤ 完成状況と残課題</h2>
+    <h4>本日完成</h4>
+    <ul class="checklist">
+      <li>退会処理（物理/論理の使い分け・メール退避・トランザクション）</li>
+      <li>BookFactory / HasFactory（テスト基盤）</li>
+      <li>Featureテスト計20本（CRUD・認可・退会）すべてグリーン</li>
+    </ul>
+    <h4>次にやること</h4>
+    <ul class="todo">
+      <li><strong>並び替え</strong>（タイトル順など）：クエリパラメータで後付け。</li>
+      <li><strong>細かいCSS調整</strong>（積み残し分）。</li>
+      <li><strong>知識 / 行動（Knowledge / Action）</strong>：モデル・リレーション・CRUDの実装。詳細画面下部の「紐づく知識／行動」を本物のデータでつなぐ。実装後も退会処理は変更不要（カスケード済み）。</li>
+      <li>（任意）<strong>メール長の厳密対応</strong>：元アドレスが255文字近い場合の退避方法。実運用ではまず不要。</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発記録 / 2026-06-28 &mdash; 退会時の削除設計 ＋ Featureテスト一式（20本）
+  </footer>
+</body>
+</html>
