@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 知識管理 作業記録 2026-06-30</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--blue), #4f7cf0); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--blue); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>知識管理（knowledges） 作業記録</h1>
+    <p>2026-06-30 &mdash; feature/5-knowledges：KnowledgeController と作成・削除フローの設計</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>KnowledgeController を写経。あわせて<strong>「作成・削除のフロー」を設計</strong>し、その判断に合わせて
+      ルート構成・FormRequest を見直した。今日の中心テーマは
+      <strong>①作成導線が2つ（本の詳細／独立一覧）＋「押した画面に戻す」②本はフォームのプルダウンで選ぶ → ルートをフラット化
+      ③削除はv1では知識詳細だけ ④whereHas と クロージャの理解</strong>。
+      Controller / Request / web.php までを完了し、CRUDのサーバー側が一通り組み上がった。</p>
+    </div>
+    <ul class="checklist">
+      <li>KnowledgeController 全7メソッド写経（index / create / store / show / edit / update / destroy）</li>
+      <li>写経時のタイポ4点を修正（後述）</li>
+      <li>KnowledgeRequest に <code>book_id</code> 条件付きルールを追加（<code>isMethod('post')</code>）</li>
+      <li>web.php をフラットへ変更（<code>Route::resource('knowledges', ...)</code>）→ route:list で7本確認</li>
+      <li>作成・削除フローの方針確定（<code>from</code> 方式・戻り先の設計）</li>
+      <li>whereHas／クロージャ／<code>with</code> の理解を整理</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① 作成フロー：2つの導線と「押した画面に戻す」</h2>
+    <p>知識の作成導線は2つ想定。「登録後はボタンを押した画面に戻したい」という要望を <code>from</code> という印で実現する。</p>
+    <ul>
+      <li><strong>本の詳細</strong>から作成 → 登録後はその本の詳細へ戻す</li>
+      <li><strong>独立した知識一覧</strong>から作成 → 登録後は一覧へ戻す</li>
+    </ul>
+    <pre><code>// 作成リンクに「どこから来たか」を付ける
+route('knowledges.create', ['book_id' =&gt; $book-&gt;id, 'from' =&gt; 'book'])   // 本の詳細から
+route('knowledges.create', ['from' =&gt; 'index'])                          // 独立一覧から
+
+// store で from を見て遷移先を分岐
+$redirect = $request-&gt;input('from') === 'index'
+    ? redirect()-&gt;route('knowledges.index')
+    : redirect()-&gt;route('books.show', $book);</code></pre>
+    <div class="key">
+      <strong>ポイント：生のURLではなく「印 → 既知のルート名」に変換する。</strong>
+      こうすれば外部URLへ飛ばされる<strong>オープンリダイレクト脆弱性</strong>を防げる。
+      フォームには <code>&lt;input type="hidden" name="from"&gt;</code> で引き継ぐ。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>② 本の選び方 → ルートをフラット化</h2>
+    <p>独立一覧から作成するときは「どの本に紐づけるか」の情報が画面に無い。
+    検討の結果、<strong>作成フォームに本のプルダウンを置く</strong>方式を採用。</p>
+    <div class="card">
+      <p>本を<strong>URLではなくフォームの項目</strong>で決めることにしたため、作成・登録で本をURLに持つ必要が消えた。
+      → ネスト（<code>books.knowledges</code>）をやめ、<strong>すべてフラット</strong>に変更した。</p>
+    </div>
+    <pre><code>// before（ネスト：URLに本が必要だった頃の名残）
+Route::resource('books.knowledges', KnowledgeController::class)-&gt;shallow();
+
+// after（フラット：本はフォームで選ぶ）← 今日これに変更
+Route::resource('knowledges', KnowledgeController::class);</code></pre>
+    <p>route:list で <code>knowledges.index 〜 knowledges.destroy</code> の<strong>7本がフラット</strong>で出ることを確認。
+    コントローラーが参照する <code>knowledges.index</code> / <code>knowledges.show</code> 等のルート名もこれで揃った。</p>
+    <table>
+      <tr><th>メソッド</th><th>本(book)の決まり方</th></tr>
+      <tr><td><code>create()</code></td><td>URLからは受け取らない。プルダウン用に <code>$user->books()</code>（自分の本だけ）を渡す。本の詳細から来たら <code>?book_id=</code> で固定</td></tr>
+      <tr><td><code>store()</code></td><td>フォームの <code>book_id</code> から取得 → <code>Book::findOrFail()</code> → <code>authorize('create', [..., $book])</code> で二重チェック</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2>③ KnowledgeRequest：book_id を「新規登録のときだけ」必須に</h2>
+    <p>編集（更新）では本の付け替えをしない想定なので <code>book_id</code> は不要。
+    <code>isMethod('post')</code>（＝store）のときだけルールを足す。</p>
+    <pre><code>$rules = [ /* title, content, tag... */ ];
+
+if ($this-&gt;isMethod('post')) {            // store のときだけ
+    $rules['book_id'] = [
+        'required',
+        Rule::exists('books', 'id')-&gt;where('user_id', $this-&gt;user()-&gt;id),
+    ];
+}
+return $rules;</code></pre>
+    <div class="key">
+      <strong><code>Rule::exists('books','id')-&gt;where('user_id', ...)</code> が第一の防壁。</strong>
+      「存在する本」かつ「自分の本」でなければ存在しない扱いで弾く。
+      store 側の <code>authorize('create', [..., $book])</code> は<strong>二重チェック</strong>（多層防御）。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>④ create() に本単位の認可を置かない理由</h2>
+    <div class="qa">
+      <strong>Q. create() に <code>$this-&gt;authorize()</code> が無いのは抜け？</strong><br>
+      A. 意図的。Policy の <code>create(User, <u>Book</u>)</code> は「この本の持ち主か」を判定するもので<strong>本が前提</strong>。
+      だが create フォームは本を「これから選ぶ」段階で対象の本が無い。よって本単位の認可はかけられない。
+    </div>
+    <p>セキュリティ境界は次の3点で担保：</p>
+    <ul>
+      <li><code>auth</code> ミドルウェア（未ログインは到達不可）</li>
+      <li>create が <code>$user-&gt;books()</code> だけ渡す（他人の本はプルダウンに出ない＝選べない）</li>
+      <li>store の <code>authorize</code> ＋ <code>exists</code> ルール（実際に作る瞬間に厳格判定）</li>
+    </ul>
+    <p>一貫性・将来の拡張口として <code>create()</code> 冒頭に <code>authorize('viewAny', Knowledge::class)</code> を1行だけ置いた（現状 <code>true</code> なので挙動は不変）。</p>
+    <div class="note">
+      <strong>Policyの未使用メソッドについて。</strong>
+      <code>create</code> は <u>store から呼ばれて現役</u>なので必須。一方
+      <code>restore()</code> / <code>forceDelete()</code> は導線が無く呼ばれないが、
+      <strong>「意図的に禁止」の明示・事故防止</strong>のため <code>return false;</code> で<strong>残す</strong>方針。
+      退会＝ユーザー論理削除＋本/知識は物理削除（カスケード）の方針とも整合。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>⑤ 削除フロー：v1 と v2 で分ける</h2>
+    <p>削除後の戻り先も「押した画面」が自然（最小の驚き）。ただし<strong>v1では削除ボタンが知識詳細(show)だけ</strong>にしか無い。</p>
+    <table>
+      <tr><th></th><th>削除導線</th><th>戻り先</th><th>from</th></tr>
+      <tr><td><strong>v1（今）</strong></td><td>知識詳細(show)のみ</td><td>親の本の詳細に固定</td><td>使わない</td></tr>
+      <tr><td><strong>v2（将来）</strong></td><td>本の詳細の知識一覧／独立一覧から複数選択削除</td><td>押したリスト</td><td>store と同じ <code>from</code> 方式</td></tr>
+    </table>
+    <div class="key">
+      <strong>v1で <code>from</code> を使わない理由。</strong>
+      <code>from</code> は「リストに置いた操作ボタンから押した画面が分かる」仕組み。
+      v1の削除はリストではなく <strong>show という単一画面</strong>にしか無いので、store のようには作れない。
+      → v1は<strong>親の本の詳細に固定</strong>。複数選択削除がリストに付くv2で <code>from</code> が本来の出番を迎える。
+    </div>
+    <pre><code>public function destroy(Knowledge $knowledge)
+{
+    $this-&gt;authorize('delete', $knowledge);
+
+    $book = $knowledge-&gt;book;   // ← 削除前に親を控える
+    $knowledge-&gt;delete();
+
+    return redirect()-&gt;route('books.show', $book)-&gt;with('status', '知識を削除しました');
+}</code></pre>
+    <div class="qa">
+      <strong>Q. なぜ削除の「前」に <code>$book</code> を控える？</strong><br>
+      A. 戻り先 <code>books.show</code> に親の本が要るから。今回は論理削除なので削除後でも本は取れるが、
+      <strong>将来forceDeleteに変えても壊れない／意図が明確／破壊操作の前に必要物を退避</strong>という安全側の習慣。
+      退会処理で <code>Auth::logout()</code> 前に <code>$user</code> を控えたのと同じ発想。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>⑥ 学びの整理：whereHas・クロージャ・with</h2>
+    <p>独立一覧で「自分の知識」を取る部分。知識は <code>user_id</code> を持たず、<strong>本を経由</strong>して所有者を辿る。</p>
+    <pre><code>Knowledge::whereHas('book', function ($query) use ($user) {
+    $query-&gt;where('user_id', $user-&gt;id);
+})-&gt;with('book')-&gt;latest()-&gt;paginate(15);</code></pre>
+    <h4>whereHas（絞り込み）</h4>
+    <ul>
+      <li><code>'book'</code> は Knowledge の <code>book()</code>（belongsTo）の名前。<strong>「その関連が条件を満たす知識だけ」</strong>に絞る</li>
+      <li>クロージャの <code>$query</code> は<strong>関連先（本）に対するサブクエリ</strong>。だから中の <code>where('user_id', ...)</code> は books テーブルを指す</li>
+      <li>裏では <code>EXISTS</code> のサブクエリに変換される（下記）</li>
+    </ul>
+    <pre><code>select * from knowledges
+where exists (
+    select * from books
+    where books.id = knowledges.book_id   -- 関連の紐づけ（自動）
+      and books.user_id = ?                -- クロージャで書いた条件
+)
+and knowledges.deleted_at is null          -- SoftDeletes が自動付与</code></pre>
+    <h4>クロージャ（無名関数）</h4>
+    <ul>
+      <li>名前のない関数。<strong>処理のかたまりを「値のように」渡せる</strong>。Laravelが後で <code>$query</code> を渡して実行する</li>
+      <li><code>use ($user)</code> … クロージャの中は外の変数が自動では見えない。<strong>明示的に持ち込む</strong>宣言。これが closure（閉じ込める）の由来</li>
+      <li><code>DB::transaction(function () use ($user) {...})</code>（退会処理）も同じ形</li>
+    </ul>
+    <h4>whereHas と with は別の仕事（重要）</h4>
+    <table>
+      <tr><th></th><th>役割</th><th>関連データを読み込む？</th></tr>
+      <tr><td><code>whereHas('book', ...)</code></td><td>絞り込み（条件に合う知識だけ残す）</td><td>❌ EXISTSで存在確認するだけ</td></tr>
+      <tr><td><code>with('book')</code></td><td>事前読み込み（N+1回避）</td><td>⭕ 本を実際にロード</td></tr>
+    </table>
+    <p>→ <strong>whereHasで絞り、withで読み込む</strong>。役割が違うので両方必要。Action（行動）一覧でも同じ「親経由の絞り込み」が使える。</p>
+
+    <!-- ============================================================ -->
+    <h2>⑦ 写経時のタイポ修正（4点・修正済み）</h2>
+    <p>いずれも<strong>「単数/複数」と「メソッドのカッコ漏れ」</strong>系。確認時に検出し、本人が修正済み。</p>
+    <table>
+      <tr><th>箇所</th><th>誤</th><th>正</th><th>影響</th></tr>
+      <tr><td>index 末尾</td><td><span class="bug">-&gt;latest</span>-&gt;paginate</td><td><span class="ok">-&gt;latest()</span></td><td>カッコ無し＝プロパティ扱いでエラー</td></tr>
+      <tr><td>index の view</td><td>['<span class="bug">knowledge</span>' =&gt; ...]</td><td>['<span class="ok">knowledges</span>' =&gt; ...]</td><td>一覧は複数。ビューは <code>$knowledges</code> を期待</td></tr>
+      <tr><td>create の view</td><td>view('<span class="bug">knowledge</span>.create')</td><td>view('<span class="ok">knowledges</span>.create')</td><td>ビューフォルダは複数形</td></tr>
+      <tr><td>destroy の戻り</td><td>route('<span class="bug">book</span>.show')</td><td>route('<span class="ok">books</span>.show')</td><td>ルート名は <code>books.show</code></td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2>⑧ 完了状況と明日のタスク</h2>
+    <div class="note">
+      <strong>本日の完了状況：</strong>
+      KnowledgeController <span class="ok">✓</span> ／ KnowledgeRequest <span class="ok">✓</span> ／
+      web.php（フラット化） <span class="ok">✓</span> ／ route:list 7本確認 <span class="ok">✓</span>
+      <br>→ <strong>知識CRUDのサーバー側（ルート〜コントローラー〜認可〜バリデーション）が一通り完成。</strong>
+    </div>
+    <h3>明日以降のタスク</h3>
+    <ul class="todo">
+      <li>ビュー作成（タスク6）：<code>knowledges.index / create / show / edit</code>
+        <ul>
+          <li>create … 本のプルダウン（<code>$books</code>）／<code>$selectedBookId</code> で固定／<code>from</code> の hidden</li>
+          <li>show … 削除フォーム（<code>@csrf @method('delete')</code>）</li>
+        </ul>
+      </li>
+      <li>books.show を更新：紐づく知識一覧を実データで表示＋「知識を追加」ボタン（<code>$book->load('knowledges')</code>）</li>
+      <li>本一覧の「Knowledge List」ボタン（今 <code>href="#"</code>）→ <code>route('knowledges.index')</code></li>
+      <li>KnowledgeFactory ＋ Feature テスト（CRUD＋認可：他人の本の知識は403）</li>
+    </ul>
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; 2026-06-30 ／ feature/5-knowledges
+  </footer>
+</body>
+</html>

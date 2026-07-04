@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 知識管理 作業記録 2026-07-02</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--blue), #4f7cf0); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--blue); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>知識管理（knowledges） 作業記録</h1>
+    <p>2026-07-02 &mdash; feature/5-knowledges：知識作成ビュー ＆ 本の詳細連携 ＆ 導線接続</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>知識作成画面（<code>knowledges/create.blade.php</code>）を写経し、本の詳細（<code>books/show.blade.php</code>）に「この本から得た知識」セクションを追加。あわせて各画面の <code>href="#"</code> を実ルートへ接続し、<strong>「知識を作成 → 元の画面へ戻る」の導線が一周つながった</strong>。写経時に見つかった動作バグ・typo を3点修正し、キャンセルボタンの遷移も <code>from</code> で分岐するよう改善した。</p>
+    </div>
+
+    <ul class="checklist">
+      <li><code>knowledges/create.blade.php</code> を写経（本ドロップダウン・<code>from</code> 隠しフィールド・タグのループ生成）</li>
+      <li>写経バグ3点を修正（<span class="bug">動作バグ</span> 1件＋typo 2件）</li>
+      <li>キャンセルボタンの遷移先を <code>from</code> で分岐（来た画面へ戻る）</li>
+      <li><code>knowledges/index.blade.php</code> の New Knowledge を <code>route('knowledges.create',['from'=>'index'])</code> に接続</li>
+      <li><code>BookController@show</code> に紐づく知識の先読み（eager load）を追加</li>
+      <li><code>books/show.blade.php</code> に「この本から得た知識」セクションを追加</li>
+      <li><code>books/index.blade.php</code> の Knowledge List ボタンを <code>route('knowledges.index')</code> に接続</li>
+      <li>全ビューの Blade コンパイル確認（<code>view:cache</code> → エラーなし）</li>
+    </ul>
+
+    <h2>1. 知識作成ビュー（create.blade.php）</h2>
+    <p><code>books/create.blade.php</code> の流儀（セクションカード・必須/任意バッジ・<code>x-input-error</code>）に揃え、Figma に合わせて作成。テーマ色は知識＝青（<code>bg-knowledge</code> / <code>bg-blue-50</code> / <code>text-blue-700</code>）で統一。</p>
+
+    <h3>構成</h3>
+    <table>
+      <tr><th>セクション</th><th>項目</th></tr>
+      <tr><td>参照元</td><td>参照元（本）<span class="bug">必須</span> ドロップダウン ／ 該当箇所（ページ）任意</td></tr>
+      <tr><td>知識の内容</td><td>タイトル<span class="bug">必須</span> ／ 内容<span class="bug">必須</span>（textarea）</td></tr>
+      <tr><td>タグ</td><td>タグ1〜3 任意（<code>@foreach</code> でループ生成）</td></tr>
+    </table>
+
+    <div class="key">
+      <strong>本ドロップダウンの初期選択</strong>
+      <pre><code>&lt;option value="{{ $book-&gt;id }}" @selected(old('book_id', $selectedBookId) == $book-&gt;id)&gt;</code></pre>
+      <p style="margin:.4rem 0 0;">バリデーション差し戻し時は <code>old('book_id')</code>、本の詳細から来た初回は <code>$selectedBookId</code>（＝コントローラが渡す <code>request('book_id')</code>）で初期選択を固定する。</p>
+    </div>
+
+    <h2>2. 写経で見つかったバグ・修正</h2>
+
+    <div class="warn">
+      <strong>【動作バグ】ドロップダウンの初期選択が効かない（<code>===</code> → <code>==</code>）</strong>
+      <p style="margin:.4rem 0;">当初 <code>@selected(old('book_id', $selectedBookId) === $book-&gt;id)</code> と厳密比較にしていた。しかし：</p>
+      <ul style="margin:.2rem 0;">
+        <li><code>$book-&gt;id</code> は<strong>整数</strong>（例 <code>3</code>）</li>
+        <li><code>old('book_id')</code> / <code>$selectedBookId</code> はリクエスト由来なので<strong>文字列</strong>（例 <code>'3'</code>）</li>
+      </ul>
+      <p style="margin:.4rem 0 0;"><code>'3' === 3</code> は <code>false</code> になり、初期選択も差し戻し時の再選択も効かない。→ 緩い比較 <code>==</code> に修正して解決。</p>
+    </div>
+
+    <div class="note">
+      <strong>なぜ books/create では <code>===</code> で通っていたか</strong>
+      <p style="margin:.4rem 0 0;"><code>books/create</code> の <code>@selected(old('genre') === $value)</code> は <strong>GENRES のキーが文字列同士</strong>だったため <code>===</code> で成立していた。今回は「整数 vs 文字列」なので緩い比較が必要、という違い。</p>
+    </div>
+
+    <table>
+      <tr><th>場所</th><th>誤</th><th>正</th><th>影響</th></tr>
+      <tr><td>create line 28</td><td><code>===</code></td><td><code>==</code></td><td><span class="bug">動作バグ</span> 初期選択が効かない</td></tr>
+      <tr><td>create line 62</td><td><code>ox-4</code></td><td><code>px-4</code></td><td>内容欄の左右パディング消失（Tailwind は無効クラスを黙って無視）</td></tr>
+      <tr><td>index line 9・28</td><td><code>route('knowledges.create')</code></td><td><code>route('knowledges.create',['from'=&gt;'index'])</code></td><td>独立一覧から作成後に本の詳細へ誤遷移</td></tr>
+    </table>
+
+    <h2>3. キャンセルボタンの遷移分岐</h2>
+    <p>「キャンセル後の遷移先が必ず独立した知識一覧になる」問題を修正。Cancel は <code>&lt;a&gt;</code> リンクなので、フォーム送信ではなく<strong>描画時に <code>from</code> を読んで分岐</strong>する。</p>
+    <pre><code>&lt;a href="{{ request('from') === 'book' &amp;&amp; $selectedBookId
+    ? route('books.show', $selectedBookId)
+    : route('knowledges.index') }}"&gt;Cancel&lt;/a&gt;</code></pre>
+
+    <table>
+      <tr><th>来た画面</th><th><code>from</code> / <code>book_id</code></th><th>Cancel 遷移先</th></tr>
+      <tr><td>本の詳細（<code>?from=book&amp;book_id=3</code>）</td><td>book / あり</td><td><code>books.show</code>（元の本）</td></tr>
+      <tr><td>独立一覧（<code>?from=index</code>）</td><td>index / なし</td><td><code>knowledges.index</code></td></tr>
+      <tr><td>直接 <code>/knowledges/create</code></td><td>なし</td><td><code>knowledges.index</code>（既定）</td></tr>
+    </table>
+
+    <div class="key">
+      <strong>差し戻し後もクエリが維持される</strong>
+      <p style="margin:.4rem 0 0;">入力エラーで store → create フォームへ戻るとき、遷移先は元の GET URL（<code>?from=book&amp;book_id=3</code> 付き）。そのため <code>request('from')</code> / <code>$selectedBookId</code> は再度読める。<br>
+      → <strong>「登録後のリダイレクト」も「キャンセル」も、同じ <code>from</code> ルールで来た画面に戻る</strong>で揃った（登録後はコントローラ側、キャンセルはビュー側と場所は違うが判定基準は同一）。</p>
+    </div>
+
+    <h2>4. 本の詳細との連携</h2>
+
+    <h3>BookController@show（eager load）</h3>
+    <pre><code>$book-&gt;load(['knowledges' =&gt; fn ($query) =&gt; $query-&gt;latest()]);</code></pre>
+    <div class="note">
+      <strong>クロージャで並び順を指定</strong>
+      <p style="margin:.4rem 0 0;">単に <code>$book-&gt;load('knowledges')</code> でも読めるが、新しい順で表示したいのでリレーション読み込みに <code>latest()</code> を差し込むクロージャを渡す。ビューでのループ時の N+1 も防げる。</p>
+    </div>
+
+    <h3>books/show.blade.php に「この本から得た知識」セクション追加</h3>
+    <ul>
+      <li>ヘッダー右に <strong>「+ 知識を追加」</strong>ボタン → <code>route('knowledges.create', ['from' =&gt; 'book', 'book_id' =&gt; $book-&gt;id])</code></li>
+      <li><code>book_id</code> で作成フォームの本を初期選択、<code>from=book</code> で登録/キャンセル後この詳細へ戻す</li>
+      <li>空状態（「まだ知識が登録されていません」）＋ 知識リスト（タイトル・該当箇所・タグ）</li>
+      <li>タグは一覧と同じ <code>array_filter([tag1, tag2, tag3])</code> で null を除去して描画</li>
+    </ul>
+
+    <h2>5. 導線の接続状況</h2>
+    <p>今日で作成フローが一周つながった。</p>
+    <ul class="checklist">
+      <li><strong>本一覧 → Knowledge List</strong>（<code>books/index</code> のボタン接続）</li>
+      <li><strong>知識一覧 → New Knowledge（from=index）→ 登録/Cancel で一覧へ戻る</strong></li>
+      <li><strong>本の詳細 → 知識を追加（from=book, book_id）→ 本が初期選択 → 登録/Cancel で本の詳細へ戻る</strong></li>
+    </ul>
+
+    <h2>明日以降のタスク</h2>
+    <ul class="todo">
+      <li>知識詳細（show）ビューを作成（削除フォーム <code>@csrf</code> + <code>@method('delete')</code> 付き）</li>
+      <li>show 作成後、<code>href="#"</code> を接続：
+        <ul>
+          <li><code>knowledges/index.blade.php</code> line 63 の 詳細</li>
+          <li><code>books/show.blade.php</code> 各知識の 詳細</li>
+          <li>いずれも <code>route('knowledges.show', $knowledge)</code></li>
+        </ul>
+      </li>
+      <li>知識編集（edit）ビューを作成</li>
+      <li>KnowledgeFactory を使った Feature テスト（CRUD ＋ 認可：他人の本の知識は 403）</li>
+    </ul>
+    <div class="note">
+      <strong>そのままで良い <code>href="#"</code></strong>
+      <p style="margin:.4rem 0 0;"><code>books/index</code> と <code>knowledges/index</code> の <strong>Action List</strong> ボタンは、行動（Action）機能が未着手のため暫定のままでOK。</p>
+    </div>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; feature/5-knowledges &mdash; 2026-07-02
+  </footer>
+</body>
+</html>

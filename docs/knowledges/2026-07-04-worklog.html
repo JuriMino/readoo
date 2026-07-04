@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 知識管理 作業記録 2026-07-04</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--blue), #4f7cf0); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--blue); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>知識管理（knowledges） 作業記録</h1>
+    <p>2026-07-04 &mdash; feature/5-knowledges：知識編集ビュー ＆ 編集導線の接続（CRUD ビュー完成）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>知識編集画面（<code>knowledges/edit.blade.php</code>）を写経。<code>create</code> をベースに、更新用（PATCH・既存値プリフィル・参照元は表示のみ）へ作り替えた。詳細画面の編集アイコンを <code>route('knowledges.edit', $knowledge)</code> へ接続し、更新フローを画面で確認。<strong>これで知識の CRUD ビュー（作成／一覧／詳細／編集／削除）が全て揃った。</strong></p>
+    </div>
+
+    <ul class="checklist">
+      <li><code>knowledges/edit.blade.php</code> を写経（PATCH・既存値プリフィル・参照元は読み取り専用）</li>
+      <li>設計確認：参照元（本）は v1 では変更不可（表示のみ）で確定</li>
+      <li>写経ミス7点を修正（うち致命的3点＝ルート名/フィールド名）</li>
+      <li>詳細画面の編集アイコンを <code>route('knowledges.edit', $knowledge)</code> へ接続</li>
+      <li>更新フローを画面で確認（値変更→Update→詳細に反映、参照元は読み取り専用）</li>
+    </ul>
+
+    <h2>1. 編集ビュー（edit.blade.php）</h2>
+    <p><code>create</code> を土台に、以下の点を更新用へ差し替えた。</p>
+    <table>
+      <tr><th>箇所</th><th>create</th><th>edit</th><th>なぜ</th></tr>
+      <tr><td>HTTPメソッド</td><td><code>POST</code> のみ</td><td><code>@method('PATCH')</code> 追加</td><td>resource の update は PATCH</td></tr>
+      <tr><td>action</td><td><code>knowledges.store</code></td><td><code>knowledges.update, $knowledge</code></td><td>更新先</td></tr>
+      <tr><td>初期値</td><td><code>old('field')</code></td><td><code>old('field', $knowledge->field)</code></td><td>初回は既存値、差し戻し時は old</td></tr>
+      <tr><td>参照元（本）</td><td>ドロップダウン</td><td>読み取り専用の表示</td><td>update で book_id 除外＝変更不可</td></tr>
+      <tr><td><code>from</code> 隠しフィールド</td><td>あり</td><td>なし</td><td>update は常に show へ戻る（分岐不要）</td></tr>
+      <tr><td>Cancel</td><td><code>from</code> で分岐</td><td><code>knowledges.show</code> 固定</td><td>編集元は必ず詳細画面</td></tr>
+    </table>
+
+    <div class="key">
+      <strong>参照元（本）は編集不可（v1確定）</strong>
+      <p style="margin:.4rem 0 0;"><code>update()</code> は <code>$request-&gt;safe()-&gt;except('book_id')</code> で book_id を除外し、<code>KnowledgeRequest</code> も book_id のバリデーションを <code>isMethod('post')</code>（作成時）だけに限定している。<strong>編集画面で本を付け替える操作は update で無視される</strong>ため、ドロップダウンではなく読み取り専用の表示にした（ユーザーの誤操作防止）。別の本への付け替えは将来スコープ。</p>
+    </div>
+
+    <div class="note">
+      <strong>ループ内の変数変数（<code>$knowledge-&gt;$name</code>）</strong>
+      <p style="margin:.4rem 0 0;">タグは <code>@foreach (['tag1'=&gt;..., 'tag2'=&gt;..., 'tag3'=&gt;...])</code> で回している。<code>old($name, $knowledge-&gt;$name)</code> の <code>$knowledge-&gt;$name</code> は「変数変数」で、<code>$name</code> が <code>'tag1'</code> なら <code>$knowledge-&gt;tag1</code> を参照する。</p>
+    </div>
+
+    <h2>2. 写経ミスの修正（7点）</h2>
+
+    <h3>致命的（このままだと動かない）</h3>
+    <table>
+      <tr><th>行</th><th>誤</th><th>正</th><th>影響</th></tr>
+      <tr><td>12</td><td><code>route('knowledes.update')</code></td><td><code>knowledges.update</code></td><td><span class="bug">500</span> 開いた瞬間に RouteNotFound（g 抜け）</td></tr>
+      <tr><td>84</td><td><code>route('knowledge.show')</code></td><td><code>knowledges.show</code></td><td><span class="bug">500</span> Cancel リンクで同上（s 抜け）</td></tr>
+      <tr><td>34</td><td><code>name="book_pade"</code></td><td><code>name="book_page"</code></td><td><span class="bug">保存されない</span> 該当箇所が別名で送信され無視される</td></tr>
+    </table>
+
+    <div class="warn">
+      <strong>「コンパイル成功」≠「ルートOK」</strong>
+      <p style="margin:.4rem 0 0;"><code>view:cache</code> は Blade を PHP に変換するだけで、<code>route()</code> の中身（ルート名の実在）までは検証しない。ルート名の誤りは<strong>実際に画面を描画した時</strong>に初めて 500 になる。→ コンパイルが通っても、ルート名は目視＋画面表示で確認が必要。</p>
+    </div>
+
+    <h3>表示・バリデーションのズレ</h3>
+    <table>
+      <tr><th>行</th><th>誤</th><th>正</th><th>影響</th></tr>
+      <tr><td>20</td><td><code>grid gird-cols-2</code></td><td><code>grid grid-cols-2</code></td><td>2カラムにならず縦積み</td></tr>
+      <tr><td>44</td><td><code>space-yp6</code></td><td><code>space-y-6</code></td><td>タイトルと内容の間隔が消える</td></tr>
+      <tr><td>27</td><td><code>text-grau-400</code></td><td><code>text-gray-400</code></td><td>注釈の文字色が効かない</td></tr>
+      <tr><td>75</td><td><code>$errors->get('$name')</code></td><td><code>$errors->get($name)</code></td><td>タグのエラーが表示されない</td></tr>
+    </table>
+    <div class="note">
+      <strong>75行目：クォートで変数が死ぬ</strong>
+      <p style="margin:.4rem 0 0;"><code>'$name'</code> とシングルクォートで囲むと、PHP は変数展開せず文字列 <code>"$name"</code> をそのままキーとして扱う。結果、実在しないエラーキーを見に行くのでタグのエラーが出ない。<code>$errors-&gt;get($name)</code>（クォートなしの変数）が正。</p>
+    </div>
+
+    <h2>3. 編集導線の接続</h2>
+    <p>詳細画面の編集アイコン（暫定 <code>href="#"</code>）を編集画面へ接続。</p>
+    <pre><code>{{-- knowledges/show.blade.php 編集アイコン --}}
+&lt;a href="{{ route('knowledges.edit', $knowledge) }}" title="編集" ...&gt;</code></pre>
+    <ul class="checklist">
+      <li>知識詳細 → 編集アイコン → 編集画面</li>
+      <li>編集画面 → Update → 詳細へ戻る（更新反映）</li>
+      <li>編集画面 → Cancel → 詳細へ戻る</li>
+    </ul>
+
+    <h2>知識 CRUD ビュー：完成状況</h2>
+    <table>
+      <tr><th>操作</th><th>ビュー</th><th>状態</th></tr>
+      <tr><td>Create</td><td>create</td><td><span class="ok">完成</span></td></tr>
+      <tr><td>Read（一覧）</td><td>index</td><td><span class="ok">完成</span></td></tr>
+      <tr><td>Read（詳細）</td><td>show</td><td><span class="ok">完成</span></td></tr>
+      <tr><td>Update</td><td>edit</td><td><span class="ok">完成</span></td></tr>
+      <tr><td>Delete</td><td>show のモーダル</td><td><span class="ok">完成</span></td></tr>
+    </table>
+    <p>導線：<strong>一覧 ⇄ 詳細 ⇄ 編集 ⇄ 本の詳細</strong> が相互につながった。</p>
+
+    <h2>残りの暫定リンク（そのままでOK）</h2>
+    <table>
+      <tr><th>箇所</th><th>接続予定</th><th>理由</th></tr>
+      <tr><td>index・その他の Action List</td><td>行動一覧</td><td>行動（Action）機能が未着手</td></tr>
+      <tr><td>知識詳細の「紐づく行動」</td><td>実データ表示</td><td>Action モデル/リレーション未実装</td></tr>
+    </table>
+
+    <h2>明日以降のタスク</h2>
+    <ul class="todo">
+      <li>Feature テスト（KnowledgeFactory 使用）：CRUD ＋ 認可（他人の本の知識は 403）</li>
+      <li>行動（Action）機能に着手 → 知識詳細の「紐づく行動」セクションを実データで追加</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; feature/5-knowledges &mdash; 2026-07-04
+  </footer>
+</body>
+</html>

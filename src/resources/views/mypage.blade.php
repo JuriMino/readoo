@@ -24,7 +24,7 @@
                 <span class="text-gray-400">&gt;</span>
             </a>
             {{-- 知識 --}}
-            <a href="#" class="flex items-center px-6 py-5 hover:bg-gray-50 transition">
+            <a href="{{ route('knowledges.index')}}" class="flex items-center px-6 py-5 hover:bg-gray-50 transition">
                 <span class="w-3 h-3 bg-knowledge rounded-full"></span>
                 <div class="flex-1 ml-4">
                     <p class="text-xl font-bold text-gray-900">Knowledge List</p>

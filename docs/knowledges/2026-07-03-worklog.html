@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 知識管理 作業記録 2026-07-03</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--blue), #4f7cf0); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--blue); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>知識管理（knowledges） 作業記録</h1>
+    <p>2026-07-03 &mdash; feature/5-knowledges：知識詳細ビュー ＆ 詳細導線の接続</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>知識詳細画面（<code>knowledges/show.blade.php</code>）を写経。<code>books/show</code> と対になる構成（基本情報／本文情報／タグ）＋削除確認モーダルで作成した。あわせて一覧・本の詳細に残っていた 詳細 の暫定リンクを実ルートへ接続し、<strong>「知識一覧 → 詳細 → 削除（→本の詳細へ）」と「本の詳細 → 知識詳細」の導線がつながった</strong>。</p>
+    </div>
+
+    <ul class="checklist">
+      <li><code>knowledges/show.blade.php</code> を写経（基本情報／本文情報／タグ＋削除モーダル）</li>
+      <li>Figma 反映：最初の叩き台からセクション構成を修正（参照元→基本情報、タイトル移動、登録日追加）</li>
+      <li>写経ミス3点を修正（Tailwind 無効クラス系）</li>
+      <li>詳細リンクを接続：<code>knowledges/index</code>・<code>books/show</code> の 詳細 → <code>route('knowledges.show', $knowledge)</code></li>
+      <li>全ビューの Blade コンパイル確認（<code>view:cache</code> → エラーなし）</li>
+    </ul>
+
+    <h2>1. 知識詳細ビュー（show.blade.php）</h2>
+    <p><code>books/show.blade.php</code> の流儀（パンくず・編集/削除アイコン・<code>x-modal</code> 削除確認）に揃え、テーマ色は知識＝青で作成。コントローラは <code>['knowledge' =&gt; $knowledge]</code> のみ渡し、<code>$knowledge-&gt;book</code> は参照時に遅延ロードされる（Policy の <code>view</code> でも <code>book</code> を見るのでどのみち読まれる）。</p>
+
+    <h3>Figma に合わせた構成修正</h3>
+    <p>最初の叩き台は「参照元／知識の内容／タグ」の構成だったが、共有された Figma は <code>books/show</code> と対になる構成だったため作り直した。</p>
+    <table>
+      <tr><th>セクション</th><th>中身</th></tr>
+      <tr><td>基本情報</td><td>タイトル（全幅）／ 参照元（本）＋該当箇所（2カラム）／ 登録日</td></tr>
+      <tr><td>本文情報</td><td>内容（<code>whitespace-pre-wrap</code> で改行保持）</td></tr>
+      <tr><td>タグ</td><td>タグピル（<code>array_filter</code> で null 除去、空なら「登録されていません」）</td></tr>
+    </table>
+
+    <div class="key">
+      <strong>参照元（本）はリンクに</strong>
+      <pre><code>&lt;a href="{{ route('books.show', $knowledge-&gt;book) }}" ...&gt;{{ $knowledge-&gt;book-&gt;title }}&lt;/a&gt;</code></pre>
+      <p style="margin:.4rem 0 0;">「この知識はどの本から得たか」を1クリックで辿れる。知識詳細 ⇄ 本の詳細を相互に行き来できるようになった。</p>
+    </div>
+
+    <div class="note">
+      <strong>「紐づく行動」セクションは今日は作らない</strong>
+      <p style="margin:.4rem 0 0;">Figma には一番下にオレンジの「紐づく行動」セクション（＋ new Action）があるが、これは <strong>行動（Action）機能そのもの</strong>。モデルもリレーションも未実装で、<code>$knowledge-&gt;actions</code> を今書くとエラーになる。Action 機能の実装時に実データで追加する（二度手間回避）。</p>
+    </div>
+
+    <h3>削除の扱い（v1）</h3>
+    <ul>
+      <li>削除できるのは<strong>この詳細画面のみ</strong>（<code>x-modal</code> の確認 → <code>@csrf</code> + <code>@method('delete')</code>）</li>
+      <li>削除後はコントローラ側で<strong>親の本（<code>books.show</code>）へリダイレクト</strong>＋ステータス表示</li>
+      <li>複数選択削除（一覧から）は将来の v2 で対応予定</li>
+    </ul>
+
+    <h2>2. 写経ミスの修正</h2>
+    <p>いずれも Tailwind が無効クラスを黙って無視するため、エラーは出ず<strong>見た目だけ崩れる</strong>タイプ。</p>
+    <table>
+      <tr><th>行</th><th>誤</th><th>正</th><th>影響</th></tr>
+      <tr><td>2</td><td><code>max-w-3-xl</code></td><td><code>max-w-3xl</code></td><td>横幅が制限されない</td></tr>
+      <tr><td>7</td><td><code>class="mt-1"</code>（パンくず区切り）</td><td><code>class="mx-1"</code></td><td>「&gt;」の左右余白が出ない</td></tr>
+      <tr><td>12</td><td><code>fount-bold</code></td><td><code>font-bold</code></td><td>見出しが太字にならない</td></tr>
+      <tr><td>31</td><td><code>py-6</code>（見出し）</td><td><code>py-3</code></td><td>基本情報の見出しだけ高さが不揃い（他は py-3）</td></tr>
+    </table>
+    <div class="note">
+      <strong>指示の切り分けメモ</strong>
+      <p style="margin:.4rem 0 0;"><code>py-3 → py-6</code> は「<code>&lt;dl&gt;</code>（中身の余白）」だけの意図だったが、見出し <code>&lt;h2&gt;</code> にも適用してしまい高さがずれた。セクション見出しは3つとも <code>py-3</code> で統一。</p>
+    </div>
+
+    <h2>3. 詳細導線の接続</h2>
+    <p>show ビューが出来たので、残っていた暫定 <code>href="#"</code> を実ルートへ接続。</p>
+    <table>
+      <tr><th>ファイル</th><th>箇所</th><th>接続先</th></tr>
+      <tr><td><code>knowledges/index.blade.php</code></td><td>一覧テーブルの 詳細</td><td><code>route('knowledges.show', $knowledge)</code></td></tr>
+      <tr><td><code>books/show.blade.php</code></td><td>紐づく知識リストの 詳細</td><td><code>route('knowledges.show', $knowledge)</code></td></tr>
+    </table>
+
+    <h3>つながった導線</h3>
+    <ul class="checklist">
+      <li><strong>知識一覧 → 詳細 → 削除 → 本の詳細へ</strong></li>
+      <li><strong>本の詳細 → 各知識の 詳細 → 知識詳細</strong></li>
+      <li><strong>知識詳細 → 参照元（本）→ 本の詳細</strong>（相互移動）</li>
+    </ul>
+
+    <h2>残りの暫定リンク（そのままでOK）</h2>
+    <table>
+      <tr><th>箇所</th><th>接続予定</th><th>理由</th></tr>
+      <tr><td>show 編集アイコン（<code>href="#"</code>）</td><td><code>route('knowledges.edit', $knowledge)</code></td><td>edit ビュー未作成</td></tr>
+      <tr><td>index・その他の Action List</td><td>行動一覧</td><td>行動（Action）機能が未着手</td></tr>
+    </table>
+
+    <h2>明日以降のタスク</h2>
+    <ul class="todo">
+      <li>知識編集（edit）ビューを作成 → 作成後 show の編集アイコンを接続</li>
+      <li>KnowledgeFactory を使った Feature テスト（CRUD ＋ 認可：他人の本の知識は 403）</li>
+      <li>行動（Action）機能に着手 → 知識詳細の「紐づく行動」セクションを実データで追加</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; feature/5-knowledges &mdash; 2026-07-03
+  </footer>
+</body>
+</html>

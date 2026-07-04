@@ -5,13 +5,13 @@
         <div class="flex items-start justify-between">
             <div>
                 <h1 class="text-4xl font-bold text-gray-900">Book List</h1>
-                <p class="mt-2 text-gray-500">読んだ本・読みたい本を管理する</p>
+                <p class="mt-2 text-gray-500">読んだ本・読みたい本を管理し、知識と行動につなげよう</p>
                 <a href="{{ route('books.create') }}" class="inline-block mt-4 px-5 py-2 bg-book rounded-lg text-white font-bold hover:opacity-90 transition">
                     + New Book
                 </a>
             </div>
             <div class="flex gap-3">
-                <a href="#" class="inline-block mt-4 px-5 py-2 bg-knowledge rounded-lg text-white font-bold hover:opacity-90 transition">
+                <a href="{{ route('knowledges.index')}}" class="inline-block mt-4 px-5 py-2 bg-knowledge rounded-lg text-white font-bold hover:opacity-90 transition">
                     Knowledge List
                 </a>
                 <a href="#" class="inline-block mt-4 px-5 py-2 bg-action rounded-lg text-white font-bold hover:opacity-90 transition">
