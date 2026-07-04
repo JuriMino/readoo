@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 知識管理 作業記録 2026-06-29</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--blue), #4f7cf0); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--blue); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>知識管理（knowledges） 作業記録</h1>
+    <p>2026-06-29 &mdash; feature/5-knowledges：モデル・ルート・Policy・Request（CRUD土台）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>知識管理（Knowledge）の実装を開始。書籍CRUDの型を流用しつつ、<strong>「知識は本に紐づく」構造</strong>に対応した。
+      モデル・リレーション・ルート設計・Policy・FormRequest まで（タスク1〜4）を完了。
+      今回の新しい学びは <strong>①不可算名詞モデルのテーブル名の罠 ②shallow nested ＋ 独立indexのルート設計
+      ③本経由の間接オーナー判定（Policy）</strong>。KnowledgeController は叩き台を用意済みで、写経は明日。</p>
+    </div>
+    <ul class="checklist">
+      <li>Knowledgeモデル（Fillableは<code>book_id</code>除外／<code>$table='knowledges'</code>明示／<code>book()</code>）</li>
+      <li>Book側に <code>knowledges()</code> HasMany を追加</li>
+      <li>ルート：独立一覧（フラット）＋ 作成・登録（ネスト）＋ 詳細以降（フラット）の shallow nested</li>
+      <li>KnowledgePolicy：本経由の間接オーナー判定／<code>create(User, Book)</code></li>
+      <li>KnowledgeRequest：title・content必須、book_page・tagは任意</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① Knowledgeモデルとリレーション</h2>
+    <p>知識は <code>user_id</code> を持たず <code>book_id</code> で本にぶら下がる。所有者は本を経由して辿る構造。</p>
+    <pre><code>User ──(user_id)──▶ Book ──(book_id)──▶ Knowledge</code></pre>
+    <ul>
+      <li><code>#[Fillable(['title','book_page','content','tag1','tag2','tag3'])]</code> … <strong><code>book_id</code> は除外</strong>（mass assignment防御。書籍の <code>user_id</code> と同じ思想）</li>
+      <li><code>use HasFactory, SoftDeletes;</code></li>
+      <li><code>book(): BelongsTo</code> ／ Book側に <code>knowledges(): HasMany</code>（<code>HasMany</code> のuse追加も必要）</li>
+    </ul>
+
+    <div class="warn">
+      <strong>今日の罠：不可算名詞モデルのテーブル名。</strong>
+      <code>Knowledge</code> は英語で不可算名詞のため、Laravelの複数形化が <span class="bug">knowledge</span>（変化なし）になる。
+      実テーブルは <code>knowledges</code> なので食い違い、「テーブルが無い」エラーになる。
+      <br>→ 実機で <code>(new Knowledge)-&gt;getTable()</code> が <code>knowledge</code> を返すことを確認 → モデルに
+      <span class="ok">protected $table = 'knowledges';</span> を明示して解消。
+      <br><code>information</code> / <code>equipment</code> / <code>media</code> 等も同じ罠。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>② ルート設計（独立一覧 ＋ shallow nested）</h2>
+    <p>「一覧」は2種類あり、性質が違うので分けて設計した。</p>
+    <table>
+      <tr><th>一覧の種類</th><th>表示場所</th><th>ルート</th></tr>
+      <tr><td>特定の本に絞った一覧</td><td>本の詳細画面の中（「紐づく知識」テーブル）</td><td><strong>専用ルート不要</strong>（<code>books.show</code> 内で <code>$book-&gt;knowledges</code> を描画）</td></tr>
+      <tr><td>本をまたいだ独立一覧</td><td>専用ページ</td><td><code>GET /knowledges</code>（<code>knowledges.index</code>）</td></tr>
+    </table>
+    <pre><code>// 独立した知識一覧（本をまたいで自分の全知識）
+Route::get('knowledges', [KnowledgeController::class, 'index'])-&gt;name('knowledges.index');
+
+// 作成・登録は本の中（ネスト）、詳細以降は知識単体（フラット）
+Route::resource('books.knowledges', KnowledgeController::class)
+    -&gt;shallow()
+    -&gt;except(['index']);</code></pre>
+    <table>
+      <tr><th>アクション</th><th>URL</th><th>ルート名</th></tr>
+      <tr><td>index（独立一覧）</td><td><code>knowledges</code></td><td><code>knowledges.index</code></td></tr>
+      <tr><td>create</td><td><code>books/{book}/knowledges/create</code></td><td><code>books.knowledges.create</code></td></tr>
+      <tr><td>store</td><td><code>books/{book}/knowledges</code> (POST)</td><td><code>books.knowledges.store</code></td></tr>
+      <tr><td>show</td><td><code>knowledges/{knowledge}</code></td><td><code>knowledges.show</code></td></tr>
+      <tr><td>edit</td><td><code>knowledges/{knowledge}/edit</code></td><td><code>knowledges.edit</code></td></tr>
+      <tr><td>update</td><td><code>knowledges/{knowledge}</code> (PUT)</td><td><code>knowledges.update</code></td></tr>
+      <tr><td>destroy</td><td><code>knowledges/{knowledge}</code> (DELETE)</td><td><code>knowledges.destroy</code></td></tr>
+    </table>
+    <div class="key">
+      <strong>shallow() の意図：</strong>「作成・登録」は<strong>どの本か</strong>が必要なのでネスト、「詳細・編集・削除」は知識IDだけで足りるのでフラット。
+      前半ネスト・後半フラットを自動でやってくれる。本ごとの一覧は本詳細が兼ねるので <code>except(['index'])</code> でネスト版indexは生やさない。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>③ KnowledgePolicy（間接オーナー判定）</h2>
+    <p>書籍は <code>book-&gt;user_id</code> で直接判定できたが、知識は<strong>本を経由</strong>して持ち主を辿る。</p>
+    <pre><code>// 詳細・更新・削除：本経由でオーナー判定
+public function view(User $user, Knowledge $knowledge): bool
+{
+    return $user-&gt;id === $knowledge-&gt;book?-&gt;user_id;
+}
+
+// 作成：その本の持ち主だけが追加できる（本を受け取る）
+public function create(User $user, Book $book): bool
+{
+    return $user-&gt;id === $book-&gt;user_id;
+}</code></pre>
+    <table>
+      <tr><th>記述</th><th>意味</th></tr>
+      <tr><td><code>$knowledge-&gt;book?-&gt;user_id</code></td><td>本経由でオーナーを辿る。<code>?-&gt;</code>（ヌル安全）で、本が取得できない場合は <code>null</code> → <code>$user-&gt;id === null</code> ＝ false で<strong>安全に拒否（403）</strong></td></tr>
+      <tr><td><code>create(User $user, Book $book)</code></td><td>「作れるか」は<strong>どの本に追加するか</strong>で決まるので本を受け取る。通常の <code>create(User)</code> と形が違う</td></tr>
+      <tr><td>コントローラ側の呼び方</td><td><code>$this-&gt;authorize('create', [Knowledge::class, $book])</code>。第1要素＝Policy解決用クラス、第2要素以降＝メソッド引数</td></tr>
+      <tr><td>Policy登録</td><td>Laravel 11+ は <code>Knowledge → KnowledgePolicy</code> を命名規則で<strong>自動発見</strong>。手動登録不要</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2>④ KnowledgeRequest（バリデーション）</h2>
+    <table>
+      <tr><th>項目</th><th>ルール</th><th>備考</th></tr>
+      <tr><td><code>title</code></td><td>required / string / max:100</td><td>スキーマ <code>string(100)</code></td></tr>
+      <tr><td><code>book_page</code></td><td>nullable / string / max:100</td><td>該当箇所（P.XX）</td></tr>
+      <tr><td><code>content</code></td><td>required / string</td><td><code>text</code> 型なので max は付けない</td></tr>
+      <tr><td><code>tag1〜3</code></td><td>nullable / string / max:50</td><td>タグ3つ</td></tr>
+    </table>
+    <ul>
+      <li><code>authorize()</code> は <code>true</code>（「誰がやってよいか」はPolicy、「入力が正しいか」はRequest、と責務分離）</li>
+      <li><code>book_id</code> はルールに入れない（本はURLから <code>$book</code> で受け取る＝mass assignment防御）</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>⑤ KnowledgeController（叩き台・明日写経）</h2>
+    <p>叩き台を提示済み。書籍コントローラと同型だが、ネストと間接認可が加わる。要点だけ記録。</p>
+    <ul>
+      <li><code>use AuthorizesRequests;</code> 必須（空のベースControllerに <code>authorize()</code> が無いため）</li>
+      <li><strong>index（独立一覧）</strong>：<code>Knowledge::whereHas('book', fn($q) =&gt; $q-&gt;where('user_id', $user-&gt;id))-&gt;with('book')-&gt;latest()-&gt;paginate(15)</code>
+        … 知識は <code>user_id</code> を持たないので「自分の本を持つ知識」を <code>whereHas</code> で絞る。<code>with('book')</code> でN+1回避。
+        （別解：User に <code>hasManyThrough</code> を定義すれば <code>$user-&gt;knowledges()</code> でも可）</li>
+      <li><strong>create / store</strong>：ネストルートから <code>Book $book</code> を受け取り、<code>authorize('create', [Knowledge::class, $book])</code>。
+        登録は <code>$book-&gt;knowledges()-&gt;create($request-&gt;validated())</code> で <strong>book_id 自動セット</strong></li>
+      <li><strong>show / edit / update / destroy</strong>：<code>Knowledge $knowledge</code>（ルートモデルバインディング）。各冒頭で <code>authorize</code></li>
+      <li><strong>destroy</strong>：リダイレクト先が本詳細なので <code>$book = $knowledge-&gt;book;</code> を<strong>削除前に控えて</strong>から <code>$knowledge-&gt;delete()</code>（論理削除）</li>
+      <li>リダイレクト：store/destroy → <code>books.show</code>、update → <code>knowledges.show</code></li>
+    </ul>
+    <div class="note">
+      <strong>確認の注意：</strong>この時点ではビュー（<code>knowledges.*</code>）が無いので画面アクセスはエラー。
+      写経後は「<code>php artisan route:list</code> が通る／構文エラーが無い」までの確認でOK（画面確認はタスク6以降）。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>⑥ 今日の修正・タイポ</h2>
+    <table>
+      <tr><th>箇所</th><th>内容</th><th>対応</th></tr>
+      <tr><td>Knowledgeモデル</td><td>テーブル名が <span class="bug">knowledge</span> と推測され実テーブル <code>knowledges</code> と不一致</td><td><span class="ok">protected $table = 'knowledges';</span> を明示</td></tr>
+      <tr><td>web.php</td><td>ルートパスのタイポ <span class="bug">knowledes</span>／フラット resource</td><td><span class="ok">books.knowledges</span> の shallow nested ＋ 独立index に再設計</td></tr>
+      <tr><td>KnowledgePolicy</td><td>未使用 <code>use ...Access\Response;</code>（任意）</td><td>削除可</td></tr>
+      <tr><td>KnowledgeRequest</td><td>未使用 <code>use Override;</code>（任意）</td><td>削除可</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2>⑦ 完成状況と残課題</h2>
+    <h4>本日完成（タスク1〜4）</h4>
+    <ul class="checklist">
+      <li>Knowledgeモデル＋リレーション（Book側 <code>knowledges()</code> も）</li>
+      <li>ルート設計（独立index＋shallow nested）</li>
+      <li>KnowledgePolicy（間接オーナー判定）</li>
+      <li>KnowledgeRequest</li>
+    </ul>
+    <h4>残課題</h4>
+    <ul class="todo">
+      <li><strong>タスク5：KnowledgeController の写経</strong>（叩き台提示済み）← 明日ここから</li>
+      <li>タスク6：ビュー（<code>knowledges.index</code> / <code>create</code> / <code>show</code> / <code>edit</code>）</li>
+      <li>タスク7：本詳細(<code>books.show</code>)の「紐づく知識」を実データ＋「+ new Knowledge」ボタンに差し替え（<code>$book-&gt;load('knowledges')</code>）</li>
+      <li>タスク8：KnowledgeFactory ＋ Featureテスト（CRUD・認可：他人の本の知識は403）</li>
+      <li>導線：本一覧右上の「Knowledge List」ボタン（現在 <code>href="#"</code>）→ <code>route('knowledges.index')</code></li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発記録 / 2026-06-29 &mdash; 知識管理 モデル・ルート・Policy・Request（CRUD土台）
+  </footer>
+</body>
+</html>

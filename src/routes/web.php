@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BookController;
+use App\Http\Controllers\KnowledgeController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -23,6 +24,10 @@ Route::middleware('auth')->group(function () {
 
     // Books
     Route::resource('books', BookController::class);
+
+    // Knowledges
+    Route::resource('knowledges', KnowledgeController::class);
+
 });
 
 require __DIR__.'/auth.php';

@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable(['title','author','publisher','status','genre','started_at','finished_at','summary','memo'])]
 
@@ -52,6 +52,12 @@ class Book extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    // 本は複数の知識情報を持つ
+    public function knowledges(): HasMany
+    {
+        return $this->hasMany(Knowledge::class);
     }
 
 }

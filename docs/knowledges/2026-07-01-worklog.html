@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 知識管理 作業記録 2026-07-01</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--blue), #4f7cf0); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--blue); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>知識管理（knowledges） 作業記録</h1>
+    <p>2026-07-01 &mdash; feature/5-knowledges：知識一覧ビュー ＆ Factory ＆ 表示確認</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>知識一覧画面（<code>knowledges/index.blade.php</code>）を Figma に合わせて作成。あわせて
+      <strong>KnowledgeFactory</strong> を用意し、tinker でダミーデータを投入して<strong>実データでの表示確認まで完了</strong>。
+      今日の学びは <strong>①一覧はログインユーザーで絞る＝ダミーも本人の本に紐づける必要 ②Factoryの親連鎖（Book::factory）
+      ③Figma準拠のテーブルUI</strong>。知識CRUDの最初の画面（index）が動く形になった。</p>
+    </div>
+    <ul class="checklist">
+      <li><code>books/index</code> の作りを踏襲して知識一覧ビューを作成（<code>x-app-layout</code>／テーブル／空状態／ページネーション）</li>
+      <li>Figmaに合わせて列・タグのピル・件数行・1カード構成へ調整</li>
+      <li>KnowledgeFactory 作成（<code>book_id =&gt; Book::factory()</code> の親連鎖）</li>
+      <li>tinker でダミー投入 → <code>/knowledges</code> で表示確認 <span class="ok">OK</span></li>
+      <li>写経タイポ4点を修正（後述）</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① 知識一覧ビュー（Figma準拠）</h2>
+    <p>独立した知識一覧は<strong>本をまたぐ</strong>ため、「どの本の知識か」が一目で分かる列構成にした。</p>
+    <table>
+      <tr><th>列</th><th>内容</th><th>備考</th></tr>
+      <tr><td>タイトル</td><td><code>$knowledge->title</code></td><td>太字。リンクにはせずプレーン表示（Figma通り）</td></tr>
+      <tr><td>参照元</td><td><code>$knowledge->book->title</code></td><td><code>with('book')</code>済みなのでN+1なし</td></tr>
+      <tr><td>該当箇所</td><td><code>book_page ?? '-'</code></td><td>「P.XX」表記</td></tr>
+      <tr><td>タグ</td><td>tag1〜3 を青枠ピル</td><td><code>array_filter</code> でnull除外</td></tr>
+      <tr><td>詳細</td><td>show への導線</td><td>v1の方針（編集・削除は詳細に集約）と整合</td></tr>
+    </table>
+    <pre><code>{{-- タグ：入っているものだけピル表示 --}}
+@foreach (array_filter([$knowledge-&gt;tag1, $knowledge-&gt;tag2, $knowledge-&gt;tag3]) as $tag)
+    &lt;span class="... rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-xs"&gt;{{ $tag }}&lt;/span&gt;
+@endforeach</code></pre>
+    <div class="key">
+      <strong>件数行はページネータのメソッドで作る。</strong>
+      <code>全 {{ $knowledges-&gt;total() }} 件中 {{ $knowledges-&gt;firstItem() }}〜{{ $knowledges-&gt;lastItem() }} 件</code>。
+      <code>firstItem()/lastItem()</code> は空のとき <code>null</code> を返すが、ここは <code>@else</code>（空でない）側なので安全。
+      件数行・テーブル・ページネーションを<strong>1つの白カード</strong>にまとめてFigmaに合わせた。
+    </div>
+    <div class="note">
+      <strong>ページネーション補足。</strong>
+      <code>$knowledges-&gt;links()</code> はLaravel標準。画面が広いと英語の「Showing X to Y of Z」も出る。
+      Figmaの「&lt; Prev 1 2 … Next &gt;」だけに寄せたい場合は <code>vendor:publish --tag=laravel-pagination</code> でビューをカスタムできる（今は標準のまま）。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>② KnowledgeFactory：親を連鎖生成する</h2>
+    <pre><code>return [
+    'book_id'   =&gt; Book::factory(),                       // ← 親の本も自動生成
+    'title'     =&gt; fake()-&gt;sentence(3),
+    'book_page' =&gt; 'P.'.fake()-&gt;numberBetween(1, 500),
+    'content'   =&gt; fake()-&gt;paragraph(),
+    'tag1'      =&gt; fake()-&gt;word(),
+    'tag2'      =&gt; null,
+    'tag3'      =&gt; null,
+];</code></pre>
+    <ul>
+      <li><code>'book_id' =&gt; Book::factory()</code> … BookFactory の <code>'user_id' =&gt; User::factory()</code> と同じ発想。
+        <strong>User → Book → Knowledge が芋づる式</strong>に揃う</li>
+      <li><code>book_id</code> は Fillable 除外だが<strong>Factoryは内部で <code>unguarded</code></strong> なのでセットできる（<code>user_id</code> と同じ）</li>
+      <li><code>tag2 / tag3 =&gt; null</code> … 任意項目のデフォルトは空。3つ揃えたいときは生成時に上書き</li>
+      <li>命名規約（<code>App\Models\Knowledge</code> ⇄ <code>Database\Factories\KnowledgeFactory</code>）で自動解決。追加設定不要</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>③ 表示確認：ダミーは「ログイン中ユーザーの本」に紐づける</h2>
+    <div class="key">
+      <strong>今日いちばんの勘所。</strong>
+      知識一覧は <code>whereHas('book', user_id 一致)</code> で<strong>ログイン中ユーザーの知識だけ</strong>を出す。
+      だからダミーデータも<strong>「ブラウザでログインしているアカウントの本」に紐づけて</strong>作らないと、一覧に出ない。
+    </div>
+    <pre><code>// tinker
+$user = \App\Models\User::where('email', 'juri.mino1023@gmail.com')-&gt;first();
+$book = \App\Models\Book::factory()-&gt;for($user)-&gt;create(['title' =&gt; '確認用の本']);
+
+\App\Models\Knowledge::factory()-&gt;count(5)-&gt;for($book)-&gt;create();
+// タグ3つ揃ったパターンも（ピル確認用）
+\App\Models\Knowledge::factory()-&gt;count(2)-&gt;for($book)-&gt;create(['tag2' =&gt; 'サンプル', 'tag3' =&gt; '重要']);</code></pre>
+    <p>→ <code>/knowledges</code> を開いて、件数行・参照元・該当箇所・タグのピル・レイアウト崩れなしを確認 <span class="ok">OK</span>。</p>
+    <div class="note">
+      <strong>豆知識：</strong>退会テストの名残でユーザーは4件存在（id1は論理削除＝メール退避 <code>..._deleted_1</code>、id4が同じメールで再登録）。
+      アクティブは <code>yamada@test.com</code> と <code>juri.mino1023@gmail.com</code> の2つ。
+      退会＝ユーザー論理削除＋メール退避の設計が実データでも確認できた。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>④ 写経タイポの修正（4点・修正済み）</h2>
+    <p>今日もTailwind/変数まわりのタイポが中心。<strong>Tailwindは綴り違いを黙って無視する</strong>ため、崩れて初めて気づく点に注意。</p>
+    <table>
+      <tr><th>箇所</th><th>誤</th><th>正</th><th>影響</th></tr>
+      <tr><td>タグのforeach</td><td><span class="bug">$knowkedge</span>-&gt;tag3</td><td><span class="ok">$knowledge</span>-&gt;tag3</td><td>未定義変数で500（実データ表示時に発火）</td></tr>
+      <tr><td>タグの折返し</td><td>class="<span class="bug">fex</span> flex-wrap"</td><td>class="<span class="ok">flex</span> flex-wrap"</td><td>flexが無いと横並びにならない</td></tr>
+      <tr><td>件数行</td><td><span class="bug">border</span> border-b</td><td><span class="ok">border-b</span></td><td>borderが余分で全周に線</td></tr>
+      <tr><td>ページネーション</td><td>border-<span class="bug">grau</span>-100</td><td>border-<span class="ok">gray</span>-100</td><td>綴り違いで色が当たらない</td></tr>
+    </table>
+
+    <!-- ============================================================ -->
+    <h2>⑤ 残タスクと次の一手</h2>
+    <div class="warn">
+      <strong>未接続の <code>href="#"</code> が3か所（意図的に保留）。</strong>
+      飛び先ビューが未作成のため今は <code>#</code> で正解。該当ビューを作ったら実ルートへ差し替える。
+    </div>
+    <table>
+      <tr><th>箇所</th><th>差し替え先</th><th>タイミング</th></tr>
+      <tr><td>+ New Knowledge ボタン</td><td><code>route('knowledges.create', ['from' =&gt; 'index'])</code></td><td>create ビュー作成後</td></tr>
+      <tr><td>空状態の登録ボタン</td><td>同上</td><td>create ビュー作成後</td></tr>
+      <tr><td>各行の「詳細」</td><td><code>route('knowledges.show', $knowledge)</code></td><td>show ビュー作成後</td></tr>
+    </table>
+    <h3>次にやること</h3>
+    <ul class="todo">
+      <li><strong>create ビュー</strong>（本のプルダウン付き作成フォーム）：<code>$books</code> / <code>$selectedBookId</code> / <code>from</code> の hidden</li>
+      <li>create が出来たら index の <code>href="#"</code>（New Knowledge・空状態）を実ルートへ接続</li>
+      <li>show ビュー（削除フォーム付き）→ index の「詳細」リンクを接続</li>
+      <li>edit ビュー</li>
+      <li>books.show を更新：紐づく知識一覧＋「知識を追加」ボタン</li>
+      <li>本一覧の「Knowledge List」ボタン → <code>route('knowledges.index')</code></li>
+      <li>KnowledgeFactory を使った Feature テスト（CRUD＋認可：他人の本の知識は403）</li>
+    </ul>
+    <div class="note">
+      <strong>本日の完了状況：</strong>
+      knowledges/index ビュー <span class="ok">✓</span> ／ KnowledgeFactory <span class="ok">✓</span> ／ 実データ表示確認 <span class="ok">✓</span>
+    </div>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; 2026-07-01 ／ feature/5-knowledges
+  </footer>
+</body>
+</html>
