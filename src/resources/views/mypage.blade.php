@@ -33,7 +33,7 @@
                 <span class="text-gray-400">&gt;</span>
             </a>
             {{-- 行動 --}}
-            <a href="#" class="flex items-center px-6 py-5 hover:bg-gray-50 transition">
+            <a href="{{ route('actions.index')}}" class="flex items-center px-6 py-5 hover:bg-gray-50 transition">
                 <span class="w-3 h-3 bg-action rounded-full"></span>
                 <div class="flex-1 ml-4">
                     <p class="text-xl font-bold text-gray-900">Action List</p>

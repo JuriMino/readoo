@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 行動管理 作業記録 2026-07-07</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--orange), #f0752f); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--orange); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--orange); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--blue); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--orange); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+    .qbox { border-left: 3px solid var(--green); padding-left: .9rem; margin: 1.2rem 0; }
+    .qbox .q { font-weight: 700; color: var(--text); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>行動管理（actions） 作業記録</h1>
+    <p>2026-07-07 &mdash; feature/7-actions：Policy ＆ Controller ＆ 削除カスケード検討 ＆ Controller深掘り</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p><strong>ActionPolicy</strong> と <strong>ActionController</strong> を写経し、行動機能の<strong>バックエンド一式（routes / Request / Policy / Controller）が完成</strong>。あわせて「本の論理削除で子も論理削除するか」の設計検討を行い、v1は現状維持と判断。後半は ActionController の各処理を1行ずつ深掘りする Q&A で理解を固めた。</p>
+    </div>
+
+    <ul class="checklist">
+      <li>ActionPolicy を写経（本の持ち主で判定・book 軸）</li>
+      <li>ActionController を写経（構文チェック＆7ルート登録を確認）</li>
+      <li>「本の論理削除→子も論理削除」の実現可否と複雑さを検討 → v1現状維持</li>
+      <li>Controller の index / create / store を Q&A で深掘り</li>
+    </ul>
+
+    <h2>1. ActionPolicy</h2>
+    <p>KnowledgePolicy と同型。所有判定は「行動が紐づく<strong>本の持ち主か</strong>」の間接判定で、<strong>必ず存在する book 軸</strong>で見る（knowledge は null もあり得るため）。</p>
+    <pre><code>public function view(User $user, Action $action): bool
+{
+    return $user->id === $action->book?->user_id;   // book 軸＋?-> で保険
+}</code></pre>
+
+    <h2>2. 設計検討：本の論理削除で子も論理削除するか</h2>
+    <div class="note">
+      <strong>結論：v1は現状維持（フックなし＋<code>?-></code>）</strong>
+      <p style="margin:.4rem 0 0;">実現は可能（Book に <code>booted()</code> の <code>deleting</code> フックを10行ほど）。だが<strong>「削除のカスケードは安いが、復元のカスケードが高い」</strong>のが本質。</p>
+    </div>
+    <table>
+      <tr><th>論点</th><th>中身</th></tr>
+      <tr><td>① 復元の非対称性</td><td>削除で子も消すなら復元で子も戻したくなるが、単純復元は「本を消す前から個別削除していた子」まで過剰復元してしまう（古典的な罠）。restore 未実装の今は顕在化しない</td></tr>
+      <tr><td>② 物理削除の切り分け</td><td>退会の <code>forceDelete</code> 時も deleting は発火。<code>isForceDeleting()</code> でガードしないと二重処理</td></tr>
+      <tr><td>③ 知識→行動の並行問題</td><td>「本→子」を入れるなら「知識→行動」も揃える必要が出る</td></tr>
+    </table>
+    <p>現状は <code>whereHas('book')</code> の除外 ＋ Policy の <code>?-></code> 403 で、ユーザーからは既に「本を消すと子も消えたように見える」。<strong>見た目のゴールは達成済み</strong>なので、データ上の孤児は退会時の物理削除に任せる。</p>
+
+    <h2>3. ActionController 深掘り Q&A</h2>
+
+    <div class="qbox">
+      <p class="q">Q. index() の whereHas / with は何をしている？</p>
+      <div class="qa">
+        <strong>whereHas＝絞る / with＝読む、の2つは別の仕事</strong>
+        <ul style="margin:.4rem 0 0;">
+          <li><code>whereHas('book', 自分)</code>：SQLの <code>EXISTS</code> サブクエリを生成する<strong>絞り込み</strong>。「自分の本の行動だけ」に限定。<strong>本のデータは取ってこない（判定に使うだけ）</strong></li>
+          <li><code>with(['book','knowledge'])</code>：<strong>eager load（先読み）</strong>で N+1 回避。表示用データをまとめて取得</li>
+          <li>だから book は<strong>両方に登場</strong>する（絞るのと読むのは別だから）</li>
+          <li><code>with('knowledge')</code> は<strong>絞り込まない</strong>。knowledge_id が null の行動も出て、その行の <code>$action->knowledge</code> が null になるだけ</li>
+          <li>whereHas の EXISTS には <code>books.deleted_at IS NULL</code> が自動で入る → <strong>本が論理削除された行動は一覧に出ない</strong>（昨日の孤児の話と接続）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qbox">
+      <p class="q">Q. create() の authorize('viewAny') は、プルダウンの一覧データが必要だから？</p>
+      <div class="qa">
+        <strong>いいえ。認可（authorize）とデータ取得（-&gt;get()）は別物</strong>
+        <ul style="margin:.4rem 0 0;">
+          <li><code>authorize()</code> は Policy を呼んで true/false を判定するだけ。何も取得しない</li>
+          <li>viewAny を使う理由は「<strong>フォーム表示時点では認可対象が無い</strong>から」。view/update/delete は具体的な <code>$action</code> が要る、create(User,Book) は具体的な <code>$book</code> が要るが、<strong>本はフォームの中で選ぶ</strong>ため表示時点では未確定</li>
+          <li>→ 粗いゲート viewAny（<code>return true</code>）で通す</li>
+          <li>セキュリティは3段構え：<code>auth</code>ミドルウェア／自分のデータしか出さないプルダウン／<strong>本が確定する store() での <code>authorize('create', [Action::class, $book])</code></strong></li>
+          <li>原則：<strong>認可のタイミングは「対象が確定する場所」に置く</strong></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qbox">
+      <p class="q">Q. $knowledges のクエリは何をどう取っている？</p>
+      <div class="qa">
+        <strong>間接所有でたどり、Alpine連動用に最小3カラムで取る</strong>
+        <pre style="margin:.4rem 0;"><code>Knowledge::whereHas('book', fn($q) =&gt; $q-&gt;where('user_id', $user-&gt;id))
+    -&gt;get(['id', 'book_id', 'title']);</code></pre>
+        <ul style="margin:.4rem 0 0;">
+          <li>知識に user_id は無いので <strong>知識→本→持ち主</strong>とたどって「自分の知識」を特定（間接所有）</li>
+          <li>取得は<strong>自分の全知識</strong>（1冊に絞らない）。<strong>本ごとの絞り込みは後で Alpine（クライアント）が book_id で行う</strong></li>
+          <li>3カラムの用途：<code>id</code>＝option の value(=knowledge_id) ／ <code>book_id</code>＝Alpine の絞り込みキー ／ <code>title</code>＝表示ラベル</li>
+          <li>最小3カラムなのは、<strong>JSONでクライアントに渡すため</strong>。content やタグまで取ると重い＋不要な露出</li>
+          <li>役割分担：<strong>サーバは素材を最小限で渡す／絞り込みの見せ方はクライアント</strong>（＝「Alpine＝便利さ／バリデーション＝正しさ」と一貫）</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qbox">
+      <p class="q">Q. 知識詳細から来て knowledge_id が固定なら、book_id も必然的に固定？</p>
+      <div class="qa">
+        <strong>はい。知識は必ず1冊の本に属す（book_id は NOT NULL）から</strong>
+        <ul style="margin:.4rem 0 0;">
+          <li>知識が1つ決まる → その <code>book_id</code> は一意 → 参照元の本も自動的に確定（本は知識に従属）</li>
+          <li>3入口のうち<strong>知識詳細だけ「知識→本」の向き</strong>で本が決まる。本の詳細／独立一覧は「本→知識」の向き</li>
+          <li>整合ルール <code>Rule::exists('knowledges','id')->where('book_id', ...)</code> により、知識詳細から来たセットは必ず通り、book_id すり替えは弾かれる</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="qbox">
+      <p class="q">Q. store() の $request->validated() は？ safe() は何をする？</p>
+      <div class="qa">
+        <strong>validated()＝rules を通った項目だけの検証済みデータ。safe()＝それを絞れる形で返す</strong>
+        <ul style="margin:.4rem 0 0;">
+          <li><code>validated()</code> は<strong>リクエスト全体ではなく、rules() にキーがある項目だけ</strong>を返す。だから <code>book_id</code>/<code>knowledge_id</code> は入るが、<strong>rules に無い <code>from</code> は入らない</strong>（＝store では <code>from</code> を <code>$request->input('from')</code> で読む理由）</li>
+          <li>store に入った時点で<strong>検証は通過済み</strong>。失敗時は store が動く前に自動で差し戻される</li>
+          <li><code>safe()</code> は validated と同じデータを、<code>->except()</code>/<code>->only()</code> で<strong>加工できるオブジェクト</strong>で返す（validated() はただの配列）</li>
+          <li><code>$request->safe()->except(['book_id','knowledge_id'])</code> ＝ 検証済みから2つを除いた<strong>Fillable な中身カラムだけ</strong>を create に渡す</li>
+          <li>book_id はリレーション経由で、knowledge_id は後で個別代入するので除外。<code>all()</code> を使わず <code>safe()</code> 起点にするのがマスアサインメント防御</li>
+        </ul>
+      </div>
+    </div>
+
+    <h2>store の2FK処理（再確認）</h2>
+    <table>
+      <tr><th>手順</th><th>コード</th><th>なぜ</th></tr>
+      <tr><td>① 本経由で作成</td><td><code>$book->actions()->create(...->except([...]))</code></td><td>book_id をリレーション経由で安全にセット（Fillable 外）</td></tr>
+      <tr><td>② 知識を後付け</td><td><code>if(! empty($validated['knowledge_id'])) { 直接代入; save(); }</code></td><td>任意なので検証済みの時だけ直接代入</td></tr>
+      <tr><td>③ 戻り先</td><td><code>match($request->input('from'))</code></td><td>index→行動一覧 / knowledge→知識詳細 / 他(book含む)→本の詳細</td></tr>
+    </table>
+
+    <h2>現状のまとめ（feature/7-actions）</h2>
+    <table>
+      <tr><th>レイヤー</th><th>状態</th></tr>
+      <tr><td>Migration / Model / リレーション / Factory</td><td><span class="ok">完成</span></td></tr>
+      <tr><td>routes / ActionRequest / ActionPolicy / ActionController</td><td><span class="ok">完成</span></td></tr>
+      <tr><td>ビュー（create の Alpine 連動含む）</td><td>次のステップ</td></tr>
+      <tr><td>各入口の導線接続 / Feature テスト</td><td>未</td></tr>
+    </table>
+    <p>軽微メモ：ActionController の <code>use Illuminate\Http\Request;</code> は未使用（実害なし・消してもOK）。ActionPolicy 35行目コメントに <code>一致すrか</code> の打ち間違い（コメントのみ）。</p>
+
+    <h2>次回のタスク</h2>
+    <ul class="todo">
+      <li>ビュー作成：まず actions/index、次に山場の actions/create（Alpine 連動ドロップダウン）</li>
+      <li>show / edit ビュー</li>
+      <li>各入口の導線接続（知識詳細・本の詳細・独立一覧の「+ new Action」）</li>
+      <li>Feature テスト（CRUD ＋ 認可 ＋ 整合：他人の本の知識を紐づけられない 等）</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; feature/7-actions &mdash; 2026-07-07
+  </footer>
+</body>
+</html>

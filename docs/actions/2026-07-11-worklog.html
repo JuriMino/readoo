@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 行動管理 作業記録 2026-07-11</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--orange), #f0752f); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--orange); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--orange); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--blue); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--orange); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+    .qbox { border-left: 3px solid var(--green); padding-left: .9rem; margin: 1.2rem 0; }
+    .qbox .q { font-weight: 700; color: var(--text); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>行動管理（actions） 作業記録</h1>
+    <p>2026-07-11 &mdash; feature/7-actions：Featureテスト実装 ＆ テスト設計の考え方</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>Action の <strong>Featureテストを実装し、全pass</strong>。CRUD・認可・整合性・入り口別リダイレクトを網羅。これで行動機能は<strong>実装からテストまで完了</strong>。本記録では、写経で使ったテストメソッドの解説と、<strong>そもそもテスト観点をどう洗い出すか／なぜUnitでなくFeatureか</strong>という設計の考え方をまとめる。</p>
+      <ul class="checklist">
+        <li><code>ActionTest.php</code>（CRUD・バリデーション・リダイレクト・ゲスト）</li>
+        <li><code>ActionAuthorizationTest.php</code>（他人の行動の閲覧/編集/更新/削除・他人の本への作成・別の本の知識の紐付け）</li>
+        <li>写経で出たエラー2件（405／assertRedirectの生文字列）を修正して全pass</li>
+      </ul>
+    </div>
+
+    <h2>1. よく使うテストメソッド全解説</h2>
+    <p>1本のテストは「<strong>①前提を作る（Arrange）→ ②操作する（Act）→ ③確かめる（Assert）</strong>」の3段。使ったメソッドを役割ごとに整理する。</p>
+
+    <h3>① 前提・操作系（リクエストを組み立てて送る）</h3>
+    <table>
+      <tr><th>メソッド</th><th>役割</th></tr>
+      <tr><td><code>actingAs($user)</code></td><td>以降のリクエストを「<strong>$user でログイン済み</strong>」として送る。認証をくぐらせる。</td></tr>
+      <tr><td><code>from($url)</code></td><td>「<strong>直前にいたURL（リファラ）</strong>」を偽装する。<strong>バリデーション失敗などで「元の画面へ戻る」挙動</strong>の戻り先を決めるために置く。</td></tr>
+      <tr><td><code>get / post / patch / delete($url, $data)</code></td><td>指定メソッドで<strong>フルスタックを通して</strong>リクエスト。第2引数はフォーム送信データ。返り値は <code>TestResponse</code>。</td></tr>
+    </table>
+    <div class="warn">
+      <strong>2つの "from" を混同しない：</strong>
+      <ul>
+        <li><code>-&gt;from($url)</code>＝<strong>テストのヘルパー</strong>。バリデーション失敗時の戻り先（リファラ）を偽装するだけ。</li>
+        <li>ペイロードの <code>'from' =&gt; 'index'</code>＝<strong>アプリ独自のhiddenフィールド</strong>。登録<strong>成功後</strong>の戻り先を分岐させる。</li>
+      </ul>
+      名前は同じでも全くの別物。バリデーションが失敗するテストでは<strong>コントローラ本体は実行されない</strong>ので、後者（アプリのfrom分岐）は動かず、戻り先は前者（<code>-&gt;from()</code>）で決まる。
+    </div>
+
+    <h3>② レスポンス検証系（TestResponseに対して）</h3>
+    <table>
+      <tr><th>メソッド</th><th>合格条件</th></tr>
+      <tr><td><code>assertOk()</code></td><td>HTTPステータス <strong>200</strong>（正常表示）</td></tr>
+      <tr><td><code>assertSee($text)</code> / <code>assertDontSee($text)</code></td><td>レスポンス本文にその文字列が<strong>含まれる／含まれない</strong>。一覧の「自分のは出る／他人のは出ない」検証に使用</td></tr>
+      <tr><td><code>assertRedirect($url)</code></td><td>指定URLへ<strong>リダイレクト（3xx）</strong>している。<code>$url</code>は必ず <code>route('...')</code> で作る（生文字列だとドットもそのまま比較され失敗）</td></tr>
+      <tr><td><code>assertForbidden()</code></td><td>HTTPステータス <strong>403</strong>（認可拒否）。Policyで弾かれたことの確認</td></tr>
+      <tr><td><code>assertSessionHasErrors($keys)</code></td><td>セッションに<strong>指定キーのバリデーションエラー</strong>がある。<code>['title','timing',...]</code> と配列で複数同時にも確認できる</td></tr>
+    </table>
+
+    <h3>③ DB検証系（TestCaseに対して＝<code>$this-&gt;</code>）</h3>
+    <table>
+      <tr><th>メソッド</th><th>合格条件</th></tr>
+      <tr><td><code>assertDatabaseHas($table, $attrs)</code></td><td>その属性に<strong>一致する行が存在</strong>する。登録・更新が「実際にDBに入ったか」を確認（<code>['book_id' =&gt; null]</code> のようにNULL一致も可）</td></tr>
+      <tr><td><code>assertDatabaseCount($table, $n)</code></td><td>そのテーブルの<strong>行数がちょうど <code>$n</code></strong>。<code>('actions', 0)</code> の <strong>0 は「レコード件数」</strong>＝「1件も作られていない」の確認</td></tr>
+      <tr><td><code>assertSoftDeleted($model)</code> / <code>assertNotSoftDeleted($model)</code></td><td><code>deleted_at</code> が<strong>入った／入っていない</strong>。論理削除の成否を確認</td></tr>
+    </table>
+    <div class="note">
+      <strong>兄弟メソッド：</strong> 今回は使っていないが <code>assertDatabaseMissing($table, $attrs)</code>（一致行が<strong>無い</strong>ことの確認）もよく使う。<code>Has</code>／<code>Missing</code>／<code>Count</code> は3点セットで覚えると良い。
+    </div>
+
+    <h2>2. 例：整合性テストの逐次読み</h2>
+    <pre><code>$this-&gt;actingAs($user)                          // ① $user としてログイン
+    -&gt;from(route('actions.create'))            // ① 失敗時の戻り先＝create をセット
+    -&gt;post(route('actions.store'), $this-&gt;validData($book1, [  // ② 有効データ＋…
+        'knowledge_id' =&gt; $knowledgeOnBook2-&gt;id,             //    別の本の知識を混ぜて送信
+    ]))
+    -&gt;assertSessionHasErrors('knowledge_id')   // ③ knowledge_id でエラーが出た
+    -&gt;assertRedirect(route('actions.create')); // ③ create へ差し戻された
+
+$this-&gt;assertDatabaseCount('actions', 0);      // ③ 行は1件も作られていない</code></pre>
+    <div class="qa">
+      <strong>何を保証しているか：</strong> Alpineの絞り込み（＝画面上の親切）を無視してフォームを改ざんし「book1の行動にbook2の知識」を送っても、<code>ActionRequest</code> の <code>Rule::exists('knowledges','id')-&gt;where('book_id', ...)</code> が<strong>サーバ側で弾く</strong>。「他人の本の知識」も「自分の別の本の知識」も、この1本のルールで同時に防げていることを、DB件数0で裏取りしている。
+    </div>
+
+    <h2>3. Tips：テスト観点の洗い出しと Unit / Feature の選び方</h2>
+
+    <h3>なぜ今回 Unit ではなく Feature なのか</h3>
+    <div class="card">
+      <table>
+        <tr><th></th><th>Unitテスト</th><th>Featureテスト</th></tr>
+        <tr><td>対象</td><td>1つのクラス／メソッドを<strong>単体で</strong></td><td>ルート→ミドルウェア→FormRequest→コントローラ→Policy→Eloquent→DB→レスポンスの<strong>通し</strong></td></tr>
+        <tr><td>速さ</td><td>速い（DB・HTTP無し）</td><td>やや重い（フレームワーク起動・DB使用）</td></tr>
+        <tr><td>得意</td><td>分岐の多い<strong>純粋なロジック</strong>（計算・状態遷移・値オブジェクト）</td><td><strong>部品の連携で意味が生まれる振る舞い</strong>（認可・検証・リダイレクト・永続化）</td></tr>
+      </table>
+      <p><strong>結論：</strong> Readooのこの機能の価値は「認可されているか」「不正入力を弾くか」「正しくDBに入る／戻るか」という<strong>統合の正しさ</strong>にある。これらは部品を組み上げて初めて意味を持つので、Featureが適所。逆に、たとえばPolicyの <code>$user-&gt;id === $action-&gt;book?-&gt;user_id</code> だけを単体テストしても、「そもそもルートが認証で守られているか」「Fillableから漏れていないか」といった<strong>本当のリスクは捕まえられない</strong>。</p>
+      <p><strong>Unitが向く場面（今後）：</strong> 「読書ストリークの日数計算」「ステータス遷移の可否判定」のような、DBやHTTPと切り離せる<strong>リッチなドメインロジック</strong>を作ったとき。現状のReadooはCRUD中心でその手のロジックが薄いので、Featureに寄せるのが費用対効果として妥当。</p>
+    </div>
+
+    <h3>Featureテストはユースケース起点で洗い出す（＋「不変条件」起点）</h3>
+    <p>質問「ユースケースベースに洗い出すのか？」への答え：<strong>基本はYes。ただし “叶えたい約束” と “絶対に起きてはいけないこと” の両面で拾う。</strong></p>
+    <div class="key">
+      <strong>観点の型（この順で機械的に拾うと漏れにくい）：</strong>
+      <ol>
+        <li><strong>正常系（ハッピーパス）</strong>：各操作が成功し、結果が残る。<br>例：登録できる／更新できる／論理削除できる／一覧・詳細が表示できる</li>
+        <li><strong>境界・検証（バリデーション）</strong>：必須が欠けたら弾かれ、<strong>DBに残らない</strong>。<br>例：title・5W1H必須が空 → エラー＋件数0</li>
+        <li><strong>認可（誰がやるか）</strong>：所有者以外は403、未ログインはログインへ。<br>例：他人の行動を view/edit/update/delete → 403</li>
+        <li><strong>業務ルール・整合性（そのドメイン固有の“不変条件”）</strong>：<br>例：別の本の知識は紐付け不可／更新で本・知識は付け替え不可／入り口(from)で戻り先が変わる</li>
+        <li><strong>否定の永続化確認</strong>：拒否された操作の<strong>あとにDBが変わっていない</strong>。<br>例：403のあと <code>assertDatabaseHas(元の値)</code>／<code>assertNotSoftDeleted</code>／<code>Count 0</code></li>
+      </ol>
+    </div>
+    <div class="note">
+      <strong>効率よく絞るコツ：</strong>
+      <ul>
+        <li><strong>同値分割</strong>：全フィールドを個別に試さない。「必須が欠けた」代表1本（複数キーをまとめて <code>assertSessionHasErrors([...])</code>）で十分。</li>
+        <li><strong>リスクベース</strong>：バグの<strong>起こりやすさ×被害の大きさ</strong>が高いところに厚く。<strong>認可とマスアサインメント（Fillable漏れ）は被害が大きい</strong>ので必ず書く。</li>
+        <li><strong>1テスト1論点</strong>：名前が「何を保証するか」を語れる粒度に割る（<code>test_user_cannot_attach_knowledge_of_another_book</code> のように）。</li>
+        <li><strong>成功と“変化なし”はペア</strong>：「できる」を書いたら、対になる「できない＆DB不変」も書くと守りが完成する。</li>
+      </ul>
+    </div>
+
+    <h3>この考え方でActionを割った結果（対応表）</h3>
+    <table>
+      <tr><th>観点</th><th>テスト</th></tr>
+      <tr><td>正常系</td><td>index表示 / create表示 / 登録 / 知識付き登録 / 詳細 / edit表示 / 更新 / 論理削除</td></tr>
+      <tr><td>検証</td><td>title・5W1H必須が空で弾かれDB0件</td></tr>
+      <tr><td>認可</td><td>他人の view/edit/update/delete=403、ゲストはlogin、他人の本へ作成=book_idエラー</td></tr>
+      <tr><td>整合性</td><td>from=index/knowledge で戻り先分岐、更新で本・知識は不変、別の本の知識は紐付け不可</td></tr>
+      <tr><td>否定の永続化</td><td>403後に元値が残る／assertNotSoftDeleted／Count 0</td></tr>
+    </table>
+
+    <h2>4. 写経で出たエラーと修正</h2>
+    <table>
+      <tr><th>症状</th><th>原因</th><th>修正</th></tr>
+      <tr><td><span class="bug">405</span> Method Not Allowed（更新テスト）</td><td>更新ルートは <code>PATCH|PUT</code> 専用なのに <code>-&gt;post()</code> で送っていた</td><td><code>-&gt;patch()</code> に変更</td></tr>
+      <tr><td>リダイレクト先の文字列不一致（整合性テスト）</td><td><code>assertRedirect('actions.create')</code> と<strong>生文字列</strong>を渡し、<code>/actions.create</code> と比較していた</td><td><code>assertRedirect(route('actions.create'))</code> に変更</td></tr>
+    </table>
+    <div class="note">
+      <strong>学び：</strong> 405は「URLはあるがメソッド違い」。同じ <code>/actions/{action}</code> でも <code>show=GET / update=PATCH,PUT / destroy=DELETE</code> とメソッドで振り分く。テストは <code>-&gt;patch()</code> 等で狙ったメソッドを直接叩ける（ブラウザの <code>@method('PATCH')</code> 偽装に相当）。URL比較は<strong>必ず <code>route()</code></strong> で作る。
+    </div>
+
+    <h2>次回の残タスク</h2>
+    <ul class="todo">
+      <li>feature/7-actions の PR → main マージ（本・知識と同じ流れ）</li>
+      <li>（任意）退会カスケードで行動も物理削除されることのテスト（現状は本のみ検証）</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; 2026-07-11 &mdash; feature/7-actions
+  </footer>
+</body>
+</html>

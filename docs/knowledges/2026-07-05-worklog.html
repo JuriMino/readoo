@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 知識管理 作業記録 2026-07-05</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--blue), #4f7cf0); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--blue); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .tips { background:#eef2ff; border:1px solid #c7d2fe; border-radius:8px; padding:1rem 1.2rem; margin:1rem 0; }
+    .tips strong { color: var(--blue); }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>知識管理（knowledges） 作業記録</h1>
+    <p>2026-07-05 &mdash; feature/5-knowledges：Feature テスト（CRUD ＆ 認可）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>知識機能の Feature テストを2ファイル作成（写経）。正常系 CRUD の <code>KnowledgeTest</code>（11本）と、他人のデータへのアクセスを防ぐ <code>KnowledgeAuthorizationTest</code>（5本）で計16本。全体スイートも <strong>45本 PASS（120アサーション）</strong>で、知識機能が <strong>CRUD ＋ 認可までテストで守られた状態</strong>になった。</p>
+    </div>
+
+    <ul class="checklist">
+      <li><code>tests/Feature/KnowledgeTest.php</code>（CRUD 正常系 11本）</li>
+      <li><code>tests/Feature/KnowledgeAuthorizationTest.php</code>（認可 5本）</li>
+      <li>写経ミス1点を修正（<code>from</code> → <code>tag1</code>、テストが検知）</li>
+      <li>全体スイート 45本 PASS 確認</li>
+    </ul>
+
+    <h2>1. テストの基本方針（Book をミラー）</h2>
+    <p>既存の <code>BookTest</code> / <code>BookAuthorizationTest</code> と同じ2ファイル構成を踏襲。知識ならではのポイントは <strong>「Knowledge は Book 経由の間接所有」</strong>である点。</p>
+    <div class="key">
+      <strong>親子の組み立て：<code>Book::factory()->for($user)</code> → <code>Knowledge::factory()->for($book)</code></strong>
+      <p style="margin:.4rem 0 0;">User → Book → Knowledge の親子関係を明示的に作る。<code>->for()</code> は belongsTo（<code>book()</code> / <code>user()</code>）を辿って所有者を固定するので、「自分の本に紐づく知識」「他人の本に紐づく知識」を作り分けられる。</p>
+    </div>
+    <p>DB は <code>phpunit.xml</code> で SQLite の <code>:memory:</code>。<code>RefreshDatabase</code> で毎テスト初期化されるため、実DBを汚さず高速に回る。</p>
+
+    <h2>2. KnowledgeTest.php（CRUD 正常系・11本）</h2>
+    <table>
+      <tr><th>テスト</th><th>確認内容</th></tr>
+      <tr><td>index</td><td>自分の本に紐づく知識だけ表示、他人のは出ない</td></tr>
+      <tr><td>create画面</td><td>200 で表示できる</td></tr>
+      <tr><td>store</td><td>登録され <code>book_id</code> が自分の本／既定は本の詳細へリダイレクト</td></tr>
+      <tr><td>store（from=index）</td><td><code>from=index</code> のとき知識一覧へリダイレクト</td></tr>
+      <tr><td>requires title</td><td>タイトル未入力で弾かれ、登録されない</td></tr>
+      <tr><td>show</td><td>自分の知識詳細が見れる</td></tr>
+      <tr><td>edit画面</td><td>200 で表示できる</td></tr>
+      <tr><td>update</td><td>更新でき、知識詳細へリダイレクト</td></tr>
+      <tr><td>update で book_id 不変</td><td>別の本のIDを送っても参照元が変わらない</td></tr>
+      <tr><td>soft delete</td><td>論理削除され、親の本の詳細へリダイレクト</td></tr>
+      <tr><td>guest</td><td>未ログインは login へ</td></tr>
+    </table>
+
+    <div class="key">
+      <strong><code>test_update_cannot_change_book_id</code> ＝ 設計をテストで固定</strong>
+      <p style="margin:.4rem 0 0;">編集画面で参照元の本を付け替えられない設計（<code>update()</code> の <code>except('book_id')</code>）を検証。<strong>将来うっかり book_id を fillable に足しても、このテストが落ちて気づける</strong>という「回帰の防波堤」になる。</p>
+    </div>
+
+    <div class="note">
+      <strong>検証したい項目以外は「正常値」を送る</strong>
+      <p style="margin:.4rem 0 0;"><code>requires title</code> テストでは title を省く一方、<code>book_id</code> と <code>content</code> は有効値を送る。book_id を空にすると book_id のエラーも同時に出て、「title が原因で落ちた」ことが濁ってしまう。<strong>1テスト1関心</strong>を保つコツ。</p>
+    </div>
+
+    <h2>3. KnowledgeAuthorizationTest.php（認可・5本）</h2>
+    <table>
+      <tr><th>テスト</th><th>確認している防御</th></tr>
+      <tr><td>view others</td><td>他人の知識詳細は <span class="bug">403</span></td></tr>
+      <tr><td>edit others</td><td>他人の編集画面は <span class="bug">403</span></td></tr>
+      <tr><td>update others</td><td><span class="bug">403</span> ＋ 内容が変わっていない</td></tr>
+      <tr><td>delete others</td><td><span class="bug">403</span> ＋ 削除されていない</td></tr>
+      <tr><td>create on others book</td><td>他人の本IDでの作成は <strong>バリデーションで拒否</strong>（session エラー）＋ 未登録</td></tr>
+    </table>
+
+    <div class="key">
+      <strong>なぜ「作成」だけ 403 ではないのか</strong>
+      <p style="margin:.4rem 0 0;">
+        既存データ（view/edit/update/delete）は「本 → user_id」を <strong>Policy</strong> で辿れるので <code>403</code>。<br>
+        一方 <strong>作成時はまだ知識が存在しない</strong>ため Policy で守れない。代わりに「その book_id は自分の本か？」を<strong>入力値のバリデーション</strong>で検証している：<br>
+        <code>Rule::exists('books','id')->where('user_id', $this->user()->id)</code><br>
+        他人の本IDは「自分の本の中には存在しない」扱いになり、<code>book_id</code> のバリデーションエラー（redirect＋session エラー）になる。＝ <strong>403 ではなく 422相当の差し戻し</strong>。この層の違いを理解しておくと、認可の設計が読みやすくなる。
+      </p>
+    </div>
+
+    <div class="note">
+      <strong>403 の確認は「返り値」だけでなく「データ保護」まで</strong>
+      <p style="margin:.4rem 0 0;">update / delete の他人テストは、<code>assertForbidden()</code> に加えて <code>assertDatabaseHas(...元の値)</code> / <code>assertNotSoftDeleted()</code> まで見る。「403 は返るが実は書き換わっていた」を防ぐため、<strong>状態が変わっていないことまで</strong>アサートする。</p>
+    </div>
+
+    <h2>4. 写経ミスとテストの効用</h2>
+    <div class="warn">
+      <strong>store（from=index）が失敗 → 原因はテスト側の <code>from</code> → <code>tag1</code></strong>
+      <p style="margin:.4rem 0;">実際のリダイレクト先が <code>books/1</code>（本の詳細）になり期待の <code>knowledges</code> と不一致。テストのペイロードで <code>'from' => 'index'</code> が <code>'tag1' => 'index'</code> に化けていたため、<code>from</code> が届かず既定分岐になっていた（＝<strong>コードは正しい</strong>）。<code>tag1</code> を <code>from</code> に直して解決。</p>
+      <p style="margin:.4rem 0 0;">教訓：もし <code>from</code> 分岐に本当のバグがあっても、<code>tag1</code> を送っていたら「たまたま通る」ことはない。<strong>期待した経路を URL レベルで検証できている</strong>証拠でもあった。</p>
+    </div>
+
+    <h2>5. 到達点</h2>
+    <table>
+      <tr><th>レイヤー</th><th>状態</th></tr>
+      <tr><td>Model / Migration / Factory</td><td><span class="ok">完成</span></td></tr>
+      <tr><td>Controller / FormRequest / Policy</td><td><span class="ok">完成</span></td></tr>
+      <tr><td>ビュー（create / index / show / edit / delete）</td><td><span class="ok">完成</span></td></tr>
+      <tr><td>テスト（CRUD 11 ＋ 認可 5 = 16本）</td><td><span class="ok">完成</span></td></tr>
+    </table>
+    <p>全体スイート <strong>45本 PASS（120アサーション）</strong>。feature/5-knowledges のスコープはほぼ完了。</p>
+
+    <h2>Tips：テスト実行コマンド</h2>
+    <p>自分のターミナルで回す場合（対話ターミナルなので <code>-T</code> は不要。<code>-T</code> は自動実行側で疑似TTYを割り当てないためのオプション）。</p>
+
+    <h4>基本</h4>
+    <pre><code># 全テスト実行（コミット前にこれを1回流す習慣を）
+docker compose exec app php artisan test</code></pre>
+
+    <h4>絞り込み</h4>
+    <pre><code># ファイル単位（クラス名）
+docker compose exec app php artisan test --filter=KnowledgeTest
+
+# メソッド単位（1本だけ）
+docker compose exec app php artisan test --filter=test_knowledge_can_be_updated
+
+# スイート単位
+docker compose exec app php artisan test --testsuite=Feature</code></pre>
+
+    <h4>便利オプション</h4>
+    <pre><code># 最初の失敗で止める（デバッグ時に速い）
+docker compose exec app php artisan test --stop-on-failure
+
+# 並列実行で高速化（テスト数が増えたとき）
+docker compose exec app php artisan test --parallel</code></pre>
+
+    <div class="tips">
+      <strong>補足</strong>
+      <ul style="margin:.4rem 0 0;">
+        <li>チャットに結果を出したいときは、プロンプトで <code>!</code> を付けて実行：<code>! docker compose exec app php artisan test</code></li>
+        <li>コンテナが止まっていたら先に <code>docker compose up -d</code>。</li>
+        <li>素の PHPUnit（<code>./vendor/bin/phpunit</code>）でも動くが、<code>artisan test</code> の方が出力が見やすい。</li>
+      </ul>
+    </div>
+
+    <h2>今後のタスク</h2>
+    <ul class="todo">
+      <li>（確認）退会時に知識もカスケード物理削除されるかのテストを退会機能側に追加（削除方針の担保）</li>
+      <li>feature/5-knowledges の仕上げ（PR 作成など）</li>
+      <li>行動（Action）機能に着手 → 知識詳細の「紐づく行動」セクションを実データで追加</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; feature/5-knowledges &mdash; 2026-07-05
+  </footer>
+</body>
+</html>

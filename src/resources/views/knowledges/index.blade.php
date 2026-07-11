@@ -10,7 +10,7 @@
             </div>
             <div class="flex gap-3">
                 <a href="{{ route('books.index')}}" class="inline-block mt-4 px-5 py-2 bg-book rounded-lg text-white font-bold hover:opacity-90 transition">Book List</a>
-                <a href="#" class="inline-block mt-4 px-5 py-2 bg-action rounded-lg text-white font-bold hover:opacity-90 transition">Action List</a>
+                <a href="{{ route('actions.index')}}" class="inline-block mt-4 px-5 py-2 bg-action rounded-lg text-white font-bold hover:opacity-90 transition">Action List</a>
             </div>
         </div>
 

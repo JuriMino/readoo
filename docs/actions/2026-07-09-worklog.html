@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 行動管理 作業記録 2026-07-09</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--orange), #f0752f); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--orange); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--orange); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--blue); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--orange); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+    .qbox { border-left: 3px solid var(--green); padding-left: .9rem; margin: 1.2rem 0; }
+    .qbox .q { font-weight: 700; color: var(--text); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>行動管理（actions） 作業記録</h1>
+    <p>2026-07-09 &mdash; feature/7-actions：行動詳細ビュー（show）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p><strong>行動詳細画面（<code>actions/show.blade.php</code>）</strong>を作成。Figmaに沿って、基本情報 / 5W1H（小ボックス2列グリッド）/ タグ / 紐づく知識（青テーマの他ドメイン導線）/ 削除モーダル を実装。写経段階のタイプミス2件（500エラー・レイアウト崩れ）を修正して完成。</p>
+      <ul class="checklist">
+        <li><code>actions/show.blade.php</code> 完成（表示・削除・各リンク確認済み）</li>
+        <li>次の edit ビューの設計方針（本・知識ロック）を確認</li>
+      </ul>
+    </div>
+
+    <h2>1. 詳細ビューの構成</h2>
+    <p>知識詳細（<code>knowledges/show</code>）を土台に、テーマをオレンジへ。ただし行動詳細には<strong>独自ポイントが2つ</strong>ある。</p>
+
+    <h3>独自ポイント① 5W1H は「小ボックス6個の2列グリッド」</h3>
+    <p>登録画面の入力欄をそのまま読み取り専用にした見た目。6項目をベタ書きせず、配列＋ループで生成した。</p>
+    <pre><code>@php
+    $w5h1 = [
+        'timing'        =&gt; 'WHEN：いつ実行する？',
+        'place'         =&gt; 'WHERE：どこで実行する？',
+        'target_person' =&gt; 'WHO：誰に関わる？',
+        'detail'        =&gt; 'WHAT：何をする？',
+        'reason'        =&gt; 'WHY：なぜやる？なんのためにやる？',
+        'method'        =&gt; 'HOW：どうやってやる？',
+    ];
+@endphp
+&#64;foreach ($w5h1 as $name =&gt; $label)
+    ...
+    {{ $action-&gt;{$name} ?? '-' }}
+&#64;endforeach</code></pre>
+      <div class="key">
+        <strong>動的プロパティ <code>$action-&gt;{$name}</code>：</strong> カラム名を変数で持ち、<code>{$name}</code> で動的にプロパティ参照。6個の似た項目を1つのループにまとめられる。空（WHO/WHATが未入力）のときは <code>?? '-'</code> で「-」を表示、<code>whitespace-pre-wrap</code> で改行を保持。
+      </div>
+      <div class="note">
+        <strong><code>??</code> が効く理由：</strong> WHO/WHAT は nullable。フォームで空欄のまま送ると Laravel 既定の <code>ConvertEmptyStringsToNull</code> ミドルウェアが空文字→<code>null</code> に変換して保存するため、<code>?? '-'</code>（null合体）でちゃんと「-」になる。もし空文字 <code>''</code> のまま保存される設計なら <code>?:</code>（falsy判定）が必要になるが、本アプリは前者なので <code>??</code> でOK。
+      </div>
+
+    <h3>独自ポイント② 「紐づく知識」だけ青テーマ・条件表示</h3>
+    <pre><code>&#64;if ($action-&gt;knowledge)
+    &lt;section ...&gt;
+        &lt;h2 class="... bg-knowledge text-white ..."&gt;紐づく知識&lt;/h2&gt;
+        &lt;div class="... bg-blue-50"&gt;
+            &lt;a href="{{ route('knowledges.show', $action-&gt;knowledge) }}" ...&gt;
+                {{ $action-&gt;knowledge-&gt;title }}
+            &lt;/a&gt;
+        &lt;/div&gt;
+    &lt;/section&gt;
+&#64;endif</code></pre>
+      <ul>
+        <li><strong>色で「別ドメインへの導線」を表現：</strong> 他のカードはオレンジ（action色）だが、この1枚だけ <code>bg-knowledge</code>（青）。知識詳細へ飛ぶリンクであることを視覚的に区別。</li>
+        <li><strong><code>@if ($action-&gt;knowledge)</code> で条件表示：</strong> 関連知識は任意（<code>knowledge_id</code> は nullable）。紐づかない行動もあるので、ある時だけカードを出す。</li>
+      </ul>
+
+    <h2>2. 詰まったところ：<span class="bug">写経タイプミス2件</span></h2>
+    <table>
+      <tr><th>#</th><th>誤</th><th>正</th><th>症状</th></tr>
+      <tr>
+        <td>1</td>
+        <td><code>$action-&gt;knowkedge-&gt;title</code></td>
+        <td><code>$action-&gt;knowledge-&gt;title</code></td>
+        <td><code>knowkedge</code>（<code>l</code>抜け＋<code>k</code>余分）は存在しないプロパティ→null→<code>-&gt;title</code>で<strong>500エラー</strong>。<code>@if</code>を通った直後なので<strong>知識が紐づく行動を開くと必ず落ちる</strong></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><code>grid-cops-2</code></td>
+        <td><code>grid-cols-2</code></td>
+        <td><code>cops</code>→<code>cols</code>。無効クラスで<strong>5W1Hが2列にならず縦1列に積まれる</strong></td>
+      </tr>
+    </table>
+    <div class="warn">
+      <strong>教訓（前回に続く）：</strong> リレーション名のタイプミス（<code>knowkedge</code>）は<strong>存在しないプロパティ＝黙って null</strong>になり、その先で <code>-&gt;title</code> を触った瞬間に初めて500になる。Tailwindのクラス名タイプミス（<code>grid-cops-2</code>）は<strong>エラーも出ず、ただ効かないだけ</strong>。どちらも「該当箇所を実際に表示させてみて」初めて発覚する。<strong>知識あり／なし、タグあり／なしなど分岐のあるビューは、各パターンを1回ずつ開いて確認する</strong>のが確実。
+    </div>
+    <p>他に軽微な表記ゆれ（<code>gap-yp-5</code>→<code>gap-y-5</code>、パンくず <code>Deatil</code>→<code>Detail</code>、削除確認文の鉤括弧の位置）も修正。</p>
+
+    <h2>3. <code>?-&gt;</code>（ヌル安全）の要否・再整理</h2>
+    <div class="card">
+      <p>show の <code>$action-&gt;book-&gt;title</code> は <code>?-&gt;</code> 無しでも動く。理由は、本が論理削除されている場合は <strong>Policy の <code>view</code> が先に403を返し、この画面に到達しないから</strong>（<code>$user-&gt;id === $action-&gt;book?-&gt;user_id</code> が false になる）。よって描画時点で <code>book</code> は必ず存在する。</p>
+      <p>整理すると：</p>
+      <table>
+        <tr><th>場所</th><th><code>?-&gt;</code></th><th>理由</th></tr>
+        <tr><td>Policy（view/update/delete）</td><td>必須</td><td>ここで null 判定して403を出す“関所”。<code>?-&gt;</code>が無いと500になる</td></tr>
+        <tr><td>一覧（index）</td><td>不要</td><td><code>whereHas('book')</code> で論理削除済みの本は取得されない</td></tr>
+        <tr><td>詳細（show）</td><td>不要（付けても可）</td><td>Policyの関所を通過済みなので book は存在する。防御的に付けてもよい</td></tr>
+      </table>
+      <p>「<strong>そのコードに到達した時点で null になり得るか</strong>」で判断する、という原則。</p>
+    </div>
+
+    <h2>4. 次の edit ビューの設計方針（確認済み）</h2>
+    <div class="qa">
+      <strong>方針：</strong> edit は「すでに確定した参照」を扱うので、create とは扱いを変える。
+    </div>
+    <ul>
+      <li><strong>本・関連知識はロック（読み取り専用表示）</strong> — 確定済みの参照を後から付け替えない（履歴の意味が崩れるため）。知識の edit と同じ思想。</li>
+      <li><strong>タイトル・該当箇所・5W1H・タグは編集可</strong></li>
+      <li><code>@method('patch')</code>、<code>old('field', $action-&gt;field)</code> で現在値を初期表示</li>
+    </ul>
+
+    <h2>次回の残タスク</h2>
+    <ul class="todo">
+      <li><code>actions/edit.blade.php</code>（本・知識ロック表示、5W1H編集、PATCH）</li>
+      <li>詳細の編集アイコン <code>href=""</code> を <code>route('actions.edit', $action)</code> に繋ぐ</li>
+      <li>入り口リンクの繋ぎ込み：知識詳細「+ new Action」(<code>from=knowledge</code>) / 本詳細「+ new Action」(<code>from=book</code>) / 各一覧の <code>href="#"</code> の Action List・詳細ボタン・New Action</li>
+      <li>知識詳細に「紐づく行動」セクションを追加</li>
+      <li>Action の Featureテスト（CRUD＋認可＋整合性：他人の本の知識は紐付けられない）</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; 2026-07-09 &mdash; feature/7-actions
+  </footer>
+</body>
+</html>

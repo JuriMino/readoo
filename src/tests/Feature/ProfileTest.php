@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use App\Models\Book;
+use App\Models\Knowledge;
+use App\Models\Action;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -104,6 +106,27 @@ class ProfileTest extends TestCase
         $this->assertDatabaseMissing('books',['id' => $activeBook->id]);    // 本は物理削除
         $this->assertDatabaseMissing('books',['id' => $trashedBook->id]);   // 論理削除済みも物理削除
     }
+
+    // 退会すると、紐づく知識・行動も物理削除される（本の物理削除からFKで連鎖）
+    public function test_account_deletion_force_deletes_child_records(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->for($user)->create();
+        $knowledge = Knowledge::factory()->for($book)->create();
+        $action = Action::factory()->for($book)->create(['knowledge_id' => $knowledge->id]);
+
+        $this->actingAs($user)
+            ->delete('/profile',['password' => 'password'])
+            ->assertRedirect('/');
+
+        $this->assertSoftDeleted($user); // ユーザーは論理削除
+        $this->assertDatabaseMissing('knowledges',['id' => $knowledge->id]); // 知識は物理削除
+        $this->assertDatabaseMissing('actions',['id' => $action->id]); // 行動は物理削除
+
+
+    }
+
+
 
     // 退会後、同じメールアドレスで再登録できる（メール退避の確認）
     public function test_email_can_be_reused_after_account_deletion(): void

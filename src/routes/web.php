@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\KnowledgeController;
+use App\Http\Controllers\ActionController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,6 +28,9 @@ Route::middleware('auth')->group(function () {
 
     // Knowledges
     Route::resource('knowledges', KnowledgeController::class);
+
+    // Actions
+    Route::resource('actions', ActionController::class);
 
 });
 
