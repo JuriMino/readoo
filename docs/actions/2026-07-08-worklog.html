@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 行動管理 作業記録 2026-07-08</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--orange), #f0752f); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--orange); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--orange); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--blue); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--orange); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+    .qbox { border-left: 3px solid var(--green); padding-left: .9rem; margin: 1.2rem 0; }
+    .qbox .q { font-weight: 700; color: var(--text); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>行動管理（actions） 作業記録</h1>
+    <p>2026-07-08 &mdash; feature/7-actions：一覧ビュー ＆ 新規登録ビュー（Alpine連動ドロップダウン）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>行動機能のビュー実装に着手。<strong>index（一覧）</strong>と、本日の山場である<strong>create（新規登録・本→知識の連動ドロップダウン）</strong>の2画面を完成させた。連動部分はAlpine.jsで実装。写経段階で「画面は表示されるのに送信・連動が動かない」典型的なタイプミス4種にハマったので、その記録を重点的に残す。</p>
+      <ul class="checklist">
+        <li><code>actions/index.blade.php</code> 完成（Figmaと一致・動作確認済み）</li>
+        <li><code>actions/create.blade.php</code> 完成（Alpine連動・送信・old復元まで確認済み）</li>
+        <li>本の固定 vs 選択可の設計判断を確定（create は選択可）</li>
+      </ul>
+    </div>
+
+    <h2>1. 一覧ビュー（index）</h2>
+    <p><code>knowledges/index.blade.php</code> を土台に、テーマ色をオレンジへ差し替えて自作。列は Figma に合わせて <strong>タイトル / 参照元 / 該当箇所 / タグ / 詳細</strong> の5列。</p>
+
+    <div class="key">
+      <strong>重要ポイント：一覧では <code>?-&gt;</code> が不要な理由</strong>
+      <p>詳細（show）では <code>$action-&gt;book?-&gt;title</code> のようにヌル安全が必須だが、<strong>一覧では <code>$action-&gt;book-&gt;title</code> で良い</strong>。理由はController側で <code>whereHas('book', ...)</code> を掛けており、<strong>論理削除された本の行動はそもそも取得されない</strong>から。各行の <code>book</code> は必ず存在する。「どこで <code>?-&gt;</code> が要る／要らないか」は "そのクエリで null になり得るか" で判断する。</p>
+    </div>
+
+    <div class="note">
+      <strong>設計メモ：</strong> thead の背景を <code>bg-gray-50</code> ではなく <code>bg-orange-50 text-orange-800</code> にしてテーマ色を反映（Figma準拠）。タグpillも青→オレンジ（<code>border-orange-200 bg-orange-50 text-orange-600</code>）。「知識一覧の複製」ではなく「同じ骨格・別テーマ」という意識で差分を作る。</p>
+    </div>
+
+    <h2>2. 新規登録ビュー（create）＝本日の山場</h2>
+    <p>Figmaの構成そのままに、参照元 / 行動の内容 / 5W1H / タグ の4カード。核は <strong>本を選ぶと知識プルダウンが絞り込まれる連動ドロップダウン</strong>（Alpine.js）。</p>
+
+    <h3>5W1H → カラム対応</h3>
+    <table>
+      <tr><th>画面ラベル</th><th>カラム</th><th>必須/任意</th></tr>
+      <tr><td>WHEN：いつ実行する？</td><td><code>timing</code></td><td>必須</td></tr>
+      <tr><td>WHERE：どこで実行する？</td><td><code>place</code></td><td>必須</td></tr>
+      <tr><td>WHO：誰に関わる？</td><td><code>target_person</code></td><td>任意</td></tr>
+      <tr><td>WHAT：何をする？</td><td><code>detail</code></td><td>任意</td></tr>
+      <tr><td>WHY：なぜやる？</td><td><code>reason</code></td><td>必須</td></tr>
+      <tr><td>HOW：どうやってやる？</td><td><code>method</code></td><td>必須</td></tr>
+    </table>
+    <p>この対応は <code>ActionRequest</code> の rules と完全一致していることを事前に確認してから実装した。</p>
+
+    <h3>Alpine連動の仕組み（3つの部品）</h3>
+    <div class="card">
+      <h4>① データを渡す</h4>
+      <p>サーバから<strong>自分の全知識</strong>を <code>id / book_id / title</code> の3列だけ取得し、<code>@js($knowledges)</code> でJSON化してAlpineへ。<code>@js</code> はXSS安全にJS値へ変換してくれるBladeディレクティブ。</p>
+      <h4>② 絞り込む（getter）</h4>
+      <pre><code>get filterKnowledges(){
+    return this.knowledges.filter(k =&gt; String(k.book_id) === String(this.selectedBook));
+}</code></pre>
+      <p>選択中の本に属する知識だけを返す。<code>String(...) === String(...)</code> は<strong>型の吸収</strong>：<code>old()</code>由来は文字列、<code>@js</code>のbook_idは数値なので両方を文字列化して比較する（Blade側の <code>==</code> と同じ発想をJSでやっているだけ）。</p>
+      <h4>③ 描画する（x-for）</h4>
+      <pre><code>&lt;template x-for="k in filterKnowledges" :key="k.id"&gt;
+    &lt;option :value="k.id" x-text="k.title"&gt;&lt;/option&gt;
+&lt;/template&gt;</code></pre>
+      <p><code>selectedBook</code> が変わると getter が再計算され、プルダウンが描き直される。</p>
+    </div>
+
+    <div class="key">
+      <strong>本を変えたら知識をリセット：</strong> 本セレクトに <code>x-on:change="selectedKnowledge = ''"</code> を付与。本を切り替えたのに前の本の知識が残ると不整合になるため。<strong>初回表示（知識詳細から来て両方プリセット）では change は発火しない</strong>ので、プリセットは壊れない。</p>
+    </div>
+
+    <h2>3. 詰まったところ：<span class="bug">画面は出るのに動かない</span> タイプミス4種</h2>
+    <p>写経後「画面表示OK」で油断したが、<strong>送信と連動が丸ごと死んでいた</strong>。表示だけでは絶対に気づけない4つ。今後の教訓として最重要。</p>
+
+    <table>
+      <tr><th>#</th><th>誤</th><th>正</th><th>症状</th></tr>
+      <tr>
+        <td>1</td>
+        <td><code>&lt;form action=""&gt;</code></td>
+        <td><code>action="{{ route('actions.store') }}"</code></td>
+        <td>送信先が現在URL(<code>/actions/create</code>)になりPOSTを受けるルートが無く<strong>405エラー</strong></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><code>x-modal="..."</code> ×2</td>
+        <td><code>x-model="..."</code></td>
+        <td>存在しない指定。<code>selectedBook</code>が更新されず<strong>絞り込みが一切効かない</strong></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><code>value="k.id"</code></td>
+        <td><code>:value="k.id"</code></td>
+        <td>コロン無しだと全optionのvalueが文字列 "k.id" に固定。<strong>知識IDが入らずバリデーションで弾かれる</strong></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><code>bg-gray-200</code>(枠なし)</td>
+        <td><code>bg-gray-50 border border-gray-200</code></td>
+        <td>知識セレクトだけ見た目が浮く（機能は動く・軽微）</td>
+      </tr>
+    </table>
+
+    <div class="warn">
+      <strong>今日いちばんの教訓：「表示OK ≠ 完成」</strong>
+      <p>Bladeは壊れた属性（<code>x-modal</code>、<code>action=""</code>、<code>value="k.id"</code>）でも<strong>そのままHTMLとして描画してしまう</strong>。エラーも警告も出ない。だから <span class="bug">送信できるか</span> と <span class="bug">連動が動くか</span> は、目視ではなく<strong>必ず手で操作して確認する</strong>。特にAlpine（<code>x-model</code>/<code>:value</code>）とフォーム送信先（<code>action</code>）は、写経で最も事故りやすい3点セット。</p>
+    </div>
+
+    <div class="note">
+      <strong>コロン(<code>:</code>)の意味（再確認）：</strong> Alpineで <code>:value="k.id"</code> の <code>:</code> は <code>x-bind:value</code> の略。「中身をJS式として評価してバインドする」印。付け忘れると「ただの文字列」になる。<code>:key</code>・<code>:value</code>・<code>:class</code> など、動的な値には必ずコロン。</p>
+    </div>
+
+    <h2>4. 設計判断：createで本を「固定」するか「選択可」か</h2>
+    <div class="qa">
+      <strong>Q（自分）：</strong> 知識登録では本詳細から来たら本を固定したはず。行動でも本詳細→本固定、知識詳細→本＆知識固定にする方が一貫するのでは？
+    </div>
+    <div class="card">
+      <p><strong>事実確認：</strong> <code>knowledges/create</code> は実は「固定（ロック）」しておらず、<strong>初期選択されるだけの通常セレクト（変更可）</strong>だった。「変更不可の表示」にしていたのは知識の <strong>edit</strong> 画面。</p>
+      <p><strong>結論：</strong> <span class="ok">create は選択可のままでよい</span>。理由は—</p>
+      <ul>
+        <li><strong>edit</strong>＝すでに確定した参照。後から付け替えると履歴の意味が崩れる → <strong>ロックが正しい</strong></li>
+        <li><strong>create</strong>＝まだ何も確定していない下書き。初期選択は「入り口からの気の利いたプリセット」にすぎず、選び直せて当然 → <strong>変更可でよい</strong></li>
+      </ul>
+      <p>これで <code>knowledges/create</code> とも思想が一致し、ロック実装（<code>disabled</code>＋hidden）による分岐の複雑化も回避できた。</p>
+    </div>
+
+    <h2>5. 3つの入り口ごとの初期挙動</h2>
+    <table>
+      <tr><th>入り口</th><th>from</th><th>初期状態</th></tr>
+      <tr><td>独立一覧から</td><td><code>index</code></td><td>本・知識とも未選択。本を選ぶと知識が絞られる</td></tr>
+      <tr><td>本詳細から</td><td><code>book</code></td><td>本が初期選択。知識はその本の分に絞られた状態</td></tr>
+      <tr><td>知識詳細から</td><td><code>knowledge</code></td><td>本・知識とも初期選択済み</td></tr>
+    </table>
+    <p>いずれも「初期選択」であって「ロック」ではない。<code>from</code> は登録後・キャンセル時の<strong>戻り先</strong>の分岐にも使う（<code>$cancelUrl</code> の <code>match</code>）。</p>
+
+    <div class="key">
+      <strong>サーバが最終防衛線：</strong> Alpineの絞り込みは<strong>利便性の層</strong>にすぎない。フォームを改ざんして他人の本の知識IDを送っても、<code>ActionRequest</code> の <code>Rule::exists('knowledges','id')-&gt;where('book_id', ...)</code> が弾く。JSは信用せず、正しさはサーバで担保する。</p>
+    </div>
+
+    <h2>次回の残タスク</h2>
+    <ul class="todo">
+      <li><code>actions/show.blade.php</code>（詳細・5W1H表示＋削除モーダル）</li>
+      <li><code>actions/edit.blade.php</code>（本・知識はロック表示、5W1H編集）</li>
+      <li>入り口リンクの繋ぎ込み：知識詳細「+ new Action」(<code>from=knowledge</code>) / 本詳細「+ new Action」(<code>from=book</code>) / 各一覧の <code>href="#"</code> の Action List ボタン</li>
+      <li>知識詳細に「紐づく行動」セクションを追加</li>
+      <li>Action の Featureテスト（CRUD＋認可＋整合性：他人の本の知識は紐付けられない）</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; 2026-07-08 &mdash; feature/7-actions
+  </footer>
+</body>
+</html>

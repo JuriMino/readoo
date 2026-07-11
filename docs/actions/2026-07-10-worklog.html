@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 行動管理 作業記録 2026-07-10</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--orange), #f0752f); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--orange); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--orange); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--blue); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--orange); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+    .qbox { border-left: 3px solid var(--green); padding-left: .9rem; margin: 1.2rem 0; }
+    .qbox .q { font-weight: 700; color: var(--text); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>行動管理（actions） 作業記録</h1>
+    <p>2026-07-10 &mdash; feature/7-actions：編集ビュー（edit）＆ 詳細への「紐づく行動」導線 ＆ 全リンク結線</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>行動機能のビューが<strong>4画面すべて完成（index / create / show / edit）</strong>。さらに本詳細・知識詳細に「紐づく行動」セクションを追加し、<strong>3つの入り口（独立一覧・本詳細・知識詳細）から行動を登録できる導線が全て開通</strong>した。残るはFeatureテストのみ。</p>
+      <ul class="checklist">
+        <li><code>actions/edit.blade.php</code> 完成（本・知識はロック表示、5W1H編集、PATCH）</li>
+        <li><code>books/show</code>・<code>knowledges/show</code> に「紐づく行動」セクション追加</li>
+        <li>両Controllerの <code>show()</code> で <code>actions</code> を eager load（N+1防止）</li>
+        <li>全ビューの <code>href="#"</code> を結線（残0件を確認）</li>
+      </ul>
+    </div>
+
+    <h2>1. 編集ビュー（edit）</h2>
+    <p>Figmaでは本・知識がプルダウンで描かれていたが、<strong>v1は変更不可（読み取り専用表示）</strong>で実装。知識のeditと同じ思想。</p>
+    <div class="qa">
+      <strong>なぜ create は選択可で edit はロックなのか（再確認）：</strong>
+      create＝まだ確定していない下書きなので選び直せて当然。edit＝すでに確定した参照で、後から付け替えると履歴の意味が崩れる。だから edit だけロックする。
+    </div>
+    <h4>実装の要点</h4>
+    <ul>
+      <li><strong>本・知識は <code>&lt;select&gt;</code> ではなく表示専用 <code>&lt;div&gt;</code></strong>（<code>bg-gray-100 text-gray-500</code>）。<code>name</code>属性が無い＝送信されないので、コントローラの <code>update()</code> の <code>-&gt;except(['book_id','knowledge_id'])</code> と合わせて<strong>二重に安全</strong>。</li>
+      <li><strong><code>old($name, $action-&gt;{$name})</code></strong> … 第2引数が「初期値＝現在のDB値」。エラー差し戻し時は入力値を優先、通常時は現在値を表示。5W1Hは動的プロパティなので波括弧 <code>{$name}</code> が要る。</li>
+      <li><strong><code>method="post"</code> ＋ <code>@method('PATCH')</code></strong> … HTMLはPATCHを直接送れないのでPOST＋メソッド偽装。<code>ActionRequest</code> の <code>book_id</code>/<code>knowledge_id</code> ルールは <code>if($this-&gt;isMethod('post'))</code> の中なので、<strong>PATCH時は本・知識の必須チェックが走らない</strong>（＝送らなくてOK）。全部が整合している。</li>
+      <li>関連知識が null の行動は <code>$action-&gt;knowledge?-&gt;title ?? '(紐付けなし)'</code> で表示。</li>
+    </ul>
+    <div class="warn">
+      <strong>写経の詰まり：Tailwindクラスの静かなタイプミス。</strong>
+      機能バグはゼロだったが、クラス名の綴りミスが6か所（<code>gary</code>／<code>test</code>／<code>ronded</code>／<code>space-yp</code>）。<strong>エラーも警告も出ず「ただ効かないだけ」</strong>で、枠線が消える・角丸が効かない・文字色が付かない等の崩れになる。<code>text</code>→<code>test</code>、<code>gray</code>→<code>gary</code>、<code>rounded</code>→<code>ronded</code> は特に出やすい。表示崩れを見たらまずクラス名の綴りを疑う。
+    </div>
+
+    <h2>2. 詳細への「紐づく行動」セクション</h2>
+    <p>本詳細・知識詳細に、その本／知識から生まれた行動の一覧＋<code>+ 行動を追加</code>ボタンを設置。既存の「紐づく知識」セクション（<code>&lt;ul&gt;</code>リスト）と<strong>同じ形式に揃えて</strong>ページ内の一貫性を優先（Figmaはテーブルだが、既に承認済みのリスト形式に合わせた）。</p>
+
+    <div class="key">
+      <strong>入り口パラメータが肝：</strong>
+      <ul>
+        <li>本詳細から → <code>from=book</code> ＋ <code>book_id</code> … create で本が初期選択、知識はその本の分に絞られる</li>
+        <li>知識詳細から → <code>from=knowledge</code> ＋ <code>book_id</code> ＋ <code>knowledge_id</code> … 本も知識も初期選択</li>
+      </ul>
+      これで前回作った create の「3つの入り口」のうち book / knowledge の2つが<strong>実データで検証可能</strong>になった。
+    </div>
+
+    <h4>eager load（N+1防止）</h4>
+    <pre><code>// BookController@show
+$book-&gt;load([
+    'knowledges' =&gt; fn($query) =&gt; $query-&gt;latest(),
+    'actions'    =&gt; fn($query) =&gt; $query-&gt;latest(),
+]);
+
+// KnowledgeController@show
+$knowledge-&gt;load(['actions' =&gt; fn($query) =&gt; $query-&gt;latest()]);</code></pre>
+    <div class="note">
+      <strong><code>$knowledge-&gt;book_id</code> はヌル安全不要：</strong> 知識は <code>book_id</code> カラムを必ず持つ（NOT NULL）ので、<code>+ 行動を追加</code> のリンクにそのまま使える。<code>$x-&gt;book?-&gt;...</code> の <code>?-&gt;</code> が要るのは「リレーションを辿った結果がnullになり得る」場合（＝本が論理削除されているケース）で、カラム値そのものの話とは別。<strong>カラム値の有無とリレーション取得結果のnullは別物</strong>、という前回の整理どおり。
+    </div>
+
+    <h2>3. 全リンクの結線（<code>href="#"</code> 撲滅）</h2>
+    <p><code>grep -rn 'href="#"' resources/views/</code> で<strong>残0件</strong>を確認。</p>
+    <table>
+      <tr><th>箇所</th><th>リンク先</th></tr>
+      <tr><td>knowledges/index・books/index 右上「Action List」</td><td><code>route('actions.index')</code></td></tr>
+      <tr><td>actions/index の <code>+ New Action</code>・空状態</td><td><code>route('actions.create')</code></td></tr>
+      <tr><td>actions/index 各行「詳細」</td><td><code>route('actions.show', $action)</code></td></tr>
+    </table>
+    <div class="note">
+      <strong>補足：</strong> actions/index の New Action は <code>['from' =&gt; 'index']</code> を明示していないが、create 側の hidden が <code>value="{{ request('from', 'index') }}"</code> で<strong>デフォルトが index</strong> のため挙動は正しい。明示すれば「3つの入り口が対称に読める」可読性メリットはあるが機能差はゼロ。
+    </div>
+
+    <h2>行動機能・全体の到達点</h2>
+    <ul class="checklist">
+      <li>ビュー4画面（index / create / show / edit）完成</li>
+      <li>3つの入り口（独立一覧・本詳細・知識詳細）から登録＆戻り先が開通</li>
+      <li>Alpine連動ドロップダウン（create）／読み取り専用ロック（edit）</li>
+      <li>本・知識詳細に「紐づく行動」表示</li>
+      <li>全リンク結線</li>
+    </ul>
+
+    <h2>次回の残タスク</h2>
+    <ul class="todo">
+      <li>Action の Featureテスト（CRUD）</li>
+      <li>認可テスト（他人の行動は閲覧・編集・削除できない＝403相当）</li>
+      <li>整合性テスト（他人の本の知識IDを送っても <code>Rule::exists(...)-&gt;where('book_id', ...)</code> で弾かれる）</li>
+      <li>入り口別リダイレクト（from=index/book/knowledge）の戻り先テスト</li>
+      <li>（済んだら）feature/7-actions の PR → main マージ</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; 2026-07-10 &mdash; feature/7-actions
+  </footer>
+</body>
+</html>

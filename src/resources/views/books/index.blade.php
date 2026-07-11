@@ -14,7 +14,7 @@
                 <a href="{{ route('knowledges.index')}}" class="inline-block mt-4 px-5 py-2 bg-knowledge rounded-lg text-white font-bold hover:opacity-90 transition">
                     Knowledge List
                 </a>
-                <a href="#" class="inline-block mt-4 px-5 py-2 bg-action rounded-lg text-white font-bold hover:opacity-90 transition">
+                <a href="{{ route('actions.index')}}" class="inline-block mt-4 px-5 py-2 bg-action rounded-lg text-white font-bold hover:opacity-90 transition">
                     Action List
                 </a>
             </div>

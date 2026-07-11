@@ -9,7 +9,7 @@
 
         <form action="{{ route('knowledges.store') }}" method="post" class="mt-8 space-y-8">
             @csrf
-            {{-- どこから来たか（登録後の戻り作に使う）本の詳細からきたらbooks.show、知識一覧からきたらknowledges.index --}}
+            {{-- どこから来たか（登録後の戻り先に使う）本の詳細からきたらbooks.show、知識一覧からきたらknowledges.index --}}
             <input type="hidden" name="from" value="{{ request('from', 'book')}}">
 
             {{-- 参照元 --}}

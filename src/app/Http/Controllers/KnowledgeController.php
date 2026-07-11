@@ -71,6 +71,9 @@ class KnowledgeController extends Controller
     {
         $this->authorize('view', $knowledge);
 
+        // 紐づく行動を新しい順で先読み（ビューでのN+1を防ぐ）
+        $knowledge->load(['actions' => fn($query)=> $query->latest()]);
+
         return view('knowledges.show',['knowledge' => $knowledge]);
     }
 

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 行動管理 作業記録 2026-07-06</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--orange), #f0752f); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--orange); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--orange); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--blue); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--orange); }
+    .learn { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .learn strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>行動管理（actions） 作業記録</h1>
+    <p>2026-07-06 &mdash; feature/7-actions：Factory ＆ 作成フロー設計 ＆ routes/Request</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>行動（Action）機能に着手。<strong>ActionFactory</strong> を作成し、<strong>作成フローの仕様を設計で固めて</strong>から、<strong>routes と ActionRequest</strong> を写経した。行動は「本（必須）＋知識（任意）」の2つの親を持つため、Knowledge より一段複雑。今日は「コードを書く前に仕様を言語化して合意する」プロセスを丁寧に踏んだのが中心。</p>
+    </div>
+
+    <ul class="checklist">
+      <li>ActionFactory（definition ＋ forKnowledge state）を作成・動作確認</li>
+      <li>作成フローの入口3種と挙動を設計・合意（案A→案Bへ切り替え）</li>
+      <li>routes に <code>Route::resource('actions', ...)</code> を追加</li>
+      <li>ActionRequest（整合バリデーション）を写経</li>
+      <li>写経バグ2件を修正（factory の typo・Request の早期return）</li>
+    </ul>
+
+    <h2>学びポイント（今日の中心）</h2>
+
+    <div class="learn">
+      <strong>① Factory の state とは「既定値のバリエーション（名前付きの上書き）」</strong>
+      <p style="margin:.5rem 0;"><code>definition()</code> が基本形。<strong>state</strong> はそこに「一部だけ差し替えたパターン」を名前を付けて生やしたもの。<code>$this->state(クロージャ)</code> が返す配列を definition の上にマージする（書かない項目は definition のまま）。</p>
+      <pre><code>public function forKnowledge(Knowledge $knowledge): static
+{
+    return $this->state(fn () => [
+        'book_id'      => $knowledge->book_id,   // ここだけ
+        'knowledge_id' => $knowledge->id,        // 上書き
+    ]);
+}
+
+// 使い方（チェーンで呼ぶ）
+Action::factory()->forKnowledge($k)->count(3)->create();</code></pre>
+      <p style="margin:.5rem 0 0;">Laravel 標準の <code>->trashed()</code> や <code>->count()</code> も同じ仲間。「factory に生やす名前付きバリエーション」とイメージする。今回の <code>forKnowledge</code> は「book_id を知識の本に合わせる」ので、<code>knowledge_id => Knowledge::factory()</code> のような<strong>本の食い違い</strong>を防げる。</p>
+    </div>
+
+    <div class="learn">
+      <strong>② メソッドの返り値の型指定（<code>: void</code> / <code>: static</code> など）</strong>
+      <p style="margin:.5rem 0;">メソッドの <code>()</code> の後ろの <code>: 型</code> は「何を返すか」の宣言。</p>
+      <table style="margin:.4rem 0;">
+        <tr><th>型</th><th>意味</th><th>例</th></tr>
+        <tr><td><code>: void</code></td><td>何も返さない（値を return しない）</td><td><code>up()</code> / テストメソッド</td></tr>
+        <tr><td><code>: array</code></td><td>配列を返す</td><td><code>definition()</code> / <code>rules()</code></td></tr>
+        <tr><td><code>: static</code></td><td><strong>自分と同じクラスを返す</strong>（＝チェーンできる）</td><td><code>forKnowledge()</code></td></tr>
+        <tr><td><code>: bool</code></td><td>真偽値を返す</td><td>Policy / <code>authorize()</code></td></tr>
+        <tr><td><code>: BelongsTo</code> / <code>: HasMany</code></td><td>そのリレーションオブジェクトを返す</td><td><code>book()</code> / <code>actions()</code></td></tr>
+      </table>
+      <p style="margin:.5rem 0 0;"><code>static</code> は「呼び出し時の実際のクラス」を返す（継承先でも正しい）。似た <code>self</code> は「書いた場所のクラスに固定」。<strong>チェーンする / 継承される可能性があるものは <code>static</code></strong> が定石。型を書く利点は「自己ドキュメント・宣言と違う型を返すと即エラー・IDE補完」。</p>
+    </div>
+
+    <div class="learn">
+      <strong>③ コードを書く前の「設計判断」— 案A→案Bへ切り替えた過程</strong>
+      <p style="margin:.5rem 0;">行動は book_id 必須・knowledge_id 任意。<strong>「どこから作り始めるか（入口）」で設計が変わる</strong>ため、routes を書く前に入口3種を洗い出して仕様を固めた。</p>
+      <p style="margin:.5rem 0;">当初は「独立一覧からは knowledge_id を null 固定」（案A・JS不要）を推したが、<strong>Figma を見ると 関連知識 の説明文に「本を選択後に絞り込まれます」とあり、連動ドロップダウン（案B）が前提</strong>だった。案Aだと「独立一覧から来たときだけ関連知識が死ぬ」＝画面の一貫性が崩れると判明。</p>
+      <p style="margin:.5rem 0;">案Bに切り替え。懸念だった「JSコスト」は <strong>このアプリが既に Alpine.js を使っている</strong>（削除モーダルの <code>x-data</code> 等）ため新依存なしで解決できると分かった。</p>
+      <div class="key" style="margin:.6rem 0 0;">
+        <strong>役割分担の原則：UXとバリデーションを分ける</strong>
+        <ul style="margin:.4rem 0 0;">
+          <li><strong>Alpine（クライアント）＝「便利さ」担当</strong>：本を選ぶと知識を絞り込む見た目</li>
+          <li><strong>サーバのバリデーション＝「正しさ」担当</strong>：クライアントは信用しない前提で、送信値を必ず検証</li>
+        </ul>
+        <p style="margin:.4rem 0 0;">→ 入口が3種あっても、<strong>サーバ側の検証は1本に統一</strong>できる。「フォームの見せ方（固定 or 選択）」の違いにすぎない、と整理できたのが設計上の収まりどころ。</p>
+      </div>
+    </div>
+
+    <h2>1. 作成フローの確定仕様</h2>
+    <table>
+      <tr><th>入口</th><th><code>from</code></th><th>book_id</th><th>knowledge_id</th><th>戻り先</th></tr>
+      <tr><td>知識詳細から</td><td>knowledge</td><td>その知識の本に固定</td><td>その知識に固定</td><td>knowledges.show</td></tr>
+      <tr><td>本の詳細から</td><td>book</td><td>その本に固定</td><td>その本の知識から選択（null可）</td><td>books.show</td></tr>
+      <tr><td>独立一覧から</td><td>index</td><td>本を選択（必須）</td><td>選んだ本の知識から選択（null可・本未選択なら選べない）</td><td>actions.index</td></tr>
+    </table>
+    <div class="note">
+      <strong>絶対に守る不変条件</strong>
+      <p style="margin:.4rem 0 0;"><strong>knowledge_id を入れるなら、その知識は book_id の本のものでなければならない</strong>（<code>knowledge.book_id === action.book_id</code>）。これが崩れると「Aの本の行動なのにBの本の知識に紐づく」矛盾データになる。3入口すべてでこの整合を担保するのが設計の肝。</p>
+    </div>
+
+    <h2>2. routes/web.php</h2>
+    <p>Knowledge と同じ <strong>flat な resource</strong>。入口3種はフォームの <code>from</code> / <code>book_id</code> / <code>knowledge_id</code> で吸収するため、ネストは不要。</p>
+    <pre><code>use App\Http\Controllers\ActionController;   // use 群に追加
+
+// auth グループ内
+Route::resource('actions', ActionController::class);</code></pre>
+
+    <h2>3. ActionRequest（整合バリデーションの心臓部）</h2>
+    <p>POST（新規登録）の時だけ、参照元の本と（任意の）知識を検証する。</p>
+    <pre><code>if ($this->isMethod('post')) {
+    // 本：必須かつ「自分の本」に限定
+    $rules['book_id'] = [
+        'required',
+        Rule::exists('books', 'id')->where('user_id', $this->user()->id),
+    ];
+    // 知識：任意。送られてきたら「その book_id の本に属する知識」に限定
+    $rules['knowledge_id'] = [
+        'nullable',
+        Rule::exists('knowledges', 'id')->where('book_id', $this->input('book_id')),
+    ];
+}</code></pre>
+    <ul>
+      <li><code>book_id</code> → 「自分の本か」を検証</li>
+      <li><code>knowledge_id</code> → 「<strong>送られた book_id の本に属する知識か</strong>」を検証</li>
+      <li>合わせると「自分の本 ＋ その本の知識」しか通らない。<strong>Alpine をすり抜けても矛盾データを弾ける</strong></li>
+    </ul>
+    <div class="note">
+      <strong>5W1H とカラムの対応</strong>
+      <p style="margin:.4rem 0 0;">WHEN=timing / WHERE=place / WHO=target_person / WHAT=detail / WHY=reason / HOW=method。必須は WHEN・WHERE・WHY・HOW（NOT NULL）、任意は WHO・WHAT（nullable）。</p>
+    </div>
+
+    <h2>4. 写経バグの修正</h2>
+
+    <div class="warn">
+      <strong>【factory】<code>target_persom</code> → <code>target_person</code>（typo）</strong>
+      <p style="margin:.4rem 0;">Factory は内部で <strong>unguarded</strong> で動くため、typo したキーもそのまま属性化 → INSERT に実在しないカラムが混入し <span class="bug">Unknown column 'target_persom'</span> でSQLエラー。<code>make()</code> は通っても <code>create()</code> で落ちる。</p>
+    </div>
+
+    <div class="warn">
+      <strong>【Request】早期 <code>return</code> で以降がデッドコード化</strong>
+      <p style="margin:.4rem 0;"><code>$rules = [...]</code> とすべきところを <code>return [...]</code> にしてしまい、その時点で関数が終了。<strong>book_id / knowledge_id の検証ブロックが一度も実行されない</strong>状態になっていた。</p>
+      <p style="margin:.4rem 0 0;">実害：book_id が検証されず store で <code>$validated['book_id']</code> が存在しないキーになる／整合チェックが丸ごと消えてセキュリティ穴。<strong>修正＝「配列は <code>$rules</code> にしまう → POST時だけ追記 → 最後に return」</strong>。「先頭で return すると後続が死ぬ」という基本挙動がハマったケース。</p>
+    </div>
+
+    <h2>現状のまとめ（feature/7-actions）</h2>
+    <table>
+      <tr><th>項目</th><th>状態</th></tr>
+      <tr><td>マイグレーション / モデル / リレーション</td><td><span class="ok">完成</span></td></tr>
+      <tr><td>ActionFactory（definition ＋ forKnowledge）</td><td><span class="ok">完成</span></td></tr>
+      <tr><td>作成フロー設計（案B確定）</td><td><span class="ok">合意済</span></td></tr>
+      <tr><td>routes / ActionRequest</td><td><span class="ok">写経完了</span></td></tr>
+      <tr><td>ActionPolicy / ActionController</td><td>次回写経</td></tr>
+      <tr><td>ビュー（Alpine連動フォーム含む）</td><td>未着手</td></tr>
+    </table>
+
+    <h2>次回のタスク</h2>
+    <ul class="todo">
+      <li>ActionPolicy を写経（KnowledgePolicy と同型：本の持ち主で判定）</li>
+      <li>ActionController を写経（store の2FK処理＝book はリレーション経由、knowledge は検証済み時のみ直接代入。from の3分岐 match）</li>
+      <li>ビュー作成（create の Alpine 連動ドロップダウン、index/show/edit）</li>
+      <li>各入口の導線接続（知識詳細・本の詳細・独立一覧の「+ new Action」）</li>
+      <li>Feature テスト（CRUD ＋ 認可 ＋ 整合：他人の本の知識を紐づけられない 等）</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; feature/7-actions &mdash; 2026-07-06
+  </footer>
+</body>
+</html>

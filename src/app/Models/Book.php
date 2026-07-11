@@ -60,4 +60,10 @@ class Book extends Model
         return $this->hasMany(Knowledge::class);
     }
 
+    // 本は複数の行動情報を持つ
+    public function actions(): HasMany
+    {
+        return $this->hasMany(Action::class);
+    }
+
 }

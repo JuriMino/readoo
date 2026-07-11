@@ -6,8 +6,6 @@ use App\Models\Book;
 use App\Models\Knowledge;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Middleware\ValidatePathEncoding;
-use PhpParser\Node\Expr\FuncCall;
 use Tests\TestCase;
 
 class KnowledgeTest extends TestCase

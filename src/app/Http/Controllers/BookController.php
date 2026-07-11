@@ -60,8 +60,11 @@ class BookController extends Controller
     {
         $this->authorize('view', $book);
 
-        // 紐づく知識を新しい順で先読み（ビューでのN+1を防ぐ）
-        $book->load(['knowledges' => fn($query) => $query->latest()]);
+        // 紐づく知識・行動を新しい順で先読み（ビューでのN+1を防ぐ）
+        $book->load([
+            'knowledges' => fn($query) => $query->latest(),
+            'actions' => fn($query) => $query->latest()
+            ]);
 
         return view('books.show',['book' => $book]);
     }

@@ -81,7 +81,37 @@
             </div>
         </section>
 
-        {{-- 紐づく行動（Action機能実装時に追加。今は未実装なのでおかない） --}}
+        {{-- 紐づく行動 --}}
+        <section class="mt-6 bg-white border border-gray-200 rounded-2xl overflow-hidden">
+            <div class="px-6 py-3 bg-orange-50 flex items-center justify-between">
+                <h2 class="text-orange-700 font-bold">この知識から生まれた行動</h2>
+                <a href="{{ route('actions.create',['from' => 'knowledge', 'book_id' => $knowledge->book_id, 'knowledge_id' => $knowledge->id]) }}" class="px-4 py-1.5 bg-action rounded-lg text-white text-sm font-bold hover:opacity-90 transition"> + 行動を追加</a>
+            </div>
+            @if ($knowledge->actions->isEmpty())
+                <p class="px-6 py-8 text-center text-sm text-gray-500">まだ行動が登録されていません</p>
+            @else
+                <ul class="divide-y divide-gray-100">
+                    @foreach ($knowledge->actions as $action)
+                        <li class="px-6 py-4 hover:bg-gray-50 transition">
+                            <div class="flex items-start justify-between gap-4">
+                                <div class="min-w-0">
+                                    <p class="font-bold text-gray-900">{{ $action->title}}</p>
+                                    @if ($action->book_page)
+                                        <p class="mt-0.5 text-xs text-gray-400">{{$action->book_page}}</p>
+                                    @endif
+                                    <div class="mt-2 flex flex-wrap gap-1.5">
+                                        @foreach (array_filter([$action->tag1, $action->tag2, $action->tag3]) as $tag)
+                                            <span class="inline-block px-3 py-1 rounded-full border border-orange-200 bg-orange-50 text-orange-600 text-xs">{{ $tag }}</span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <a href="{{ route('actions.show', $action) }}" class="shrink-0 text-sm text-gray-700 font-medium hover:text-action hover:underline">詳細</a>
+                            </div>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </section>
 
         {{-- 一覧へ戻る --}}
         <div class="mt-8">
