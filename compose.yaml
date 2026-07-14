@@ -40,6 +40,12 @@ services:
       - db-data:/var/lib/mysql
     ports:
       - "6306:3306"
+  
+  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025" # 確認用のWeb画面
+      - "1025:1025" # メール受信ポート（SMTP)
 
 # コンテナを削除してもDBのデータが消えないようにする
 # db-dataという名前の保管場所をDockerに用意する、という宣言
