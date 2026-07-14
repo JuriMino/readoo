@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 結合テスト仕様書 v1</title>
+  <style>
+    :root {
+      --orange:#E8510A; --blue:#2D5BE3; --green:#16a34a; --purple:#7c3aed;
+      --slate:#334155; --red:#dc2626;
+      --bg:#fafafa; --border:#e5e7eb; --text:#1f2937; --muted:#6b7280;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Noto Sans JP","Yu Gothic",Meiryo,sans-serif; line-height:1.7; color:var(--text); background:var(--bg); }
+    header { background:linear-gradient(135deg,var(--slate),#475569); color:#fff; padding:2.4rem 1.5rem; text-align:center; }
+    header h1 { margin:0 0 .5rem; font-size:1.8rem; }
+    header p { margin:.15rem 0; opacity:.9; font-size:.9rem; }
+    .container { max-width:1080px; margin:0 auto; padding:2rem 1.5rem 4rem; }
+    h2 { margin-top:2.8rem; padding:.4rem .8rem; border-radius:6px 6px 0 0; font-size:1.25rem; color:#fff; }
+    h2.c-common { background:var(--slate); }
+    h2.c-prof   { background:var(--purple); }
+    h2.c-book   { background:var(--green); }
+    h2.c-know   { background:var(--blue); }
+    h2.c-act    { background:var(--orange); }
+    h2.c-guard  { background:var(--red); }
+    h3 { margin-top:2rem; font-size:1.05rem; color:var(--slate); }
+    p.lead { color:var(--muted); font-size:.92rem; }
+    table { width:100%; border-collapse:collapse; margin:.4rem 0 1.4rem; background:#fff; font-size:.84rem; }
+    th,td { border:1px solid var(--border); padding:.5rem .7rem; text-align:left; vertical-align:top; }
+    th { background:#f1f5f9; font-size:.8rem; }
+    td.id { font-family:"SFMono-Regular",Consolas,Menlo,monospace; font-weight:700; white-space:nowrap; font-size:.8rem; color:var(--slate); }
+    td.judge { text-align:center; white-space:nowrap; color:var(--muted); font-size:.78rem; }
+    code { font-family:"SFMono-Regular",Consolas,Menlo,monospace; background:#f1f1f4; color:var(--orange); padding:.05rem .35rem; border-radius:4px; font-size:.85em; }
+    .ok { color:var(--green); font-weight:700; }
+    .must { display:inline-block; background:#fee2e2; color:#991b1b; font-weight:700; padding:.02rem .4rem; border-radius:4px; font-size:.72rem; vertical-align:middle; }
+    .note { background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:1rem 1.2rem; margin:1rem 0; font-size:.88rem; }
+    .note strong { color:var(--blue); }
+    .prep { background:#fff; border:1px solid var(--border); border-left:4px solid var(--slate); border-radius:8px; padding:1rem 1.3rem; margin:1rem 0; }
+    ul { margin:.4rem 0; padding-left:1.3rem; }
+    li { margin:.2rem 0; }
+    .legend span { display:inline-block; margin-right:1rem; font-size:.82rem; }
+    .dot { display:inline-block; width:.7rem; height:.7rem; border-radius:2px; margin-right:.3rem; vertical-align:middle; }
+    footer { text-align:center; color:var(--muted); font-size:.8rem; padding:2rem 1rem; border-top:1px solid var(--border); }
+    .toc { columns:2; font-size:.86rem; }
+    .toc a { color:var(--slate); text-decoration:none; }
+    @media print { h2 { break-after:avoid; } table { break-inside:auto; } tr { break-inside:avoid; } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Readoo! 結合テスト仕様書</h1>
+    <p>対象バージョン：v1（本・知識・行動 管理機能 一式）</p>
+    <p>作成日：2026-07-12</p>
+  </header>
+
+  <div class="container">
+
+    <h2 class="c-common">0. この仕様書について</h2>
+    <p class="lead">Readoo! v1 の全機能（認証／プロフィール／Book／Knowledge／Action）を、実画面を通して一連の流れで確認するための手動結合テスト仕様書。自動テスト（Feature Test）で保証済みのロジックも、<strong>実際のUI上での挙動として最終確認</strong>する位置づけ。</p>
+
+    <h3>凡例</h3>
+    <div class="legend">
+      <span><span class="dot" style="background:var(--slate)"></span>共通・認証</span>
+      <span><span class="dot" style="background:var(--purple)"></span>プロフィール</span>
+      <span><span class="dot" style="background:var(--green)"></span>Book</span>
+      <span><span class="dot" style="background:var(--blue)"></span>Knowledge</span>
+      <span><span class="dot" style="background:var(--orange)"></span>Action</span>
+      <span><span class="dot" style="background:var(--red)"></span>権限・削除・整合性</span>
+    </div>
+    <ul>
+      <li><span class="must">必須</span>＝ 作り込んだ守り（認可・削除連鎖・整合性）で、特に確認価値が高い項目</li>
+      <li><strong>判定欄</strong>：合格なら OK、不具合なら NG を記入し、NG は memo に事象を残す</li>
+    </ul>
+
+    <div class="prep">
+      <strong>事前準備</strong>
+      <ul>
+        <li><strong>テストユーザー2名</strong>を用意：<code>userA</code>（主役）と <code>userB</code>（他人データ検証用）</li>
+        <li>各ユーザーで、本・知識・行動を最低1件ずつ登録できる状態にしておく</li>
+        <li>ブラウザ（ログイン状態を切り替えるため、シークレットウィンドウ併用が便利）</li>
+        <li>可能ならDBを直接確認できる手段（退会時の物理削除確認用。無ければ画面挙動で代替）</li>
+      </ul>
+    </div>
+
+    <h3>目次</h3>
+    <div class="toc">
+      <a href="#s1">1. 認証・アクセス制御（AUTH）</a><br>
+      <a href="#s2">2. プロフィール・退会（PROF）</a><br>
+      <a href="#s3">3. Book 管理（BOOK）</a><br>
+      <a href="#s4">4. Knowledge 管理（KNOW）</a><br>
+      <a href="#s5">5. Action 管理（ACT）</a><br>
+      <a href="#s6">6. 紐づく表示・画面遷移（REL）</a><br>
+      <a href="#s7">7. 権限・認可（AUTHZ）</a><br>
+      <a href="#s8">8. 削除連鎖・整合性（DEL/VAL）</a>
+    </div>
+
+    <!-- 1. AUTH -->
+    <h2 class="c-common" id="s1">1. 認証・アクセス制御（AUTH）</h2>
+    <table>
+      <tr><th>ID</th><th>確認内容</th><th>手順</th><th>期待結果</th><th>判定</th></tr>
+      <tr><td class="id">AUTH-01</td><td>新規登録〜ログイン</td><td>登録画面で username/email/password を入力し登録</td><td>登録が成功し、<span class="ok">ログイン済み状態</span>で My Page が表示される</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTH-02</td><td>ログアウト</td><td>ログイン状態でログアウトする</td><td>ログアウトされ、トップ/ログイン画面に遷移する</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTH-03</td><td>ログイン（正常）</td><td>正しいメール・パスワードでログイン</td><td>ログインでき、My Page が表示される</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTH-04</td><td>ログイン失敗</td><td>誤ったパスワードでログイン</td><td><strong>エラーが表示され、ログインできない</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTH-05</td><td>重複メール登録</td><td>既に登録済みのメールで新規登録を試みる</td><td><strong>emailの重複エラーが表示され、登録されない</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTH-06</td><td>未ログイン時のアクセス制御 <span class="must">必須</span></td><td>ログアウト状態で 本/知識/行動 の一覧・詳細・新規登録・編集の各URLを開く</td><td><strong>すべてログイン画面へリダイレクト</strong>される（403ではない）</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTH-07</td><td>パスワードリセット申請（正常）</td><td>ログイン画面の「パスワードをお忘れですか？」→ 登録済みメールを入力し送信</td><td>完了メッセージが表示され、<strong>Mailpit（localhost:8025）に再設定メールが届く</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTH-08</td><td>リセット完了〜新PWでログイン（正常）</td><td>届いたメールのリンクを開き、新パスワードを入力して再設定</td><td>ログイン画面へ戻り status メッセージが表示。<strong>新パスワードでログインできる</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTH-09</td><td>未登録メールでの申請</td><td>存在しないメールアドレスで再設定を申請</td><td><strong>エラーが表示され、メールは送信されない</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTH-10</td><td>パスワード確認の不一致</td><td>再設定画面で password と確認用を別の値にして送信</td><td><strong>確認不一致のバリデーションエラーが表示され、更新されない</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTH-11</td><td>リセットリンクの単回使用 <span class="must">必須</span></td><td>AUTH-08 で使用済みのリンクを、再設定完了後にもう一度開いて送信</td><td><strong>トークン無効エラーになり、再設定できない</strong>（使用済みトークンは削除される）</td><td class="judge">OK / NG</td></tr>
+    </table>
+
+    <!-- 2. PROF -->
+    <h2 class="c-prof" id="s2">2. プロフィール・退会（PROF）</h2>
+    <table>
+      <tr><th>ID</th><th>確認内容</th><th>手順</th><th>期待結果</th><th>判定</th></tr>
+      <tr><td class="id">PROF-01</td><td>プロフィール表示</td><td>ログイン後、プロフィール編集画面を開く</td><td>現在の username / email が表示される</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">PROF-02</td><td>プロフィール編集</td><td>username / email を変更して保存</td><td>変更が保存され、画面に反映される</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">PROF-03</td><td>パスワード変更</td><td>パスワード更新フォームで新パスワードに変更</td><td>変更が成功し、<strong>新パスワードで再ログインできる</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">PROF-04</td><td>退会（正常）</td><td>正しいパスワードを入力して退会する</td><td>退会が完了し、<span class="ok">ログアウト状態</span>になる。以後そのアカウントでログインできない</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">PROF-05</td><td>退会（誤PW）</td><td>誤ったパスワードで退会を試みる</td><td><strong>エラーが表示され、退会されない</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">PROF-06</td><td>退会後の再登録 <span class="must">必須</span></td><td>あるメールで登録→退会し、同じメールで再度新規登録</td><td><strong>同じメールで再登録でき、ログインできる</strong>（メール退避が機能）</td><td class="judge">OK / NG</td></tr>
+    </table>
+
+    <!-- 3. BOOK -->
+    <h2 class="c-book" id="s3">3. Book 管理（BOOK）</h2>
+    <table>
+      <tr><th>ID</th><th>確認内容</th><th>手順</th><th>期待結果</th><th>判定</th></tr>
+      <tr><td class="id">BOOK-01</td><td>本一覧表示</td><td>Book List を開く</td><td>自分が登録した本が一覧表示される</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">BOOK-02</td><td>本の新規登録</td><td>タイトル・著者・ジャンル・ステータス・日付等を入力して登録</td><td>登録され、一覧・詳細に反映される。ステータスのバッジ色・日付が正しく出る</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">BOOK-03</td><td>本の詳細表示</td><td>一覧から詳細を開く</td><td>基本情報・本文情報が正しく表示される</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">BOOK-04</td><td>本の編集</td><td>詳細の編集アイコンから編集し保存</td><td>変更が保存され、詳細に反映される</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">BOOK-05</td><td>本の削除（論理削除）</td><td>詳細の削除→確認モーダルで Delete</td><td>削除され、<strong>一覧から消える</strong>（論理削除）</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">BOOK-06</td><td>登録の異常系</td><td>必須（タイトル等）を空にして登録</td><td><strong>エラー表示＋入力値が保持（old）＋DBに保存されない</strong></td><td class="judge">OK / NG</td></tr>
+    </table>
+
+    <!-- 4. KNOW -->
+    <h2 class="c-know" id="s4">4. Knowledge 管理（KNOW）</h2>
+    <table>
+      <tr><th>ID</th><th>確認内容</th><th>手順</th><th>期待結果</th><th>判定</th></tr>
+      <tr><td class="id">KNOW-01</td><td>本詳細から知識登録</td><td>本詳細の「＋知識を追加」から登録</td><td>登録後、<strong>元の本詳細に戻り</strong>、「紐づく知識」に表示される</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">KNOW-02</td><td>知識一覧表示</td><td>Knowledge List を開く</td><td>自分の知識が一覧表示され、参照元の本が出る</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">KNOW-03</td><td>知識一覧から新規登録</td><td>一覧の「＋New Knowledge」から本を選んで登録</td><td>登録後、<strong>知識一覧に戻る</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">KNOW-04</td><td>知識の詳細表示</td><td>一覧/本詳細から知識詳細を開く</td><td>内容・タグが表示され、<strong>参照元の本へのリンク</strong>がある</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">KNOW-05</td><td>知識の編集</td><td>詳細の編集アイコンから編集し保存</td><td>変更が反映される。<strong>参照元の本は変更不可（表示のみ）</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">KNOW-06</td><td>知識の削除</td><td>詳細の削除→確認モーダルで Delete</td><td>削除され、<strong>親の本詳細に戻る</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">KNOW-07</td><td>登録の異常系</td><td>必須（タイトル・内容）を空にして登録</td><td><strong>エラー表示＋old保持＋未保存</strong></td><td class="judge">OK / NG</td></tr>
+    </table>
+
+    <!-- 5. ACT -->
+    <h2 class="c-act" id="s5">5. Action 管理（ACT）</h2>
+    <table>
+      <tr><th>ID</th><th>確認内容</th><th>手順</th><th>期待結果</th><th>判定</th></tr>
+      <tr><td class="id">ACT-01</td><td>本詳細から行動登録</td><td>本詳細の「＋行動を追加」から登録（本が初期選択）</td><td>登録後、<strong>元の本詳細に戻り</strong>「紐づく行動」に表示される</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">ACT-02</td><td>知識詳細から行動登録</td><td>知識詳細の「＋行動を追加」から登録（本・知識が初期選択）</td><td>登録後、<strong>元の知識詳細に戻る</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">ACT-03</td><td>行動一覧表示</td><td>Action List を開く</td><td>自分の行動が一覧表示される</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">ACT-04</td><td>行動一覧から新規登録（連動）</td><td>一覧の「＋New Action」→ 本を選択</td><td><strong>選んだ本に属する知識だけに知識プルダウンが絞られる</strong>。登録後は行動一覧に戻る</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">ACT-05</td><td>連動ドロップダウンの挙動</td><td>本を選択→別の本に変更する</td><td><strong>本を変えると知識選択がリセットされ、絞り込みも切り替わる</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">ACT-06</td><td>行動の詳細表示</td><td>行動詳細を開く</td><td>5W1Hが表示。知識を紐付けた場合は<strong>「紐づく知識」カード</strong>が出る</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">ACT-07</td><td>行動の編集</td><td>詳細の編集アイコンから編集し保存</td><td>変更が反映される。<strong>本・関連知識は変更不可（表示のみ）</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">ACT-08</td><td>行動の削除</td><td>詳細の削除→確認モーダルで Delete</td><td>削除され、<strong>親の本詳細に戻る</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">ACT-09</td><td>登録の異常系</td><td>必須（タイトル・WHEN/WHERE/WHY/HOW）を空にして登録</td><td><strong>エラー表示＋old保持＋未保存</strong></td><td class="judge">OK / NG</td></tr>
+    </table>
+
+    <!-- 6. REL -->
+    <h2 class="c-common" id="s6">6. 紐づく表示・画面遷移（REL）</h2>
+    <table>
+      <tr><th>ID</th><th>確認内容</th><th>手順</th><th>期待結果</th><th>判定</th></tr>
+      <tr><td class="id">REL-01</td><td>本詳細の紐づき表示</td><td>知識・行動を持つ本の詳細を開く</td><td>「紐づく知識」「紐づく行動」が表示され、各詳細へ遷移できる</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">REL-02</td><td>知識詳細の紐づき表示</td><td>行動を持つ知識の詳細を開く</td><td>「紐づく行動」が表示され、行動詳細へ遷移できる</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">REL-03</td><td>行動詳細の紐づき表示</td><td>知識を紐付けた行動の詳細を開く</td><td>「紐づく知識」が表示され、知識詳細へ遷移できる</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">REL-04</td><td>参照元の本への遷移</td><td>知識詳細・行動詳細の「参照元（本）」リンクを押す</td><td>該当する本の詳細へ遷移できる</td><td class="judge">OK / NG</td></tr>
+    </table>
+
+    <!-- 7. AUTHZ -->
+    <h2 class="c-guard" id="s7">7. 権限・認可（AUTHZ）</h2>
+    <p class="lead">userB でログインした状態で、userA のデータを操作しようとする。</p>
+    <table>
+      <tr><th>ID</th><th>確認内容</th><th>手順</th><th>期待結果</th><th>判定</th></tr>
+      <tr><td class="id">AUTHZ-01</td><td>他人の詳細は見れない <span class="must">必須</span></td><td>userB で userA の本/知識/行動の<strong>詳細URLを直打ち</strong></td><td><strong>すべて403</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTHZ-02</td><td>他人の編集・更新・削除不可 <span class="must">必須</span></td><td>userB で userA のデータの編集URL/更新/削除を試みる</td><td><strong>403、かつ userA のデータは変化しない</strong></td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTHZ-03</td><td>一覧に他人のデータが出ない <span class="must">必須</span></td><td>userB で本/知識/行動の各一覧を開く</td><td><strong>userA のデータが表示されない</strong>（自分の分だけ）</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">AUTHZ-04</td><td>他人の本に作成不可</td><td>userB が userA の本を指定して知識/行動を作成しようとする（フォーム改ざん相当）</td><td><strong>book_idのバリデーションで弾かれ、作成されない</strong></td><td class="judge">OK / NG</td></tr>
+    </table>
+
+    <!-- 8. DEL/VAL -->
+    <h2 class="c-guard" id="s8">8. 削除連鎖・整合性（DEL / VAL）</h2>
+    <table>
+      <tr><th>ID</th><th>確認内容</th><th>手順</th><th>期待結果</th><th>判定</th></tr>
+      <tr><td class="id">DEL-01</td><td>本削除で子データが隠れる <span class="must">必須</span></td><td>知識・行動を持つ本を削除し、知識一覧・行動一覧を開く／該当詳細URLを開く</td><td><strong>一覧から消え、詳細URLは403</strong>（論理削除で非表示。物理削除ではない）</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">DEL-02</td><td>退会で子データが物理削除 <span class="must">必須</span></td><td>本・知識・行動を持つユーザーで退会する</td><td>ユーザーは論理削除され、<strong>本・知識・行動は物理削除</strong>（DB確認 or 再ログイン不可で代替）</td><td class="judge">OK / NG</td></tr>
+      <tr><td class="id">VAL-01</td><td>別の本の知識は紐付け不可 <span class="must">必須</span></td><td>本1の行動登録で、本2に属する知識を紐付けて送信（改ざん相当）</td><td><strong>knowledge_idのバリデーションで弾かれる</strong>（memo：通常UIではAlpineの絞り込みで選べない。自動テスト ActionAuthorizationTest でも保証済）</td><td class="judge">OK / NG</td></tr>
+    </table>
+
+    <div class="note">
+      <strong>実施のコツ：</strong>
+      <ul>
+        <li><strong>権限系（7章）</strong>は、userA でデータを作った後 <strong>そのURLを控えておき</strong>、userB のシークレットウィンドウで開くと効率的。</li>
+        <li><strong>DEL-02（退会の物理削除）</strong>は画面だけだと分かりにくい。DBを見られるなら <code>knowledges</code>/<code>actions</code> テーブルが空になることを直接確認。難しければ「退会後にそのアカウントでログインできない＝退会成立」までで妥協可。</li>
+        <li><strong>VAL-01</strong>は手動再現が難しいので、<strong>memo扱い＋自動テストで担保</strong>という記録で十分。</li>
+        <li>NGが出たら、memo欄に「どの画面で／何をしたら／どうなった」を残すと修正時に追いやすい。</li>
+      </ul>
+    </div>
+
+    <h3>カバレッジまとめ</h3>
+    <table>
+      <tr><th>観点</th><th>対応シナリオ</th></tr>
+      <tr><td>正常系（ハッピーパス）</td><td>AUTH-01〜03/07/08, PROF-01〜04, BOOK-01〜05, KNOW-01〜06, ACT-01〜08, REL-01〜04</td></tr>
+      <tr><td>異常系（入力）</td><td>AUTH-04/05/09/10, BOOK-06, KNOW-07, ACT-09, PROF-05</td></tr>
+      <tr><td>権限・アクセス制御</td><td>AUTH-06/11, AUTHZ-01〜04</td></tr>
+      <tr><td>削除連鎖・整合性</td><td>DEL-01/02, VAL-01</td></tr>
+      <tr><td>特有機能（戻り先・連動・再登録）</td><td>KNOW-01/03/06, ACT-01/02/04/05/08, PROF-06</td></tr>
+    </table>
+
+  </div>
+
+  <footer>
+    Readoo! 結合テスト仕様書 v1 &mdash; 2026-07-13 &mdash; 全51シナリオ
+  </footer>
+</body>
+</html>
