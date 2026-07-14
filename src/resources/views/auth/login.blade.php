@@ -38,6 +38,10 @@
                     <p class="mt-1 text-sm text-gray-500">英数字8文字以上</p>
                     <x-input-error class="mt-2" :messages="$errors->get('password')" />
                 </div>
+                <!-- パスワードを忘れた方 -->
+                <div class="mt-3 text-right">
+                    <a href="{{ route('password.request')}}" class="text-sm text-secondary underline">パスワードをお忘れですか？</a>
+                </div>
 
                 <!-- ログインボタン -->
                 <button type="submit"
