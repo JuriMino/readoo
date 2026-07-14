@@ -31,12 +31,12 @@
 
         {{-- 新しいパスワード --}}
         <div x-data="{ showNewPassword: false }">
-            <label for="new_password" class="flex items-center space-x-2 text-sm font-bold text-gray-700">
+            <label for="password" class="flex items-center space-x-2 text-sm font-bold text-gray-700">
                 <span>NEW PASSWORD</span>
                 <x-required-badge />
             </label>
             <div class="relative mt-2">
-                <input :type="showNewPassword ? 'text' : 'password'" name="new_password" id="new_password" placeholder="**********" autocomplete="new-password" class="block w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:border-secondary focus:ring-secondary">
+                <input :type="showNewPassword ? 'text' : 'password'" name="password" id="password" placeholder="**********" autocomplete="new-password" class="block w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:border-secondary focus:ring-secondary">
                 <button type="button" @click="showNewPassword =! showNewPassword" class="absolute inset-y-0 right-0 flex items-center pr-3">
                     <svg x-show="!showNewPassword" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -47,17 +47,17 @@
                     </svg>
                 </button>
             </div>
-            <x-input-error class="mt-2" :messages="$errors->updatePassword->get('new_password')" />
+            <x-input-error class="mt-2" :messages="$errors->updatePassword->get('password')" />
         </div>
 
         {{-- 新しいパスワード（確認） --}}
         <div x-data="{ showConfirmPassword: false }">
-            <label for="confirm_password" class="flex items-center space-x-2 text-sm font-bold text-gray-700">
+            <label for="password_confirmation" class="flex items-center space-x-2 text-sm font-bold text-gray-700">
                 <span>NEW PASSWORD（CONFIRM）</span>
                 <x-required-badge />
             </label>
             <div class="relative mt-2">
-                <input :type="showConfirmPassword ? 'text' : 'password'" name="confirm_password" id="confirm_password" placeholder="**********" autocomplete="new-password" class="block w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:border-secondary focus:ring-secondary">
+                <input :type="showConfirmPassword ? 'text' : 'password'" name="password_confirmation" id="password_confirmation" placeholder="**********" autocomplete="new-password" class="block w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:border-secondary focus:ring-secondary">
                 <button type="button" @click="showConfirmPassword =! showConfirmPassword" class="absolute inset-y-0 right-0 flex items-center pr-3">
                     <svg x-show="!showConfirmPassword" class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
