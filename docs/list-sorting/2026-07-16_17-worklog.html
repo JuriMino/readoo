@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 一覧の並べ替え機能 作業記録 2026-07-16_17</title>
+  <style>
+    :root {
+      --indigo: #4f46e5; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--indigo), #6366f1); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--indigo); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--indigo); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--indigo); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--indigo); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--blue); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--indigo); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+    .pr { display:inline-block; background:#eef2ff; color:var(--indigo); font-weight:700; padding:.05rem .45rem; border-radius:4px; font-size:.82em; }
+    .day { display:inline-block; background:#4f46e5; color:#fff; font-weight:700; padding:.1rem .55rem; border-radius:4px; font-size:.8em; margin-right:.5rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>一覧の並べ替え機能 作業記録</h1>
+    <p>2026-07-16 &amp; 07-17 &mdash; Book／Knowledge／Action 3一覧への列ヘッダーソート実装</p>
+  </header>
+
+  <div class="container">
+
+    <h2>2日間のサマリー</h2>
+    <div class="card">
+      <p>結合テストを通して実際にアプリを使ってみた結果、<strong>一覧が「登録日の新しい順」で固定されていて目的の行に辿り着きにくい</strong>と感じたため、並べ替え機能を追加することにした。3一覧（Book／Knowledge／Action）すべてで<strong>列ヘッダーをクリックしてソート</strong>できるようにし、共通の Blade コンポーネントで実装を共有した。<strong>今回は実装までで、結合テスト・PR は次回</strong>。</p>
+      <ul class="checklist">
+        <li><span class="day">7/16</span>方式・UI の設計判断 → 共通コンポーネント作成 → <strong>書籍一覧</strong>のソート実装</li>
+        <li><span class="day">7/16</span>付随して UI 調整（テーブル幅の見直し・日付の折り返し解消）</li>
+        <li><span class="day">7/17</span><strong>知識一覧・行動一覧</strong>のソート実装（参照元ソートのため JOIN 方式）</li>
+        <li><span class="day">7/17</span>ソフトデリート除外・列名衝突など、JOIN 特有の落とし穴に対応</li>
+      </ul>
+      <p><span class="pr">issue #14</span> <code>feature/14-list-sorting</code> &mdash; 実装完了・未コミット（次回テスト → PR）</p>
+    </div>
+
+    <h2>1. 設計判断：どう並べ替えるか</h2>
+
+    <h3>方式の選択：項目ソート vs 手動ドラッグ</h3>
+    <div class="card">
+      <p>「並べ替え」には2つの解釈がある。着手前に整理して選んだ。</p>
+      <table>
+        <tr><th>方式</th><th>内容</th><th>判断</th></tr>
+        <tr><td><strong>項目でソート</strong></td><td>タイトル・登録日等の項目で昇順／降順。DB の <code>ORDER BY</code> で実現</td><td class="done">採用</td></tr>
+        <tr><td>手動ドラッグ並べ替え</td><td>行をドラッグして任意順に並べ、表示順を保存</td><td>見送り</td></tr>
+      </table>
+      <p><strong>理由：</strong> 読書ログは「著者で揃えて見たい」「読了日順に追いたい」という<strong>属性による整列</strong>が自然で、任意の手動順に意味が薄い。加えて手動順は <code>display_order</code> カラム追加・JS・ページネーションとの兼ね合いが必要で、実装コストが釣り合わない。</p>
+    </div>
+
+    <h3>UI の選択：列ヘッダークリック vs ドロップダウン</h3>
+    <div class="card">
+      <p>3一覧はいずれも<strong>テーブル表示</strong>なので、列ヘッダー自体をクリック対象にするのが直感的と判断。矢印で現在のソート状態も同時に表現できる。</p>
+      <pre><code>タイトル ▼ | 著者 ▼ | ステータス ▼ | 登録日 ▲
+─────────────────────────────────
+7つの習慣    | …     | 読了        | 2026-07-10</code></pre>
+      <p>ドロップダウン方式（「並べ替え：登録日（新しい順）▾」）はカード形式の一覧やスマホ向きだが、今回はテーブルなので見送り。</p>
+    </div>
+
+    <h2>2. 全体設計：3層でどう動くか</h2>
+    <div class="card">
+      <p>仕組みはシンプルで、<strong>URL のクエリパラメータを唯一の状態</strong>としている。セッションにも DB にも保存しない。</p>
+      <table>
+        <tr><th>層</th><th>役割</th></tr>
+        <tr><td><strong>URL</strong></td><td><code>?sort=title&amp;direction=asc&amp;page=1</code> が「今どう並んでいるか」の唯一の情報源</td></tr>
+        <tr><td><strong>コントローラー</strong></td><td>クエリを受け取り、<strong>ホワイトリスト照合</strong>してから <code>orderBy()</code> に反映</td></tr>
+        <tr><td><strong>ビュー</strong></td><td>共通コンポーネント <code>&lt;x-sort-header&gt;</code> が、次に押したときのリンクと矢印を描画</td></tr>
+      </table>
+      <div class="note">
+        <strong>URL を状態にする利点：</strong> ソートした画面を<strong>そのままブックマーク・共有できる</strong>／ブラウザの戻るが自然に効く／ページネーションとの合流も <code>withQueryString()</code> だけで済む。サーバー側に状態を持たないので実装も単純になる。
+      </div>
+    </div>
+
+    <h2>3. 共通コンポーネント <code>&lt;x-sort-header&gt;</code></h2>
+    <p>3一覧すべてのヘッダーで使い回す中核。<code>resources/views/components/sort-header.blade.php</code> として新規作成した。</p>
+    <pre><code>@props(['column', 'label', 'sort', 'direction'])
+@php
+    $isActive = $sort === $column;
+    $nextDirection = ($isActive &amp;&amp; $direction === 'asc') ? 'desc' : 'asc';
+    $arrow = $isActive ? ($direction === 'asc' ? '▲' : '▼') : '▼';
+@endphp
+&lt;th class="px-5 py-3 text-left font-bold whitespace-nowrap"&gt;
+    &lt;a href="{{ request()-&gt;fullUrlWithQuery(['sort' =&gt; $column, 'direction' =&gt; $nextDirection, 'page' =&gt; 1]) }}"
+       class="inline-flex items-center gap-1 hover:text-gray-700 {{ $isActive ? 'text-gray-900' : '' }}"&gt;
+        {{ $label }}
+        &lt;span class="text-xs {{ $isActive ? '' : 'text-gray-300' }}"&gt;{{ $arrow }}&lt;/span&gt;
+    &lt;/a&gt;
+&lt;/th&gt;</code></pre>
+
+    <h3>各行の意味</h3>
+    <table>
+      <tr><th>要素</th><th>解説</th></tr>
+      <tr><td><code>$isActive</code></td><td>この列が「今ソートに使われている列」か。矢印の出し分けと文字色に使う</td></tr>
+      <tr><td><code>$nextDirection</code></td><td><strong>次にクリックしたときの向き</strong>。「アクティブかつ昇順」のときだけ降順、それ以外は昇順。つまり<strong>他の列から来たときは必ず昇順スタート</strong>になる</td></tr>
+      <tr><td><code>$arrow</code></td><td>現在の状態表示。アクティブなら実際の向き（▲/▼）、非アクティブは薄いグレーの ▼</td></tr>
+      <tr><td><code>fullUrlWithQuery()</code></td><td>現在の URL のクエリを<strong>維持したまま</strong>指定キーだけ上書き。将来「検索キーワード」等を足しても壊れない</td></tr>
+      <tr><td><code>'page' =&gt; 1</code></td><td>並べ替えたら<strong>1ページ目に戻す</strong>。3ページ目でソートを変えて「3ページ目のまま」だと文脈を失うため</td></tr>
+    </table>
+    <div class="key">
+      <strong>コンポーネント化した狙い：</strong> ヘッダー1つあたり「リンク生成・トグル判定・矢印描画」の3つの関心事がある。これを素の <code>&lt;th&gt;</code> にベタ書きすると、3一覧 × 十数列で同じロジックが散らばる。<strong>1ファイルに閉じ込めたことで、後の「折り返し禁止(<code>whitespace-nowrap</code>)を全ヘッダーに追加」が1行の修正で済んだ</strong>のが実際に効いた。
+    </div>
+
+    <h2>4. <span class="day">7/16</span> 書籍一覧の実装</h2>
+
+    <h3>コントローラー：ホワイトリスト方式</h3>
+    <pre><code>public function index(Request $request)
+{
+    $this-&gt;authorize('viewAny', Book::class);
+
+    // ホワイトリスト照合（インジェクション対策）
+    $sortable = ['title','author','publisher','genre','status','started_at','created_at'];
+    $sort = in_array($request-&gt;query('sort'), $sortable, true) ? $request-&gt;query('sort') : 'created_at';
+    $direction = $request-&gt;query('direction') === 'asc' ? 'asc' : 'desc';
+
+    /** @var \App\Models\User $user */
+    $user = Auth::user();
+    $books = $user-&gt;books()
+        -&gt;orderBy($sort, $direction)
+        -&gt;paginate(10)
+        -&gt;withQueryString();   // ページ送りでソート条件を維持
+
+    return view('books.index', [
+        'books' =&gt; $books,
+        'sort' =&gt; $sort,
+        'direction' =&gt; $direction,
+    ]);
+}</code></pre>
+
+    <div class="warn">
+      <strong>なぜホワイトリストが必須か（最重要）</strong>
+      <p>Laravel のクエリビルダは<strong>値（バインドされる部分）は自動でエスケープするが、カラム名はしない</strong>。<code>orderBy($request-&gt;query('sort'))</code> のようにユーザー入力を直接渡すと、SQL の識別子として組み立てられ<strong>SQL インジェクションの入口になる</strong>。「許可した名前と完全一致した場合だけ通す」形にすれば、入力が何であれ安全な値しか SQL に届かない。</p>
+      <p>もう一つの実利として、<strong>存在しないカラムを渡されて 500 になるのを防ぐ</strong>役割もある（実際この後、知識一覧でこれに救われず落ちた &rarr; つまづき④）。</p>
+    </div>
+
+    <div class="note">
+      <strong><code>withQueryString()</code> の役割：</strong> これが無いと、ページネーションのリンクが <code>?page=2</code> だけになり<strong>2ページ目に進んだ瞬間ソートが解除される</strong>。付けると現在のクエリ（<code>sort</code>・<code>direction</code>）をページリンクに引き継いでくれる。
+    </div>
+
+    <h3>ソート対象の決定</h3>
+    <p>当初案から、実際の使用感を踏まえて調整した。</p>
+    <table>
+      <tr><th>列</th><th>ソート</th><th>備考</th></tr>
+      <tr><td>登録日 <code>created_at</code></td><td class="done">対象</td><td>デフォルトのソートキー（降順）。列自体も新規追加した</td></tr>
+      <tr><td>タイトル <code>title</code></td><td class="done">対象</td><td></td></tr>
+      <tr><td>著者 <code>author</code></td><td class="done">対象</td><td></td></tr>
+      <tr><td>出版社 <code>publisher</code></td><td class="done">対象</td><td><strong>途中で追加</strong></td></tr>
+      <tr><td>ジャンル <code>genre</code></td><td class="done">対象</td><td><strong>途中で追加</strong></td></tr>
+      <tr><td>ステータス <code>status</code></td><td class="done">対象</td><td></td></tr>
+      <tr><td>読書開始日 <code>started_at</code></td><td class="done">対象</td><td></td></tr>
+      <tr><td>読了日 <code>finished_at</code></td><td>対象外</td><td><strong>途中で除外</strong>。表示のみ</td></tr>
+    </table>
+
+    <h2>5. <span class="day">7/16</span> 付随した UI 調整</h2>
+
+    <h3>つまづき①：エディタに「9個のエラー」が出る</h3>
+    <div class="warn">
+      <strong><span class="bug">症状</span> 赤い波線＋「Undefined method」「Expected type」が約9箇所</strong>
+      <p>コントローラー修正後、エディタが大量にエラーを表示。しかし <code>php -l</code> は構文エラーなし、<code>php artisan route:list</code> も全ルート正常表示で、<strong>アプリは問題なく動いていた</strong>。</p>
+    </div>
+    <div class="card">
+      <p><strong>正体：</strong> VSCode の Intelephense による<strong>偽陽性</strong>。Intelephense は Eloquent の動的メソッド（<code>$user-&gt;books()</code> のようなリレーション、<code>orderBy</code>／<code>paginate</code>／<code>withQueryString</code> のチェーン）を静的に解決できず、片っ端から警告を出す。プロジェクトに PHPStan 等は未導入なので、赤線の出所はエディタで確定できた。</p>
+      <p><strong>対応：</strong> Laravel 用のヒント定義を生成するツールを導入。</p>
+      <pre><code>docker compose exec app composer require --dev barryvdh/laravel-ide-helper
+docker compose exec app php artisan ide-helper:generate
+docker compose exec app php artisan ide-helper:models --nowrite</code></pre>
+      <p>…が、<strong>生成しただけでは波線が消えなかった</strong>。ファイル（<code>_ide_helper.php</code> 等）はホスト側に正しく出力されていたので、原因は<strong>Intelephense が新しいファイルを再インデックスしていないこと</strong>。</p>
+      <p><strong>解決：</strong> <code>Cmd + Shift + P</code> &rarr; <strong>「Developer: Reload Window」</strong>で再インデックスが走り、波線が消えた。</p>
+    </div>
+    <div class="key">
+      <strong>学び：</strong> <strong>「エディタの赤線」と「本当のエラー」は別物</strong>。切り分けには <code>php -l</code>（構文）と <code>artisan route:list</code> 等（実際に起動するか）が有効で、動いているなら赤線は環境側の問題。また Intelephense はキャッシュが強く、<strong>ファイルを増やしたら Reload Window</strong>まで含めて1セット。
+    </div>
+    <div class="note">
+      <strong>後始末：</strong> <code>_ide_helper.php</code> は約1MBの自動生成物なので <code>.gitignore</code> に追加してコミット対象から除外した（<code>_ide_helper.php</code> / <code>_ide_helper_models.php</code> / <code>.phpstorm.meta.php</code>）。
+    </div>
+
+    <h3>つまづき②：<code>max-w-8xl</code> が存在しない</h3>
+    <div class="warn">
+      <strong><span class="bug">症状</span> <code>max-w-7xl</code> は手狭、<code>max-w-8xl</code> にしたら今度は広すぎる</strong>
+      <p>実は <strong>Tailwind 標準に <code>max-w-8xl</code> というクラスは無い</strong>（標準スケールは <code>7xl</code>＝80rem/1280px まで）。未定義クラスは単に<strong>何も適用されない</strong>ので、実態は「幅制限なし＝全幅」になっていた。「広すぎる」と感じたのはそのため。</p>
+    </div>
+    <div class="card">
+      <p><strong>対応：</strong> <code>tailwind.config.js</code> に中間サイズとして自分で定義した。7xl（1280px）と全幅の間を取って <strong>88rem（1408px）</strong>。</p>
+      <pre><code>theme: {
+    extend: {
+        maxWidth: {
+            '8xl': '88rem', // 1408px（7xl=1280pxと全幅の中間）
+        },
+    },
+},</code></pre>
+      <p>これで <code>max-w-8xl</code> が実際に効くようになった。</p>
+    </div>
+    <div class="key">
+      <strong>学び：</strong> Tailwind は<strong>未定義のクラス名を書いてもエラーにならず、黙って無視される</strong>。「効いていない」と「効きすぎている」の区別がつきにくいので、スケール外の値を使うときは<strong>config に定義するか任意値クラス（<code>max-w-[88rem]</code>）を使う</strong>。
+    </div>
+
+    <h3>つまづき③：日付が2行に折り返す</h3>
+    <div class="warn">
+      <strong><span class="bug">症状</span> <code>2026-07-13</code> が <code>2026-07-</code> / <code>13</code> と2行になる</strong>
+      <p>ヘッダーの「読書開始日」「ステータス」等も同様に折り返していた。テーブルのセルは既定で折り返す設定で、<strong>ISO 形式の日付はハイフンが改行位置とみなされる</strong>ため、列幅が足りないと割れる。</p>
+    </div>
+    <div class="card">
+      <p><strong>対応：</strong> 折り返し禁止 <code>whitespace-nowrap</code> を、日付セルと共通コンポーネントの <code>&lt;th&gt;</code> に付与。</p>
+      <pre><code>&lt;td class="px-5 py-4 text-gray-600 whitespace-nowrap"&gt;{{ $book-&gt;created_at-&gt;format('Y-m-d') }}&lt;/td&gt;</code></pre>
+      <p>副次効果として、日付セルを <code>nowrap</code> にすると<strong>その列の最小幅が日付1行分まで広がる</strong>ため、ヘッダー側の折り返しも連動して解消した。空いた幅は可変幅のタイトル列が吸収する。</p>
+    </div>
+
+    <h2>6. <span class="day">7/17</span> 知識・行動一覧の実装（JOIN 方式）</h2>
+
+    <h3>なぜ書籍一覧と同じやり方ではダメか</h3>
+    <div class="card">
+      <p>知識・行動の一覧には<strong>「参照元」列（＝その知識/行動の元になった書籍のタイトル）</strong>がある。これを並べ替えたいが、<code>books.title</code> は<strong>別テーブルの列</strong>なので <code>orderBy('book')</code> のようには書けない。<code>knowledges</code> テーブルに <code>book</code> という列は存在しないからだ。</p>
+      <p>そこで <strong><code>books</code> テーブルを JOIN して、<code>books.title</code> で並べる</strong>方式に切り替えた。あわせて「ソートキー &rarr; 実カラム名」の対応表（<code>$sortMap</code>）を導入し、ホワイトリストの役割も兼ねさせた。</p>
+    </div>
+
+    <h3>コントローラー（知識／行動 共通の形）</h3>
+    <pre><code>$sortMap = [
+    'created_at' =&gt; 'actions.created_at',
+    'title'      =&gt; 'actions.title',
+    'book'       =&gt; 'books.title',   // 参照元 ← 別テーブルの列を指す
+];
+
+$sortKey = array_key_exists($request-&gt;query('sort'), $sortMap) ? $request-&gt;query('sort') : 'created_at';
+$sortColumn = $sortMap[$sortKey];
+$direction = $request-&gt;query('direction') === 'asc' ? 'asc' : 'desc';
+
+$actions = Action::query()
+    -&gt;join('books', 'actions.book_id', '=', 'books.id')
+    -&gt;where('books.user_id', $user-&gt;id)
+    -&gt;whereNull('books.deleted_at')   // ★ 論理削除された書籍を除外
+    -&gt;with('book')
+    -&gt;select('actions.*')             // ★ 列名衝突を防ぐ
+    -&gt;orderBy($sortColumn, $direction)
+    -&gt;paginate(10)
+    -&gt;withQueryString();
+
+return view('actions.index', [
+    'actions' =&gt; $actions,
+    'sort' =&gt; $sortKey,               // ビューにはキー('book'等)を渡す
+    'direction' =&gt; $direction,
+]);</code></pre>
+
+    <div class="key">
+      <strong><code>$sortMap</code> パターンの利点：</strong> 「URL に出す短いキー」と「SQL の実カラム名」を分離できる。URL には <code>?sort=book</code> という<strong>人が読める短い名前</strong>を出しつつ、内部では <code>books.title</code> に解決する。<code>array_key_exists</code> で照合するので、<strong>マップに無いキーは通らない＝ホワイトリストとして機能</strong>する。ビューの <code>&lt;x-sort-header column="book"&gt;</code> ともキーで一致する。
+    </div>
+
+    <h3>★ 落とし穴1：JOIN するとソフトデリートの除外が消える</h3>
+    <div class="warn">
+      <strong>これが今回いちばん重要な発見</strong>
+      <p>元のコードは <code>whereHas('book', ...)</code> で「自分の書籍に紐づくものだけ」を絞っていた。これは <strong>Eloquent 経由なので、Book モデルの <code>SoftDeletes</code> グローバルスコープが自動適用</strong>され、<code>books.deleted_at IS NULL</code> が暗黙に付いていた。</p>
+      <p>ところが <code>join('books', ...)</code> は<strong>生の SQL 結合</strong>で、モデルのスコープを一切通らない。そのまま置き換えると<strong>「論理削除した書籍に紐づく知識・行動が一覧に出てくる」</strong>という、エラーも出ない静かなバグになる。</p>
+      <p><strong>対策：</strong> <code>-&gt;whereNull('books.deleted_at')</code> を明示的に足して、失われたフィルタを手で補う。</p>
+    </div>
+    <div class="key">
+      <strong>学び：</strong> Eloquent の便利さ（グローバルスコープ・リレーション）は<strong>モデルを経由して初めて効く</strong>。パフォーマンスや JOIN 目的で生のクエリビルダに降りるときは、<strong>それまで暗黙に効いていた安全網が外れる</strong>ことを意識する。特に <code>SoftDeletes</code> は「消えるべきものが消えない」形で表面化するので、テストで気づきにくい。
+    </div>
+
+    <h3>★ 落とし穴2：JOIN による列名衝突</h3>
+    <div class="card">
+      <p><code>actions</code> と <code>books</code> は<strong>どちらも <code>id</code> / <code>title</code> / <code>created_at</code> を持つ</strong>。JOIN すると両方の列が結果セットに混ざり、後勝ちで Eloquent モデルに詰められて<strong>行動の <code>id</code> や <code>title</code> が書籍のもので上書きされる</strong>（詳細リンクが壊れる等）。</p>
+      <p><strong>対策：</strong> <code>-&gt;select('actions.*')</code> で<strong>取得する列を自テーブルだけに限定</strong>する。JOIN は「絞り込みと並べ替えのため」に使い、取り出す値は汚さない。参照元の表示自体は <code>-&gt;with('book')</code> の Eager Load 側が担当するので、これで両立する。</p>
+    </div>
+
+    <h3>行動一覧での最適化</h3>
+    <div class="note">
+      <strong><code>with(['book','knowledge'])</code> &rarr; <code>with('book')</code>：</strong> 行動一覧のビューを確認したところ <code>$action-&gt;knowledge</code> を<strong>参照していなかった</strong>ため、<code>knowledge</code> の Eager Load は不要と判断して外した。使わないリレーションの先読みは<strong>無駄なクエリ1本</strong>になる。（使っている場合に外すと N+1 になるので、必ず「ビューが参照しているか」を確認してから）
+    </div>
+
+    <h2>7. <span class="day">7/17</span> つまづき集</h2>
+
+    <h3>つまづき④：<code>Unknown column 'knowledges.book'</code></h3>
+    <div class="warn">
+      <strong><span class="bug">エラー</span> SQLSTATE[42S22]: Column not found: 1054 Unknown column 'knowledges.book' in 'order clause'</strong>
+      <p><code>$sortMap</code> の記述ミス。参照元のマッピング先を、自テーブルのまま書いてしまっていた。</p>
+      <pre><code>'book' =&gt; 'knowledges.book',  // ❌ knowledges に book 列は無い
+'book' =&gt; 'books.title',      // ✅ JOIN した books のタイトル</code></pre>
+      <p>JOIN・<code>whereNull</code>・<code>select</code> は正しく書けており、<strong>SQL のうち <code>order by</code> だけが誤り</strong>だったので、エラーメッセージの <code>in 'order clause'</code> から即座に切り分けられた。</p>
+    </div>
+    <div class="key">
+      <strong>学び：</strong> <code>$sortMap</code> の値は「<strong>SQL にそのまま出るカラム名</strong>」。<strong>キー（URL 用の名前）と値（実カラム）を混同しない</strong>。特に <code>book</code> のような<strong>リレーション名に見えるキー</strong>は、つい <code>自テーブル.キー名</code> と書いてしまいがち。
+    </div>
+
+    <h3>つまづき⑤：何度クリックしても昇順にならない</h3>
+    <div class="warn">
+      <strong><span class="bug">症状</span> ▼ を押しても押しても降順のまま、▲ にならない</strong>
+      <pre><code>$direction = $request-&gt;query('direction') === 'asc' ? 'desc' : 'desc';  // ❌
+$direction = $request-&gt;query('direction') === 'asc' ? 'asc'  : 'desc';  // ✅</code></pre>
+      <p>三項演算子の<strong>真の枝と偽の枝が両方 <code>'desc'</code></strong> になっていた。URL は正しく <code>direction=asc</code> に変わっているのに、コントローラーが受け取った瞬間 <code>'desc'</code> に潰していた。</p>
+    </div>
+    <div class="key">
+      <strong>学び：</strong> 三項演算子の<strong>両枝が同じ値</strong>という誤りは、構文エラーにも実行時エラーにもならず、静かに「常に片方」になる。<strong>「操作しても何も変わらない」系の症状</strong>を見たら、分岐が本当に分岐しているかを疑う。切り分けには <strong>URL（＝入力）と表示結果（＝出力）のどちらがおかしいかを見る</strong>のが有効で、「URL は <code>asc</code> なのに降順」＝サーバー側、と絞り込める。
+    </div>
+
+    <h3>つまづき⑥：登録日が全部 <code>2026-07-31</code> になる</h3>
+    <div class="warn">
+      <strong><span class="bug">症状</span> どの行も登録日が <code>2026-07-31</code>（しかも未来の日付）</strong>
+      <pre><code>{{ $knowledge-&gt;created_at-&gt;format('Y-m-t') }}  // ❌
+{{ $knowledge-&gt;created_at-&gt;format('Y-m-d') }}  // ✅</code></pre>
+      <p>PHP の日付書式 <code>t</code> は「<strong>その月の日数</strong>」を意味する。7月は31日あるので、<strong>7月に作られたレコードはすべて <code>2026-07-31</code></strong> と表示されていた。日を出す書式は <code>d</code>。</p>
+      <table>
+        <tr><th>書式</th><th>意味</th><th>7/17 の場合</th></tr>
+        <tr><td><code>d</code></td><td>日（01〜31）</td><td><code>17</code></td></tr>
+        <tr><td><code>t</code></td><td>その月の日数（28〜31）</td><td><code>31</code></td></tr>
+      </table>
+    </div>
+    <div class="key">
+      <strong>学び：</strong> <code>t</code> は月末日の計算（<code>Carbon::now()-&gt;format('t')</code> で「今月は31日ある」）に使う書式。<strong>「全行が同じ値」かつ「その月の月末日」</strong>という症状は、この取り違えのサイン。データ側を疑う前に書式文字列を見る。
+    </div>
+
+    <h2>8. 最終的な実装</h2>
+    <h3>変更・追加したファイル</h3>
+    <table>
+      <tr><th>ファイル</th><th>変更</th></tr>
+      <tr><td><code>components/sort-header.blade.php</code></td><td class="done">新規作成</strong>。3一覧共通のソート用ヘッダー</td></tr>
+      <tr><td><code>BookController.php</code></td><td>ホワイトリスト方式。7列を対象に <code>orderBy</code> ＋ <code>withQueryString</code></td></tr>
+      <tr><td><code>KnowledgeController.php</code></td><td>JOIN 方式（<code>$sortMap</code>）。参照元ソート対応</td></tr>
+      <tr><td><code>ActionController.php</code></td><td>同上。<code>with</code> から未使用の <code>knowledge</code> を除外</td></tr>
+      <tr><td><code>books/index.blade.php</code></td><td>ヘッダーをコンポーネント化、登録日列を追加、幅を <code>8xl</code> に、日付を <code>nowrap</code></td></tr>
+      <tr><td><code>knowledges/index.blade.php</code></td><td>ヘッダーをコンポーネント化、登録日列を追加</td></tr>
+      <tr><td><code>actions/index.blade.php</code></td><td>同上</td></tr>
+      <tr><td><code>tailwind.config.js</code></td><td><code>maxWidth</code> に <code>8xl: 88rem</code> を定義</td></tr>
+      <tr><td><code>.gitignore</code></td><td>ide-helper の生成物を除外</td></tr>
+    </table>
+
+    <h3>ソート対象の最終形</h3>
+    <table>
+      <tr><th>一覧</th><th>ソート可能な列</th><th>対象外</th></tr>
+      <tr><td><strong>Book</strong></td><td>登録日／タイトル／著者／出版社／ジャンル／ステータス／読書開始日</td><td>読了日</td></tr>
+      <tr><td><strong>Knowledge</strong></td><td>登録日／タイトル／参照元</td><td>該当箇所／タグ／詳細</td></tr>
+      <tr><td><strong>Action</strong></td><td>登録日／タイトル／参照元</td><td>該当箇所／タグ／詳細</td></tr>
+    </table>
+
+    <h2>9. 既知の制約・今後の検討</h2>
+    <div class="note">
+      <strong>① ジャンル・ステータスはコード値順</strong>
+      <p><code>genre</code>・<code>status</code> は DB にコード値（<code>business</code>、<code>unread</code> 等）で保存されているため、<strong>アルファベット順</strong>に並ぶ。画面表示の日本語ラベル順（未読 &rarr; 読書中 &rarr; 読了 のような<strong>意味のある順序</strong>）にはならない。まずは単純順で運用し、気になれば <code>ORDER BY FIELD()</code> 等で対応を検討する。</p>
+    </div>
+    <div class="note">
+      <strong>② 該当箇所（<code>book_page</code>）は今回ソート対象外</strong>
+      <p>文字列カラム（<code>varchar</code>）なので、ソートすると<strong>文字列順（<code>10</code> が <code>9</code> より前）</strong>になり直感に反する。今回は対象から外した。</p>
+    </div>
+    <div class="note">
+      <strong>③ 一覧ごとに幅が不揃い</strong>
+      <p>Book は <code>max-w-8xl</code>（1408px）に広げたが、<strong>Knowledge・Action は <code>max-w-7xl</code> のまま</strong>。列を1つ増やしたので、揃えると余裕が出る。</p>
+    </div>
+    <div class="note">
+      <strong>④ 登録日セルの見た目が不揃い</strong>
+      <p>Book は <code>text-gray-600</code>、Knowledge・Action は <code>font-bold text-gray-900</code>。日付がタイトル並みに目立っているので、統一するなら 2箇所を <code>text-gray-600</code> に。</p>
+    </div>
+
+    <h2>次回の残タスク</h2>
+    <ul class="todo">
+      <li>結合テスト：各列のトグル動作・矢印表示、ソートしたままのページ送り（<code>withQueryString</code> の検証）</li>
+      <li>結合テスト：<strong>書籍を1冊削除し、その本の知識・行動が一覧から消えること</strong>（<code>whereNull('books.deleted_at')</code> の検証）</li>
+      <li>結合テスト：参照元ソートで書籍タイトル順になること／モデルが壊れていないこと（<code>select</code> の検証）</li>
+      <li>コミット → PR（<span class="pr">issue #14</span> と紐付け）→ マージ → PULL</li>
+      <li>（任意）Knowledge・Action の幅を <code>8xl</code> に揃える／登録日セルの色を統一</li>
+      <li>次フェーズ：一覧の検索・絞り込み（キーワード検索、ステータス／ジャンル絞り込み）</li>
+    </ul>
+
+    <h2>2日間の総括</h2>
+    <div class="card">
+      <p>「実際に使ってみて不便だと感じた」ところから出発した機能なので、<strong>要件が具体的で判断に迷いが少なかった</strong>。実装面では、共通コンポーネントを最初に切り出したことが効き、3一覧への展開と後からの一括修正（<code>whitespace-nowrap</code> の追加）が安く済んだ。</p>
+      <p>一方で学びが多かったのは<strong>JOIN 方式に切り替えた知識・行動</strong>。<code>whereHas</code> から生の <code>join</code> に降りた瞬間、<strong>Eloquent が暗黙に効かせていた安全網（SoftDeletes のグローバルスコープ）が外れる</strong>という、エラーにならない類の落とし穴に当たった。「便利な抽象を下に降りるときは、抽象が何をしてくれていたかを棚卸しする」という原則を、身をもって確認できた。</p>
+      <p>つまづきの多くは<strong>エラーが出ないバグ</strong>（両枝が同じ三項演算子、<code>t</code> と <code>d</code> の取り違え、未定義の Tailwind クラス）だった。共通するのは「<strong>症状の形から原因を逆算できる</strong>」こと。全行が月末日なら書式、押しても変わらないなら分岐、効いていないなら定義の有無。次回以降の切り分けに活かしたい。</p>
+    </div>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; 2026-07-16 &amp; 07-17 &mdash; list-sorting
+  </footer>
+</body>
+</html>

@@ -14,18 +14,38 @@ class KnowledgeController extends Controller
     use AuthorizesRequests;
 
     // 独立した知識一覧：本をまたいで「自分の知識」だけを表示
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Knowledge::class);
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $knowledges = Knowledge::whereHas('book', function($query)use($user){
-            $query->where('user_id', $user->id);
-        })->with('book')->latest()->paginate(15);
+        $sortMap =[
+            'created_at' => 'knowledges.created_at',
+            'title' => 'knowledges.title',
+            'book' => 'books.title', // 参照元
+        ];
 
-        return view('knowledges.index',['knowledges' => $knowledges]);
+        $sortKey = array_key_exists($request->query('sort'), $sortMap) ? $request->query('sort') : 'created_at';
+        $sortColumn = $sortMap[$sortKey];
+        $direction = $request->query('direction') === 'asc' ? 'asc' : 'desc';
+
+        $knowledges = Knowledge::query()
+            ->join('books', 'knowledges.book_id', '=', 'books.id')
+            ->where('books.user_id', $user->id)
+            ->whereNull('books.deleted_at') // 論理削除された書籍を除外
+            ->with('book')
+            ->select('knowledges.*')
+            ->orderBy($sortColumn, $direction)
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('knowledges.index',[
+            'knowledges' => $knowledges,
+            'sort'       => $sortKey,
+            'direction'  => $direction,
+            ]);
     }
 
     // 作成フォーム：本のプルダウン用に自分の本を渡す

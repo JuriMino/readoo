@@ -6,23 +6,33 @@ use App\Models\Book;
 use App\Http\Requests\BookRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
-
+use \Illuminate\Http\Request;
 class BookController extends Controller
 {
     use AuthorizesRequests; // $this->authorize()を使えるようにする
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    
+    public function index(Request $request)
     {
         // viewAnyポリシーで認可チェック
         $this->authorize('viewAny', Book::class);
 
+        // ホワイトリスト照合（インジェクション対策）
+        $sortable = ['title','author','publisher','genre','status','started_at','created_at'];
+        $sort = in_array($request->query('sort'), $sortable, true) ? $request->query('sort') : 'created_at';
+        $direction = $request->query('direction') === 'asc' ? 'asc' : 'desc';
+
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        $books = $user->books()->latest()->paginate(15);
+        $books = $user->books()
+            ->orderBy($sort, $direction)
+            ->paginate(10)
+            ->withQueryString(); // ページ送りでソート条件を維持
 
-        return view('books.index', ['books' => $books]);
+        return view('books.index', [
+            'books' => $books,
+            'sort' => $sort,
+            'direction' => $direction,
+            ]);
     }
 
     /**

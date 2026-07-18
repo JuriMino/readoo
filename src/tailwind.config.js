@@ -17,6 +17,9 @@ export default {
 
     theme: {
         extend: {
+            maxWidth: {
+                '8xl' : '88rem', // 1408px（7xl=1280pxと全幅の中間)
+            },
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
