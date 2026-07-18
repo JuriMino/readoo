@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\Knowledge;
+use App\Models\Action;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,8 +19,13 @@ class ProfileController extends Controller
      */
     public function edit(Request $request): View
     {
+        $user = $request->user();
+
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
+            'bookCount' => $user->books()->count(),
+            'knowledgeCount' => Knowledge::whereHas('book', fn($q) => $q->where('user_id', $user->id))->count(),
+            'actionCount' => Action::whereHas('book', fn($q) => $q->where('user_id', $user->id))->count(),
         ]);
     }
 
