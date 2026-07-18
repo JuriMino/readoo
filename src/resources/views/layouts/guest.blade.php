@@ -17,15 +17,16 @@
     <body class="min-h-screen flex flex-col bg-base font-sans text-gray-900 antialiased">
         <!-- ヘッダー（ブランドサブカラーの青） -->
         <header class="w-full bg-secondary">
-            <nav class="flex items-center justify-between max-w-7xl mx-auto px-6 py-3">
-                <a href="/" class="text-xl font-semibold text-white">
-                    {{-- TODO: ロゴ画像が用意できたら <img> に差し替える --}}
-                    Readoo!
+            <nav class="flex items-center justify-between max-w-7xl mx-auto px-6">
+                {{-- ロゴ（クリックでMyPageへ） --}}
+                <a href="{{ route('mypage')}}">
+                    <x-application-logo class="block h-20 w-auto" />
                 </a>
+                {{-- 右側メニュー --}}
                 <div class="flex items-center space-x-3 text-sm text-white">
-                    <a href="{{ route('register') }}" class="hover:underline">Register</a>
-                    <span class="opacity-60">|</span>
-                    <a href="{{ route('login') }}" class="hover:underline">Log in</a>
+                    <a href="{{ route('register') }}" class="hover:underline font-extrabold text-xl">Register</a>
+                    <span class="opacity-60 font-extrabold text-xl">|</span>
+                    <a href="{{ route('login') }}" class="hover:underline font-extrabold text-xl">Log in</a>
                 </div>
             </nav>
         </header>
