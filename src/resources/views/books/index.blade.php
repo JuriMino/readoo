@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="max-w-8xl mx-auto px-6 py-12">
 
         {{-- 見出し行・左にタイトル＋New Book、右に他コレクション導線 --}}
         <div class="flex items-start justify-between">
@@ -50,24 +50,26 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 text-gray-500">
                         <tr>
-                            <th class="px-5 py-3 text-left font-bold">タイトル</th>
-                            <th class="px-5 py-3 text-left font-bold">著者</th>
-                            <th class="px-5 py-3 text-left font-bold">出版社</th>
-                            <th class="px-5 py-3 text-left font-bold">ジャンル</th>
-                            <th class="px-5 py-3 text-left font-bold">ステータス</th>
-                            <th class="px-5 py-3 text-left font-bold">読書開始日</th>
+                            <x-sort-header column="created_at" label="登録日" :sort="$sort" :direction="$direction" />
+                            <x-sort-header column="title" label="タイトル" :sort="$sort" :direction="$direction" />
+                            <x-sort-header column="author" label="著者" :sort="$sort" :direction="$direction" />
+                            <x-sort-header column="publisher" label="出版社" :sort="$sort" :direction="$direction" />
+                            <x-sort-header column="genre" label="ジャンル" :sort="$sort" :direction="$direction" />
+                            <x-sort-header column="status" label="ステータス" :sort="$sort" :direction="$direction" />
+                            <x-sort-header column="started_at" label="読書開始日" :sort="$sort" :direction="$direction" />
                             <th class="px-5 py-3 text-left font-bold">読了日</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach ($books as $book)
                             <tr class="hover:bg-gray-50 transition">
+                                <td class="px-5 py-4 text-gray-600 whitespace-nowrap">{{ $book->created_at->format('Y-m-d')}}</td>
                                 <td class="px-5 py-4">
                                     <a href="{{ route('books.show', $book)}}" class="font-bold text-gray-900 hover:text-book hover:underline">
                                         {{ $book->title}}
                                     </a>
                                 </td>
-                                <td class="px-5 py-4 text-gray-600">{{ $book->author }}</td>
+                                <td class="px-5 py-4 text-gray-600 whitespace-nowrap">{{ $book->author }}</td>
                                 <td class="px-5 py-4 text-gray-600">{{ $book->publisher ?? '-' }}</td>
                                 <td class="px-5 py-4 text-gray-600">{{ \App\Models\Book::GENRES[$book->genre] }}</td>
                                 <td class="px-5 py-4 text-gray-600">
@@ -75,8 +77,8 @@
                                         {{ \App\Models\Book::STATUSES[$book->status] }}
                                     </span>
                                 </td>
-                                <td class="px-5 py-4 text-gray-600">{{ $book->started_at?->format('Y-m-d') ?? '-' }}</td>
-                                <td class="px-5 py-4 text-gray-600">{{ $book->finished_at?->format('Y-m-d') ?? '-' }}</td>
+                                <td class="px-5 py-4 text-gray-600 whitespace-nowrap">{{ $book->started_at?->format('Y-m-d') ?? '-' }}</td>
+                                <td class="px-5 py-4 text-gray-600 whitespace-nowrap">{{ $book->finished_at?->format('Y-m-d') ?? '-' }}</td>
                             </tr>
                         @endforeach
                     </tbody>

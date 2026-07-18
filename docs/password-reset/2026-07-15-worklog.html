@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! パスワードリセット 作業記録 2026-07-15</title>
+  <style>
+    :root {
+      --indigo: #4f46e5; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--indigo), #6366f1); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--indigo); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--indigo); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--indigo); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--indigo); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--blue); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--indigo); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+    .pr { display:inline-block; background:#eef2ff; color:var(--indigo); font-weight:700; padding:.05rem .45rem; border-radius:4px; font-size:.82em; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>パスワードリセット機能 作業記録</h1>
+    <p>2026-07-15 &mdash; リセット機能の有効化・Mailpit導入・結合テスト完了・PW変更バグ修正</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>「パスワードを忘れたユーザーが、登録メール宛のリンクから再設定できる」機能を追加。Breeze が<strong>生成済みだが v1 でスコープ外にしていた</strong>コードを有効化する形で実装した。あわせて開発用のメール確認環境（Mailpit）を整備し、結合テスト仕様書にリセット観点を追記。作業中に見つけた<strong>プロフィールのパスワード変更バグも別issueで修正</strong>。最後に<strong>結合テストを全ケース実施し、挙動に問題なしを確認</strong>した。</p>
+      <ul class="checklist">
+        <li>パスワードリセット機能の実装 <span class="pr">issue #9 / PR #10</span></li>
+        <li>開発用メール確認に Mailpit を導入（compose.yaml）</li>
+        <li>結合テスト仕様書に AUTH-07〜11 を追加 <span class="pr">PR #11</span></li>
+        <li>プロフィールのパスワード変更が保存されない不具合を修正 <span class="pr">issue #12 / PR #13</span></li>
+        <li>結合テスト 全ケース完了 &mdash; 挙動に問題なし <span class="ok">全PASS</span></li>
+      </ul>
+    </div>
+
+    <h2>1. パスワードリセット機能の実装</h2>
+
+    <h3>そもそも「ほぼ実装済み」だった</h3>
+    <div class="card">
+      <p>着手前に調べたところ、Breeze が<strong>コントローラー・ビュー・マイグレーション・メール通知まで一式を生成済み</strong>だった。v1 では <code>routes/auth.php</code> でリセット系4ルートを<strong>コメントアウトして封印</strong>していただけ。つまり本作業の実体は「封印を解いて、日本語化・導線接続・確認環境の整備」だった。</p>
+      <table>
+        <tr><th>部品</th><th>状態</th></tr>
+        <tr><td><code>PasswordResetLinkController</code> / <code>NewPasswordController</code></td><td>生成済み</td></tr>
+        <tr><td><code>forgot-password</code> / <code>reset-password</code> ビュー</td><td>生成済み（英語デフォルト）</td></tr>
+        <tr><td><code>password_reset_tokens</code> テーブル</td><td>マイグレーション済み</td></tr>
+        <tr><td>リセット系4ルート</td><td>コメントアウトで封印 → 今回解除</td></tr>
+      </table>
+    </div>
+
+    <h3>変更したファイル</h3>
+    <table>
+      <tr><th>ファイル</th><th>変更</th></tr>
+      <tr><td><code>routes/auth.php</code></td><td>リセット系4ルート（forgot-password の表示/送信、reset-password の表示/更新）を有効化</td></tr>
+      <tr><td><code>login.blade.php</code></td><td>「パスワードをお忘れですか？」導線を追加（<code>password.request</code> へ）</td></tr>
+      <tr><td><code>forgot-password.blade.php</code></td><td>日本語化＋既存デザイン（カード／secondaryカラー）に統一</td></tr>
+      <tr><td><code>reset-password.blade.php</code></td><td>同上。トークンの hidden とメールの引き継ぎは維持</td></tr>
+      <tr><td><code>NewPasswordController.php</code></td><td><code>remember_token</code> の書き込みを無効化（下記参照）</td></tr>
+    </table>
+
+    <h3>つまづき①：ログイン画面が 500 エラー</h3>
+    <div class="warn">
+      <strong><span class="bug">エラー</span> Missing required parameter for [Route: password.reset] ... [Missing parameter: token]</strong>
+      <p>導線リンクを <code>route('password.reset')</code> にしていたのが原因。<code>password.reset</code> は <code>reset-password/{token}</code> で<strong>token パラメータが必須</strong>のルート。<code>route()</code> は<strong>Blade 描画時に評価される</strong>ため、リンクを置いたログイン画面そのものが表示できなくなっていた。</p>
+      <p><strong>修正：</strong> 申請フォームへ飛ばす <code>route('password.request')</code>（＝<code>forgot-password</code>）に変更。</p>
+    </div>
+    <div class="key">
+      <strong>学び：</strong> 名前付きルートでパラメータ必須のもの（<code>{token}</code> や <code>{id}</code>）を、パラメータ無しで <code>route()</code> 呼びすると<strong>その場で例外</strong>。しかも描画時評価なので「リンクを置いただけのページ」が巻き添えで落ちる。導線の <code>route()</code> は「今パラメータを渡せるか」を意識する。
+    </div>
+
+    <h3>つまづき②：リセット確定時に SQL エラー</h3>
+    <div class="warn">
+      <strong><span class="bug">エラー</span> Unknown column 'remember_token' in 'field list'</strong>
+      <p>リセット処理自体は最後まで動いたが、<code>NewPasswordController</code> が更新時に必ず <code>remember_token</code> を再発行しようとして失敗。<strong>v1 で「remember me はスコープ外」として <code>users</code> テーブルから <code>rememberToken()</code> を除外していた</strong>ため、カラムが存在しなかった。</p>
+      <p><strong>修正方針：</strong> カラムを追加し直す（＝設計判断を覆す＋<code>migrate:fresh</code>）のは過剰。<code>remember_token</code> はリセットに必須ではないので、<strong>コントローラー側で書き込み行をコメントアウト</strong>して対応した。</p>
+    </div>
+    <pre><code>$user-&gt;forceFill([
+    'password' =&gt; Hash::make($request-&gt;password),
+    // 'remember_token' =&gt; Str::random(60),   // remember me はv1スコープ外のため無効化
+])-&gt;save();</code></pre>
+
+    <h2>2. 開発用メール確認環境（Mailpit）</h2>
+    <p>「実際にメールが飛んで見た目を確認したい」ため、送信ドライバを検討。本番用サービスと開発用キャッチャーを整理した。</p>
+    <table>
+      <tr><th>選択肢</th><th>位置づけ</th><th>今回の判断</th></tr>
+      <tr><td><strong>Mailpit</strong></td><td>ローカルのメールキャッチャー（Dockerコンテナ）</td><td class="done">採用（開発用）</td></tr>
+      <tr><td>Mailtrap</td><td>外部SaaSのサンドボックス受信箱</td><td>見送り（登録が必要）</td></tr>
+      <tr><td>Resend</td><td>本番向け送信サービス（無料枠＋独自ドメイン認証）</td><td>デプロイ時に採用予定</td></tr>
+      <tr><td><code>log</code> ドライバ</td><td>メール本文をログに書き出すだけ</td><td>初期の動作確認に使用</td></tr>
+    </table>
+    <div class="note">
+      <strong>Mailpit を選んだ理由：</strong> すでに Docker Compose 構成なので<strong>サービスを1つ足すだけ</strong>で完結し、アカウント登録も外部送信も不要。受信メールは <code>http://localhost:8025</code> の画面で HTML プレビュー付きで確認できる。
+    </div>
+    <h4>compose.yaml に追加</h4>
+    <pre><code>  mailpit:
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025"   # 確認用のWeb画面
+      - "1025:1025"   # メール受信ポート（SMTP）</code></pre>
+    <h4>src/.env（開発）</h4>
+    <pre><code>MAIL_MAILER=smtp
+MAIL_HOST=mailpit     # Dockerのサービス名で名前解決
+MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null</code></pre>
+    <div class="key">
+      <strong>本番の残タスク：</strong> デプロイ時に Resend で独自ドメインを認証（DKIM/SPF の DNS レコード追加）し、<code>MAIL_MAILER</code> を <code>smtp</code>(Mailpit) から <code>resend</code> に切り替えるだけ。<code>.env</code> は gitignore 対象なので、環境ごとに値を持てる。
+    </div>
+
+    <h2>3. 結合テスト：仕様書更新と全ケース完了</h2>
+    <p>結合テストを実施するにあたり、仕様書（<code>docs/integration-test-spec.html</code>）がリセット機能の観点を含んでおらず古かったため追記。その上で<strong>全ケースを実施し、挙動に問題なしを確認</strong>した。</p>
+    <table>
+      <tr><th>ID</th><th>観点</th></tr>
+      <tr><td><code>AUTH-07</code></td><td>リセット申請（正常）→ Mailpit 着信</td></tr>
+      <tr><td><code>AUTH-08</code></td><td>リンクから再設定 → 新パスワードでログイン</td></tr>
+      <tr><td><code>AUTH-09</code></td><td>未登録メールでの申請（異常系）</td></tr>
+      <tr><td><code>AUTH-10</code></td><td>パスワード確認の不一致（異常系）</td></tr>
+      <tr><td><code>AUTH-11</code></td><td>リンクの単回使用（使用済みトークンは無効）</td></tr>
+    </table>
+    <div class="qa">
+      <strong>結果：</strong> リセット観点（AUTH-07〜11）に加え、v1 全機能（認証／プロフィール／Book／Knowledge／Action／認可／削除連鎖）を通し、<strong>全ケース完了・挙動問題なし</strong>。今回修正した <code>PROF-03</code>（パスワード変更）も <span class="ok">OK</span> で記録できる状態になった。
+    </div>
+    <div class="note">
+      <strong>Git 運用メモ：</strong> この docs ファイルは当初パスワードリセットのコミットに紛れ込んでいたため、<code>git rm --cached</code>＋<code>commit --amend</code>＋<code>push --force-with-lease</code> で機能コミットから切り離し、別ブランチ・別PRに分けた。<strong>1PR＝1関心事</strong>を保つための整理。
+    </div>
+
+    <h2>4. プロフィールのパスワード変更バグ修正 <span class="pr">issue #12 / PR #13</span></h2>
+    <div class="warn">
+      <strong><span class="bug">症状</span></strong> プロフィール編集でパスワードを変更し Update しても、<strong>エラーが出ないのに保存されない</strong>。ログアウト後、新パスワードでログイン失敗・古いパスワードでログイン成功（＝DBが更新されていない）。
+    </div>
+
+    <h3>切り分け：二重ハッシュを疑ったが違った</h3>
+    <div class="card">
+      <p>コントローラーは <code>Hash::make()</code> で明示ハッシュし、User モデルには <code>'password' =&gt; 'hashed'</code> キャストもある。<strong>二重ハッシュ</strong>を疑い、DB を汚さず <code>tinker</code> で検証した。</p>
+      <pre><code>$u = new App\Models\User();
+$u-&gt;password = Hash::make("test1234");
+Hash::check("test1234", $u-&gt;password);  // =&gt; true（単一ハッシュ）</code></pre>
+      <p>結果は <span class="ok">true</span>。<code>hashed</code> キャストは<strong>すでにハッシュ済みの値なら再ハッシュしない</strong>（内部で <code>Hash::isHashed()</code> で判定）ため、二重ハッシュは起きていなかった。<strong>＝これは原因ではない。</strong></p>
+    </div>
+
+    <h3>真因：フォームの input 名とコントローラーの期待キーの不一致</h3>
+    <div class="card">
+      <p><code>PasswordController::update</code> が検証・取得するキーは Breeze 標準の <code>password</code> / <code>password_confirmation</code>。一方、日本語化したフォームの <code>name</code> は独自の <code>new_password</code> / <code>confirm_password</code> だった。</p>
+      <table>
+        <tr><th>フォームの name</th><th>コントローラーの期待</th><th></th></tr>
+        <tr><td><code>current_password</code></td><td><code>current_password</code></td><td class="done">一致</td></tr>
+        <tr><td><code>new_password</code></td><td><code>password</code></td><td><span class="bug">不一致</span></td></tr>
+        <tr><td><code>confirm_password</code></td><td><code>password_confirmation</code></td><td><span class="bug">不一致</span></td></tr>
+      </table>
+      <p>そのため送信データに <code>password</code> が存在せず<strong>バリデーションで停止</strong>し、更新処理まで到達していなかった（＝古いパスワードのまま）。</p>
+      <p><strong>エラーが画面に出なかった理由：</strong> エラーは <code>updatePassword</code> という名前付きバッグの <code>password</code> キーに入るが、新パスワード欄の表示は <code>-&gt;get('new_password')</code> という<strong>存在しないキー</strong>を見ていたため、どこにも描画されなかった。</p>
+    </div>
+    <div class="key">
+      <strong>学び：</strong> 「無反応で保存されない」は<strong>バリデーション失敗＋エラー表示キーのズレ</strong>の合わせ技で起きやすい。フォームの <code>name</code> は、それを受けるコントローラー／FormRequest の<strong>ルールキーと必ず一対一で合わせる</strong>。エラー表示（<code>$errors-&gt;bag-&gt;get('キー')</code>）も同じキーで揃える。
+    </div>
+    <h4>修正</h4>
+    <p><code>update-password-form.blade.php</code> の新パスワード欄・確認欄の <code>name</code> / <code>id</code> / <code>label for</code> / エラー表示キーを、Breeze 標準の <code>password</code> / <code>password_confirmation</code> に統一。（<code>current_password</code> と <code>autocomplete</code> は元々正しいので変更なし）</p>
+
+    <h2>今日マージしたもの</h2>
+    <table>
+      <tr><th>PR</th><th>内容</th></tr>
+      <tr><td><span class="pr">#10</span></td><td>パスワードリセット機能の実装（feature/9）</td></tr>
+      <tr><td><span class="pr">#11</span></td><td>結合テスト仕様書＋リセット観点（docs/integration-test-spec）</td></tr>
+      <tr><td><span class="pr">#13</span></td><td>プロフィールのパスワード変更バグ修正（fix/12）</td></tr>
+    </table>
+
+    <h2>ここまでの到達点</h2>
+    <div class="card">
+      <p>v1 の機能実装（Book／Knowledge／Action／認証／プロフィール／パスワードリセット）と、<strong>結合テストによる挙動確認まで一通り完了</strong>。ロジック・データまわりの土台は固まった。ここから先は<strong>使い勝手（UI/UX）と、実運用で欲しくなる機能の作り込み</strong>のフェーズに移る。</p>
+    </div>
+
+    <h2>次フェーズの方針（明日以降）</h2>
+
+    <h3>① UI/UX の仕上げ・フロントエンド調整</h3>
+    <div class="note">
+      <p>機能は揃ったので、<strong>使用感の観点で修正したい点を洗い出し</strong>、UI 仕上げに入る。まずは「気になる点の棚卸し」から。観点の例：</p>
+      <ul>
+        <li>画面ごとの余白・タイポグラフィ・色使いの<strong>一貫性</strong>（ボタン・カード・バッジの統一）</li>
+        <li>空状態（データ0件）の表示、ローディング／完了フィードバック</li>
+        <li>フォームのエラー表示・必須表現の分かりやすさ</li>
+        <li>導線・戻り先の自然さ、モバイル幅でのレイアウト崩れ</li>
+        <li>操作後のトースト等、<strong>結果が伝わるフィードバック</strong></li>
+      </ul>
+    </div>
+
+    <h3>② 一覧画面の検索・絞り込み（v1で追加検討）</h3>
+    <div class="key">
+      <p>使用感として、<strong>一覧画面での検索・絞り込みは v1 時点で欲しい</strong>と判断。追加実装を検討する。対象は Book／Knowledge／Action の各一覧。想定する切り口：</p>
+      <ul>
+        <li><strong>キーワード検索</strong>（タイトル・著者・内容 等）</li>
+        <li><strong>絞り込み</strong>（例：Book のステータス／ジャンル、Knowledge・Action の参照元の本 など）</li>
+        <li>件数が増えた際の<strong>並び替え・ページネーション</strong>も併せて要検討</li>
+      </ul>
+      <p>実装前に、各一覧で「何で探せると嬉しいか」を先に定義してから、コントローラーのクエリ（<code>when()</code> による条件付き絞り込み）とフォームUIに落とす想定。</p>
+    </div>
+
+    <h2>次回の残タスク</h2>
+    <ul class="todo">
+      <li>UI/UX の気になる点を洗い出し、優先度を付ける（棚卸し）</li>
+      <li>UI 仕上げ・フロントエンド調整に着手</li>
+      <li>一覧画面の検索・絞り込みの要件定義 → 追加実装（Book／Knowledge／Action）</li>
+      <li>デプロイ時：Resend で独自ドメイン認証（DKIM/SPF）→ <code>MAIL_MAILER</code> を <code>resend</code> に切り替え</li>
+      <li>マージ済みローカルブランチの整理（feature/9・docs・fix/12）</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; 2026-07-15 &mdash; password-reset
+  </footer>
+</body>
+</html>

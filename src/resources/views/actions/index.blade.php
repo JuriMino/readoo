@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="max-w-8xl mx-auto px-6 py-12">
 
         {{-- 見出し行・左にタイトル+New Action、右に他コレクション導線 --}}
         <div class="flex items-start justify-between">
@@ -39,8 +39,9 @@
                 <table class="w-full text-sm">
                     <thead class="bg-gray-50 text-gray-500">
                         <tr>
-                            <th class="px-5 py-3 text-left font-bold">タイトル</th>
-                            <th class="px-5 py-3 text-left font-bold">参照元</th>
+                            <x-sort-header column="created_at" label="登録日" :sort="$sort" :direction="$direction" />
+                            <x-sort-header column="title" label="タイトル" :sort="$sort" :direction="$direction" />
+                            <x-sort-header column="book" label="参照元" :sort="$sort" :direction="$direction" />
                             <th class="px-5 py-3 text-left font-bold">該当箇所</th>
                             <th class="px-5 py-3 text-left font-bold">タグ</th>
                             <th class="px-5 py-3 text-left font-bold">詳細</th>
@@ -49,6 +50,7 @@
                     <tbody class="divide-y divide-gray-100">
                         @foreach ($actions as $action)
                             <tr class="hover:bg-gray-50 transition">
+                                <td class="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">{{ $action->created_at->format('Y-m-d') }}</td>
                                 <td class="px-5 py-4 font-bold text-gray-900">{{ $action->title }}</td>
                                 <td class="px-5 py-4  text-gray-900">{{ $action->book->title }}</td>
                                 <td class="px-5 py-4 text-gray-900">{{ $action->book_page ?? '-' }}</td>

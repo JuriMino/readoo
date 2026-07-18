@@ -8,24 +8,45 @@ use App\Models\Knowledge;
 use App\Http\Requests\ActionRequest;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class ActionController extends Controller
 {
     use AuthorizesRequests;
 
     // 独立した行動一覧：自分の行動だけを表示
-    public function index()
+    public function index(Request $request)
     {
         $this->authorize('viewAny', Action::class);
 
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-        $actions = Action::whereHas('book', function($query) use($user){
-            $query->where('user_id', $user->id);
-        })->with(['book','knowledge'])->latest()->paginate(15);
+        $sortMap = [
+            'created_at' => 'actions.created_at',
+            'title' => 'actions.title',
+            'book' => 'books.title', // 参照元
+        ];
 
-        return view('actions.index',['actions' => $actions]);
+        $sortKey = array_key_exists($request->query('sort'), $sortMap) ? $request->query('sort') : 'created_at';
+        $sortColumn = $sortMap[$sortKey];
+        $direction = $request->query('direction') === 'asc' ? 'asc' : 'desc';
+
+        $actions = Action::query()
+            ->join('books', 'actions.book_id', '=', 'books.id')
+            ->where('books.user_id', $user->id)
+            ->whereNull('books.deleted_at') // 論理削除された書籍を除外
+            ->with('book')
+            ->select('actions.*')
+            ->orderBy($sortColumn, $direction)
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('actions.index',[
+            'actions' => $actions,
+            'sort' => $sortKey,
+            'direction' => $direction,
+        ]);
     }
 
     // 作成フォーム：本・知識のプルダウン用データ＋入り口ごとの初期選択
