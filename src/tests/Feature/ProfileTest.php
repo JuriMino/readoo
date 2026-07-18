@@ -64,6 +64,20 @@ class ProfileTest extends TestCase
         $this->assertSoftDeleted($user);
     }
 
+    public function test_profile_page_displays_correct_data_counts(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->for($user)->create();
+        Knowledge::factory()->for($book)->count(2)->create();
+        Action::factory()->create(['book_id' => $book->id]);
+
+        $response = $this->actingAs($user)->get('/profile');
+
+        $response->assertViewHas('bookCount', 1);
+        $response->assertViewHas('knowledgeCount', 2);
+        $response->assertViewHas('actionCount', 1);
+    }
+
     public function test_correct_password_must_be_provided_to_delete_account(): void
     {
         $user = User::factory()->create();
