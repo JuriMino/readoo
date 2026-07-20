@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 書籍UI/UX改善 作業記録 2026-07-20</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--green), #22c55e); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--green); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>書籍関連のUI/UX改善 作業記録</h1>
+    <p>2026-07-20 &mdash; Figma準拠での一覧・詳細・フォーム修正、モデル別テーマ背景の導入、削除確認モーダルの再設計</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>issue #18「書籍関連のUI/UX改善」として、Figmaと実装のズレを画面単位で洗い出して修正した。
+      書籍一覧・新規登録／編集・詳細・削除確認モーダルの4画面が対象。
+      並行して、<strong>モデル（本/知識/行動）ごとにページ背景色を切り替えるテーマ機構</strong>を
+      <code>x-app-layout</code> に追加し、今後の知識・行動側の改修でも使い回せる土台を作った。
+      最後にコードレビューで見つかった3件の不具合（HTML閉じタグ漏れ・テーマのtypo・共通コンポーネント未反映）を修正し、
+      PR #19として <code>main</code> にマージ済み。</p>
+    </div>
+    <ul class="checklist">
+      <li>書籍一覧：ヘッダー配色・件数表示・カスタムページネーション（中央寄せ）を追加</li>
+      <li><code>AppLayout</code> に <code>theme</code> プロパティを追加し、モデル別の背景色切り替えを実装</li>
+      <li>新規登録／編集フォーム：Tailwindタイポ多数修正、日付inputの年桁数バグ対応、Cancelボタン配色統一</li>
+      <li>書籍詳細：紐づく知識／行動をリスト形式→テーブル形式に再設計、削除確認モーダルをFigma準拠に刷新</li>
+      <li>レビューで発覚した不具合3件（<code>&lt;/tr&gt;</code>閉じ忘れ／テーマtypo／sort-header未反映）を修正</li>
+      <li>PR #19 マージ済み、ローカル <code>main</code> にpull済み</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① モデル別テーマ背景の導入</h2>
+    <p>書籍・知識・行動それぞれで一覧〜詳細画面の背景色を変える方針になったため、
+    ページごとに背景クラスを書くのではなく、レイアウト側で一元管理する形にした。</p>
+
+    <pre><code>// app/View/Components/AppLayout.php
+class AppLayout extends Component
+{
+    public function __construct(
+        public string $theme = 'base',
+    ) {}
+    ...
+}</code></pre>
+
+    <pre><code>{{-- layouts/app.blade.php --}}
+@php
+    $bodyBg = match ($theme) {
+        'book'      =&gt; 'bg-book/10',
+        'knowledge' =&gt; 'bg-knowledge/10',
+        'action'    =&gt; 'bg-action/10',
+        default     =&gt; 'bg-base',
+    };
+@endphp
+&lt;body class="min-h-screen flex flex-col {{ $bodyBg }} font-sans text-gray-900 antialiased"&gt;</code></pre>
+
+    <div class="key">
+      <strong>色は固定値でなく既存のbrandカラーを流用：</strong>
+      <code>tailwind.config.js</code> に定義済みの <code>book</code>/<code>knowledge</code>/<code>action</code>（brandカラー）に
+      透過度修飾子（<code>bg-book/10</code>）を掛けるだけで薄色背景が作れる。
+      Tailwind v3はカスタムhexカラーにも <code>/10</code> のような透過度指定が効くため、
+      <code>bg-green-50</code> のような別カラーを新規定義せずに済み、知識・行動側もキーを変えるだけで展開できる。
+    </div>
+    <p>各画面は <code>&lt;x-app-layout theme="book"&gt;</code> のように指定するだけでよく、
+    <code>profile/edit.blade.php</code> など theme 未指定の画面は従来どおり <code>bg-base</code>（クリーム色）のまま。</p>
+
+    <!-- ============================================================ -->
+    <h2>② 書籍一覧（index.blade.php）</h2>
+    <table>
+      <tr><th>項目</th><th>内容</th></tr>
+      <tr><td>ヘッダー配色</td><td><code>thead</code> を <code>bg-book/10 text-book</code> に変更。列見出しの文字色も<code>x-sort-header</code>に<code>color</code> propを追加して緑系に統一</td></tr>
+      <tr><td>件数表示</td><td>テーブル上部に「全◯件中◯〜◯件を表示」を追加</td></tr>
+      <tr><td>ページネーション</td><td>Laravelデフォルトの <code>$books-&gt;links()</code> から、Prev/ページ番号/Nextを中央寄せで自前描画する形に変更。現在ページは緑背景で強調</td></tr>
+    </table>
+
+    <h4><code>x-sort-header</code> への color prop 追加</h4>
+    <p>このコンポーネントは知識・行動一覧とも共有しているため、色をハードコードせず
+    <code>color</code> propを追加してデフォルト <code>gray</code>（既存の見た目を維持）とし、
+    書籍側だけ <code>color="book"</code> を指定する形にした。</p>
+    <pre><code>@props(['column', 'label', 'sort', 'direction', 'color' =&gt; 'gray'])
+@php
+    $colorClasses = [
+        'gray' =&gt; ['active' =&gt; 'text-gray-900', 'hover' =&gt; 'hover:text-gray-700', 'arrow' =&gt; 'text-gray-300'],
+        'book' =&gt; ['active' =&gt; 'text-book',      'hover' =&gt; 'hover:text-book',      'arrow' =&gt; 'text-green-300'],
+    ];
+    $c = $colorClasses[$color] ?? $colorClasses['gray'];
+@endphp</code></pre>
+
+    <div class="note">
+      <strong>ページネーションの表示件数バグ：</strong>
+      当初 <code>array_rand</code> 的な単純ループでウィンドウ計算をミスすると全ページが表示されてしまうため、
+      <code>$current</code> を中心に前後2ページ（最大5個）だけ表示するようclampして解消。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>③ 新規登録・編集フォーム</h2>
+    <h4>Tailwindタイポの一斉修正</h4>
+    <p>写経中に発生したクラス名タイポは<strong>Tailwindが黙って無視する</strong>ため、
+    見た目の崩れとしてしか気づけない。今回洗い出したのは以下。</p>
+    <table>
+      <tr><th>誤</th><th>正</th></tr>
+      <tr><td><span class="bug">bg-grau-50</span></td><td><span class="ok">bg-gray-50</span></td></tr>
+      <tr><td><span class="bug">border-grau-200</span></td><td><span class="ok">border-gray-200</span></td></tr>
+      <tr><td><span class="bug">br-green-50</span></td><td><span class="ok">bg-green-50</span></td></tr>
+      <tr><td><span class="bug">boder-gray-700</span></td><td><span class="ok">border-gray-200</span></td></tr>
+    </table>
+
+    <h4>日付inputの年桁数バグ（Chromeの既知挙動）</h4>
+    <p>読書開始日・読了日を手入力すると「202607/02/02」のように壊れる不具合があった。
+    原因は <code>&lt;input type="date"&gt;</code> に <code>max</code> 属性が無いと、
+    Chromeが年の最大値を仕様上の上限（西暦275760年）とみなし、年フィールドが6桁まで入力を受け付けてしまうため
+    4桁で自動的に月へ移動しない、というブラウザ側の仕様だった。</p>
+    <div class="warn">
+      <strong>直すのは <code>max</code> であって <code>min</code> ではない。</strong>
+      <code>min</code>は下限のみを制御し、年の桁数上限には影響しない。
+      未来日も許容したかったため、実質無制限に近い <code>max="9999-12-31"</code>（4桁の範囲に収まる最大値）を指定し、
+      桁数バグの解消と未来日許容を両立した。
+    </div>
+    <pre><code>&lt;input type="date" name="started_at" ... min="1900-01-01" max="9999-12-31" ...&gt;</code></pre>
+
+    <h4>その他</h4>
+    <ul class="checklist">
+      <li>編集画面のCancelボタンに <code>bg-gray-300</code> が抜けていたため新規登録画面と統一</li>
+      <li>フォーム幅を <code>max-w-3xl</code> → <code>max-w-5xl</code> に拡大</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>④ 書籍詳細（show.blade.php）</h2>
+    <h4>紐づく知識／行動：リスト形式 → テーブル形式</h4>
+    <p>Figmaでは「タイトル／該当箇所／タグ／詳細」の列を持つテーブルで、
+    ヘッダーは単色の色帯（知識＝青、行動＝オレンジ）、追加ボタンはカード下部中央のピル型ボタンという構成。
+    元の実装はリスト（<code>&lt;ul&gt;</code>）で追加ボタンが右上にあったため、構造ごと差し替えた。</p>
+
+    <h4>削除確認モーダルの再設計</h4>
+    <p>プロフィール画面の退会確認モーダル（issue #16）で作ったパターン
+    （ヘッダー＋警告ボックス＋フッター）を踏襲し、削除対象（タイトル・著者）と
+    「参照元になっている知識・行動も削除される」旨の注意書きを追加した。</p>
+
+    <!-- ============================================================ -->
+    <h2>⑤ レビューで見つかった不具合と修正</h2>
+    <p>実装完了後に変更ファイル全体を見直したところ、以下3件が見つかり修正した。</p>
+    <table>
+      <tr><th>箇所</th><th>症状</th><th>修正</th></tr>
+      <tr><td><code>show.blade.php</code> 知識・行動テーブル</td><td><code>&lt;tr&gt;</code> の閉じタグが無い（無効なHTML）</td><td><code>&lt;/tr&gt;</code> を追加</td></tr>
+      <tr><td><code>AppLayout</code> の <code>match</code> 文</td><td><span class="bug">'actions'</span>（複数形）になっており、将来 <code>theme="action"</code> を指定しても該当せず<code>bg-base</code>にフォールバック</td><td><span class="ok">'action'</span>（単数形）に修正</td></tr>
+      <tr><td><code>books/index.blade.php</code></td><td><code>x-sort-header</code> への<code>color="book"</code>指定が未反映のままだった</td><td>各列に<code>color="book"</code>を追加</td></tr>
+    </table>
+    <div class="qa">
+      <strong>この日の教訓：</strong>
+      Tailwindのクラス名タイポと同じく、<code>match</code> 文のキー名タイポも「エラーにならず静かにdefaultへ落ちる」タイプの不具合。
+      動作確認だけでは気づきにくいので、実装完了後の差分レビューが引き続き有効だった。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>⑥ 完成状況と今後の予定</h2>
+    <h4>本日完成</h4>
+    <ul class="checklist">
+      <li>書籍一覧・新規登録／編集・詳細・削除確認モーダルのFigma準拠修正</li>
+      <li><code>AppLayout</code> テーマ機構の導入（book/knowledge/action/base）</li>
+      <li>PR #19 作成・マージ、ローカル<code>main</code>へpull済み</li>
+    </ul>
+    <h4>明日の予定</h4>
+    <ul class="todo">
+      <li><strong>知識（Knowledge）関連のUI/UX改善</strong>に着手。issueを新規作成し、ブランチは<code>feature/&lt;issue番号&gt;-knowledges-ui</code>を想定</li>
+      <li>知識一覧・詳細画面のFigma差分を洗い出し（書籍一覧と同様、ヘッダー配色・件数表示・ページネーションが対象になりそう）</li>
+      <li><code>&lt;x-app-layout theme="knowledge"&gt;</code> を各画面に適用し、背景テーマを反映</li>
+      <li>知識一覧の <code>x-sort-header</code> にも <code>color="knowledge"</code> 相当の配色を追加するか検討（現状<code>book</code>のみ対応）</li>
+      <li>（完了後）行動（Action）関連のUI/UX改善に着手</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発記録 / 2026-07-20 &mdash; 書籍関連のUI/UX改善（issue #18・PR #19）
+  </footer>
+</body>
+</html>

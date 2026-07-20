@@ -1,5 +1,5 @@
-<x-app-layout>
-    <div class="max-w-3xl mx-auto px-6 py-12">
+<x-app-layout theme="knowledge">
+    <div class="max-w-5xl mx-auto px-6 py-12">
         {{-- パンくず + 見出し --}}
         <nav class="text-sm text-gray-400">
             <a href="{{ route('knowledges.index')}}" class="hover:underline">Knowledge List</a>
@@ -20,7 +20,9 @@
                     <div class="grid grid-cols-2 gap-6">
                         {{-- 参照元（本）※編集不可。表示のみ --}}
                         <div>
-                            <span class="text-sm font-bold text-gray-700">参照元（本）</span>
+                            <label class="flex items-center space-x-2 text-sm font-bold text-gray-700">
+                                <span>参照元（本）</span>
+                            </label>
                             <div class="mt-2 px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-500">
                                 {{ $knowledge->book->title}}
                             </div>
@@ -81,7 +83,7 @@
 
             {{-- ボタン --}}
             <div class="flex justify-end gap-3">
-                <a href="{{ route('knowledges.show', $knowledge) }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition">Cancel</a>
+                <a href="{{ route('knowledges.show', $knowledge) }}" class="px-6 py-2 border bg-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition">Cancel</a>
                 <button type="submit" class="px-6 py-2 bg-knowledge rounded-lg text-white font-bold hover:opacity-90 transition">Update</button>
             </div>
         </form>
