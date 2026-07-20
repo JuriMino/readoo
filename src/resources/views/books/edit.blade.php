@@ -1,5 +1,5 @@
-<x-app-layout>
-    <div class="max-w-3xl mx-auto px-6 py-12">
+<x-app-layout theme="book">
+    <div class="max-w-5xl mx-auto px-6 py-12">
 
         {{-- パンくず＋見出し --}}
         <nav class="text-sm text-gray-400">
@@ -16,7 +16,7 @@
 
             {{-- 基本情報 --}}
             <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <h2 class="px-6 py-3 bg-green-50 text-gray-700 font-bold">基本情報</h2>
+                <h2 class="px-6 py-3 bg-green-50 text-green-700 font-bold">基本情報</h2>
                 <div class="px-6 py-6 space-y-6">
                     {{-- タイトル --}}
                     <div>
@@ -76,7 +76,7 @@
 
             {{-- 読書期間 --}}
             <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <h2 class="px-6 py-3 border-green-50 text-gray-700 font-bold">読書期間</h2>
+                <h2 class="px-6 py-3 bg-green-50 text-green-700 font-bold">読書期間</h2>
                 <div class="px-6 py-6">
                     <div class="grid grid-cols-2 gap-6">
                         <div>
@@ -99,21 +99,21 @@
             </section>
 
             {{-- 本文情報 --}}
-            <section class="bg-white border border-grau-200 rounded-2xl overflow-hidden">
-                <h2 class="px-6 py-3 br-green-50 text-gray-700 font-bold">本文情報</h2>
+            <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
+                <h2 class="px-6 py-3 bg-green-50 text-green-700 font-bold">本文情報</h2>
                 <div class="px-6 py-6 space-y-6">
                     <div>
                         <label for="summary" class="flex items-center space-x-2 text-sm font-bold text-gray-700">
                             <span>要約</span><x-optional-badge />
                         </label>
-                        <textarea name="summary" id="summary" rows="4" class="block w-full mt-2 px-4 py-3 bg-gray-50 border boder-gray-700 rounded-lg text-gray-900 placeholder-gray-400 focus:border-secondary focus:ring-secondary">{{ old('summary', $book->summary )}}</textarea>
+                        <textarea name="summary" id="summary" rows="4" class="block w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:border-secondary focus:ring-secondary">{{ old('summary', $book->summary )}}</textarea>
                         <x-input-error :messages="$errors->get('summary')" class="mt-2" />
                     </div>
                     <div>
                         <label for="memo" class="flex items-center space-x-2 text-sm font-bold text-gray-700">
                             <span>メモ</span><x-optional-badge />
                         </label>
-                        <textarea name="memo" id="memo" rows="4" class="block w-full mt-2 px-4 py-3 bg-gray-50 border boder-gray-700 rounded-lg text-gray-900 placeholder-gray-400 focus:border-secondary focus:ring-secondary">{{ old('memo', $book->memo )}}</textarea>
+                        <textarea name="memo" id="memo" rows="4" class="block w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 placeholder-gray-400 focus:border-secondary focus:ring-secondary">{{ old('memo', $book->memo )}}</textarea>
                         <x-input-error :messages="$errors->get('memo')" class="mt-2" />
                     </div>
                 </div>
@@ -121,7 +121,7 @@
 
             {{-- ボタン --}}
             <div class="flex justify-end gap-3">
-                <a href="{{ route('books.show', $book) }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition">Cancel</a>
+                <a href="{{ route('books.show', $book) }}" class="px-6 py-2 border bg-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition">Cancel</a>
                 <button type="submit" class="px-6 py-2 bg-secondary rounded-lg text-white font-bold hover:opacity-90 transition">
                     Upsate
                 </button>

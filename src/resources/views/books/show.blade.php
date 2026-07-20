@@ -1,5 +1,5 @@
-<x-app-layout>
-    <div class="max-w-3xl mx-auto px-6 py-12">
+<x-app-layout theme="book">
+    <div class="max-w-5xl mx-auto px-6 py-12">
 
         {{-- パンくず --}}
         <nav class="text-sm text-gray-400">
@@ -12,15 +12,16 @@
             <h1 class="text-3xl font-bold text-gray-900">Book Detail</h1>
             <div class="flex items-center gap-2">
                 {{-- 編集（編集画面へ） --}}
-                <a href="{{route('books.edit', $book)}}" title="編集" class="p-2 text-gray-500 hover:text-secondary transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
+                <a href="{{route('books.edit', $book)}}" title="編集" class="p-2 text-gray-600 hover:text-gray-400 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                        <path d="M21.731 2.269a2.625 2.625 0 0 0-3.712 0l-1.157 1.157 3.712 3.712 1.157-1.157a2.625 2.625 0 0 0 0-3.712ZM19.513 8.199l-3.712-3.712-8.4 8.4a5.25 5.25 0 0 0-1.32 2.214l-.8 2.685a.75.75 0 0 0 .933.933l2.685-.8a5.25 5.25 0 0 0 2.214-1.32l8.4-8.4Z" />
+                        <path d="M5.25 5.25a3 3 0 0 0-3 3v10.5a3 3 0 0 0 3 3h10.5a3 3 0 0 0 3-3V13.5a.75.75 0 0 0-1.5 0v5.25a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V8.25a1.5 1.5 0 0 1 1.5-1.5h5.25a.75.75 0 0 0 0-1.5H5.25Z" />
                     </svg>
                 </a>
                 {{-- 削除（モーダルを開く） --}}
-                <button type="button" title="削除" x-data="" x-on:click.prevent="$dispatch('open-modal','confirm-book-deletion')" class="p-2 text-gray-500 hover:text-red-600 transition ">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.16-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.04-2.09 1.022-2.09 2.201v.916" />
+                <button type="button" title="削除" x-data="" x-on:click.prevent="$dispatch('open-modal','confirm-book-deletion')" class="p-2 text-red-600 hover:text-red-400 transition ">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="size-6">
+                        <path fill-rule="evenodd" d="M16.5 4.478v.227a48.816 48.816 0 0 1 3.878.512.75.75 0 1 1-.256 1.478l-.209-.035-1.005 13.07a3 3 0 0 1-2.991 2.77H8.084a3 3 0 0 1-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 0 1-.256-1.478A48.567 48.567 0 0 1 7.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 0 1 3.369 0c1.603.051 2.815 1.387 2.815 2.951Zm-6.136-1.452a51.196 51.196 0 0 1 3.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 0 0-6 0v-.113c0-.794.609-1.428 1.364-1.452Zm-.355 5.945a.75.75 0 1 0-1.5.058l.347 9a.75.75 0 1 0 1.499-.058l-.346-9Zm5.48.058a.75.75 0 1 0-1.498-.058l-.347 9a.75.75 0 0 0 1.5.058l.345-9Z" clip-rule="evenodd" />
                     </svg>
                 </button>
             </div>
@@ -30,14 +31,14 @@
         @php
             $statusStyles = [
                 'unread'   => 'bg-gray-100 text-gray-600',
-                'reading'  => 'bg-blue-100 text-blue-600',
-                'finished' => 'bg-green-100 text-green-600',
+                'reading'  => 'bg-orange-100 text-orange-600',
+                'finished' => 'bg-blue-100 text-blue-600',
             ];
         @endphp
 
         {{-- 基本情報 --}}
         <section class="mt-8 bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            <h2 class="px-6 py-3 bg-green-50 text-gray-700 font-bold">基本情報</h2>
+            <h2 class="px-6 py-3 bg-green-50 text-green-700 font-bold">基本情報</h2>
             <dl class="px-6 py-6 grid grid-cols-6 gap-x-6 gap-y-5 text-sm">
                 <div class="col-span-6">
                     <dt class="text-gray-400">タイトル</dt>
@@ -80,7 +81,7 @@
 
         {{-- 本文情報 --}}
         <section class="mt-6 bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            <h2 class="px-6 py-3 bg-green-50 text-gray-700 font-bold">本文情報</h2>
+            <h2 class="px-6 py-3 bg-green-50 text-green-700 font-bold">本文情報</h2>
             <dl class="px-6 py-6 space-y-5 text-sm">
                 <div>
                     <dt class="text-gray-400">要約</dt>
@@ -95,66 +96,86 @@
 
         {{-- 紐づく知識 --}}
         <section class="mt-6 bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            <div class="px-6 py-3 bg-blue-50 flex items-center justify-between">
-                <h2 class="text-blue-700 font-bold">この本から得た知識</h2>
-                <a href="{{route('knowledges.create',['from' => 'book', 'book_id' => $book->id])}}" class="px-4 py-1.5 bg-knowledge rounded-lg text-white text-sm font-bold hover:opacity-90 transition"> + 知識を追加</a>
+            <div class="px-6 py-4 bg-knowledge">
+                <h2 class="text-white font-bold">この本から得た知識</h2>
             </div>
             @if ($book->knowledges->isEmpty())
                 <p class="px-6 py-8 text-center text-sm text-gray-500">まだ知識が登録されていません</p>
             @else
-                <ul class="divide-y divide-gray-100">
-                    @foreach ($book->knowledges as $knowledge)
-                        <li class="px-6 py-4 hover:bg-gray-50 transition">
-                            <div class="flex items-start justify-between gap-4">
-                                <div class="min-w-0">
-                                    <p class="font-bold text-gray-900">{{ $knowledge->title}}</p>
-                                    @if ($knowledge->book_page)
-                                        <p class="mt-0.5 text-xs text-gray-400">{{$knowledge->book_page}}</p>
-                                    @endif
-                                    <div class="mt-2 flex flex-wrap gap-1.5">
+                <table class="w-full text-sm">
+                    <thead class="bg-blue-50 text-blue-700">
+                        <tr>
+                            <th class="px-6 py-3 text-left font-bold">タイトル</th>
+                            <th class="px-6 py-3 text-left font-bold">該当箇所</th>
+                            <th class="px-6 py-3 text-left font-bold">タグ</th>
+                            <th class="px-6 py-3 text-left font-bold">詳細</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach ($book->knowledges as $knowledge)
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 font-bold text-gray-900">{{ $knowledge->title}}</td>
+                                <td class="px-6 py-4 text-gray-600 whitespace-nowrap">{{ $knowledge->book_page ? $knowledge->book_page : '-' }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-wrap gap-1.5">
                                         @foreach (array_filter([$knowledge->tag1, $knowledge->tag2, $knowledge->tag3]) as $tag)
                                             <span class="inline-block px-3 py-1 rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-xs">{{ $tag }}</span>
                                         @endforeach
                                     </div>
-                                </div>
-                                <a href="{{ route('knowledges.show', $knowledge) }}" class="shrink-0 text-sm text-gray-700 font-medium hover:text-knowledge hover:underline">詳細</a>
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <a href="{{ route('knowledges.show', $knowledge) }}" class="text-gray-700 font-medium hover:text-knowledge hover:underline">詳細</a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             @endif
+            <div class="px-6 py-6 flex justify-center border-t border-gray-100">
+                <a href="{{route('knowledges.create',['from' => 'book', 'book_id' => $book->id])}}" class="px-4 py-1.5 bg-knowledge rounded-lg text-white text-sm font-bold hover:opacity-90 transition"> + new Knowledge</a>
+            </div>
         </section>
 
         {{-- 紐づく行動 --}}
         <section class="mt-6 bg-white border border-gray-200 rounded-2xl overflow-hidden">
-            <div class="px-6 py-3 bg-orange-50 flex items-center justify-between">
-                <h2 class="text-orange-700 font-bold">この本から生まれた行動</h2>
-                <a href="{{route('actions.create',['from' => 'book', 'book_id' => $book->id])}}" class="px-4 py-1.5 bg-action rounded-lg text-white text-sm font-bold hover:opacity-90 transition"> + 行動を追加</a>
+            <div class="px-6 py-4 bg-action">
+                <h2 class="text-white font-bold">この本から生まれた行動</h2>
             </div>
             @if ($book->actions->isEmpty())
                 <p class="px-6 py-8 text-center text-sm text-gray-500">まだ行動が登録されていません</p>
             @else
-                <ul class="divide-y divide-gray-100">
-                    @foreach ($book->actions as $action)
-                        <li class="px-6 py-4 hover:bg-gray-50 transition">
-                            <div class="flex items-start justify-between gap-4">
-                                <div class="min-w-0">
-                                    <p class="font-bold text-gray-900">{{ $action->title}}</p>
-                                    @if ($action->book_page)
-                                        <p class="mt-0.5 text-xs text-gray-400">{{$action->book_page}}</p>
-                                    @endif
-                                    <div class="mt-2 flex flex-wrap gap-1.5">
+                <table class="w-full text-sm">
+                    <thead class="bg-orange-50 text-orange-700">
+                        <tr>
+                            <th class="px-6 py-3 text-left font-bold">タイトル</th>
+                            <th class="px-6 py-3 text-left font-bold">該当箇所</th>
+                            <th class="px-6 py-3 text-left font-bold">タグ</th>
+                            <th class="px-6 py-3 text-left font-bold">詳細</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach ($book->actions as $action)
+                            <tr class="hover:bg-gray-50 transition">
+                                <td class="px-6 py-4 font-bold text-gray-900">{{ $action->title}}</td>
+                                <td class="px-6 py-4 text-gray-600 whitespace-nowrap">{{ $action->book_page ? $action->book_page : '-' }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-wrap gap-1.5">
                                         @foreach (array_filter([$action->tag1, $action->tag2, $action->tag3]) as $tag)
                                             <span class="inline-block px-3 py-1 rounded-full border border-orange-200 bg-orange-50 text-orange-600 text-xs">{{ $tag }}</span>
                                         @endforeach
                                     </div>
-                                </div>
-                                <a href="{{ route('actions.show', $action) }}" class="shrink-0 text-sm text-gray-700 font-medium hover:text-action hover:underline">詳細</a>
-                            </div>
-                        </li>
-                    @endforeach
-                </ul>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <a href="{{ route('actions.show', $action) }}" class="text-gray-700 font-medium hover:text-action hover:underline">詳細</a>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             @endif
+            <div class="px-6 py-6 flex justify-center border-t border-gray-100">
+                <a href="{{route('actions.create',['from' => 'book', 'book_id' => $book->id])}}" class="px-4 py-1.5 bg-action rounded-lg text-white text-sm font-bold hover:opacity-90 transition"> + New Action</a>
+            </div>
         </section>
 
         {{-- 一覧へ戻る --}}
@@ -163,15 +184,33 @@
         </div>
 
         {{-- 削除確認モーダル --}}
-        <x-modal name="confirm-book-deletion" focusable>
+        <x-modal name="confirm-book-deletion" focusable maxWidth="lg">
             <form action="{{ route('books.destroy', $book) }}" method="post" class="p-6">
                 @csrf
                 @method('delete')
 
-                <h2 class="text-lg font-bold text-gray-900">削除していいですか？</h2>
-                <p class="mt-2 text-sm text-gray-600">
-                    「{{ $book->title }}を削除します。この操作は取り消せません。」
+                {{-- ヘッダー --}}
+                <h2 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <span aria-hidden="true">🗑️</span> 削除していいですか？
+                </h2>
+                <p class="mt-2 text-sm text-gray-500">この操作は取り消せません。</p>
+
+                {{-- 削除される内容 --}}
+                <div class="mt-6  bg-red-50 border border-red-200 rounded-xl p-4">
+                    <p class="font-bold text-red-600 flex items-center gap-2">
+                        <span aria-hidden="true">⚠️</span> 削除される内容
+                    </p>
+                    <p class="mt-2 text-sm text-red-600">
+                        タイトル：{{ $book->title }}<br>
+                        著者　　：{{ $book->author }}
+                    </p>
+                </div>
+                {{-- 注意書き --}}
+                <p class="mt-4 text-sm text-red-600 flex items-center gap-2">
+                    <span aria-hidden="true">⚠️</span> 上記が参照元になっている知識や行動も削除されます。
                 </p>
+
+                {{-- フッター --}}
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" x-on:click="$dispatch('close')" class="px-5 py-2 bg-gray-200 rounded-lg text-gray-700 font-bold hover:bg-gray-300 transition">
                         Cancel
