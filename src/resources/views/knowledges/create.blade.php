@@ -1,5 +1,5 @@
-<x-app-layout>
-    <div class="max-w-3xl mx-auto px-6 py-12">
+<x-app-layout theme="knowledge">
+    <div class="max-w-5xl mx-auto px-6 py-12">
         {{-- パンくず + 見出し --}}
         <nav class="text-sm text-gray-400">
             <a href="{{ route('knowledges.index')}}" class="hover:underline">Knowledge List</a>
@@ -85,7 +85,7 @@
 
             {{-- ボタン --}}
             <div class="flex justify-end gap-3">
-                <a href="{{ request('from') === 'book' && $selectedBookId ? route('books.show', $selectedBookId) : route('knowledges.index') }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition">Cancel</a>
+                <a href="{{ request('from') === 'book' && $selectedBookId ? route('books.show', $selectedBookId) : route('knowledges.index') }}" class="px-6 py-2 bg-gray-300 border border-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition">Cancel</a>
                 <button type="submit" class="px-6 py-2 bg-knowledge rounded-lg text-white font-bold hover:opacity-90 transition">Create</button>
             </div>
         </form>

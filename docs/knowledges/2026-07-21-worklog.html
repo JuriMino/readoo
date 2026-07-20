@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 知識画面UI/UX改善 作業記録 2026-07-21</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--blue), #4f7cf0); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--blue); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--blue); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--blue); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>知識画面のUI/UX改善 作業記録</h1>
+    <p>2026-07-21 &mdash; issue #20・feature/20-knowledges-ui：Figma準拠での画面修正 ＋ 削除時の設計整理</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>issue #20「知識画面のUI/UX改善」として、書籍側（#18）で作った型を知識一覧・新規登録・編集・詳細・削除確認モーダルに展開した。
+      修正の過程で「知識を削除したとき、紐づく行動をどう扱うか」という設計上の論点が出てきて、
+      <strong>行動の必須の親は本であり知識は任意リンクである</strong>という整理から「知識削除では行動を巻き込まない」方針を確認。
+      挙動をテストで固定化し、削除確認モーダルの文言にも反映した。あわせて、行動編集画面で知識の紐付け直しができない
+      という次の課題も見つかり、明日の行動画面修正に持ち越す。</p>
+    </div>
+    <ul class="checklist">
+      <li>知識一覧・新規登録・編集・詳細に <code>&lt;x-app-layout theme="knowledge"&gt;</code> を適用</li>
+      <li>知識一覧：ヘッダー配色（青系）・カスタムページネーションを書籍一覧と同様に実装</li>
+      <li><code>x-sort-header</code> に <code>color="knowledge"</code> を追加</li>
+      <li>知識編集：「参照元（本）」ラベルの行高さズレを修正</li>
+      <li>知識詳細：「紐づく行動」をテーブル形式に変更、削除確認モーダルをFigma準拠に再設計</li>
+      <li>削除設計を整理：知識削除は行動を巻き込まない方針を確認し、モーダル文言とテストに反映</li>
+      <li><code>KnowledgeTest</code> にテスト1本追加（全体スイートPASS）</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① 画面修正（書籍側の型を展開）</h2>
+    <table>
+      <tr><th>画面</th><th>内容</th></tr>
+      <tr><td>一覧</td><td>テーマ背景・ヘッダー配色（<code>bg-knowledge/10 text-knowledge</code>）・件数表示・中央寄せページネーションを書籍一覧と同じ構成で実装</td></tr>
+      <tr><td>新規登録・編集</td><td>Cancelボタンの背景色統一、フォーム幅拡大などのタイポ・配色修正</td></tr>
+      <tr><td>詳細</td><td>編集・削除アイコンをfill形式SVGに統一、「紐づく行動」をリスト形式からテーブル形式（タイトル/該当箇所/タグ/詳細）に変更、追加ボタンをカード下部中央へ移動</td></tr>
+    </table>
+
+    <h4>参照元（本）ラベルの行高さズレ</h4>
+    <p>「該当箇所（ページ）」側は<code>&lt;x-optional-badge /&gt;</code>を含む分だけ行が高く、
+    「参照元（本）」側はプレーンな<code>&lt;span&gt;</code>だけだったため下のボックスの開始位置がズレていた。
+    右側と同じ<code>&lt;label class="flex items-center space-x-2 ..."&gt;</code>構造に揃え、
+    バッジ要素を<code>&lt;x-optional-badge class="invisible" /&gt;</code>として高さだけ確保する形で解消。</p>
+
+    <!-- ============================================================ -->
+    <h2>② 削除設計の整理：知識削除は行動を巻き込まない</h2>
+    <p>本の削除では、紐づく知識・行動は（一覧のフィルタにより）ユーザー目線で「一緒に消えた」扱いになる。
+    しかし知識の場合、行動の必須の親は本（<code>book_id</code>必須）であり、知識はあくまで任意リンク
+      （<code>actions.knowledge_id</code>は<code>nullable</code>）。したがって知識を削除しても、
+    行動は本に紐づく行動として残すのが設計と一貫する、という結論になった。</p>
+
+    <div class="key">
+      <strong>実装上もこの結論と一致していた：</strong>
+      <code>KnowledgeController::destroy</code>は<code>$knowledge-&gt;delete()</code>（ソフトデリート）であり、
+      <code>knowledge_id</code>外部キーの<code>cascadeOnDelete()</code>制約は物理削除時のみ発火するため、
+      通常の削除操作ではそもそも発火しない（これは退会時の全物理削除カスケード用の制約）。
+      つまり「行動は消えない」は追加実装ではなく<strong>既存の実挙動の言語化</strong>だった。
+    </div>
+
+    <h4>削除確認モーダルの文言修正</h4>
+    <p>書籍の削除モーダルの注意書き「紐づく知識や行動も削除されます」をそのまま流用すると事実と異なるため、
+    知識の削除モーダルは以下に変更。</p>
+    <pre><code>&lt;div class="mt-4 flex items-start gap-2 text-sm text-red-600"&gt;
+    &lt;span aria-hidden="true"&gt;⚠️&lt;/span&gt;
+    &lt;p&gt;この知識に紐づく行動は削除されません&lt;br&gt;（本に紐づく行動として残ります）&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+    <div class="note">
+      <strong>アイコンと2行テキストのバランス調整：</strong>
+      アイコンと本文を1つの<code>flex items-center</code>行に入れて<code>&lt;br&gt;</code>で改行すると、
+      アイコンがブロック全体の縦中央（1〜2行目の間）に浮いてしまう。
+      <code>items-start</code>に変え、アイコンを1行目の高さに揃えることで解消した。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>③ Featureテストで挙動を固定</h2>
+    <p>「知識削除で行動は消えない」という設計判断は、将来カスケード設定が変わった時などに気づけるよう
+    テストで固定化しておく価値がある。<code>KnowledgeTest</code>に1本追加。</p>
+    <pre><code>// 知識を削除しても、紐づく行動は削除されない（本に紐づく行動として残る）
+public function test_deleting_knowledge_does_not_delete_linked_actions(): void
+{
+    $user = User::factory()-&gt;create();
+    $book = Book::factory()-&gt;for($user)-&gt;create();
+    $knowledge = Knowledge::factory()-&gt;for($book)-&gt;create();
+    $action = Action::factory()-&gt;for($book)-&gt;create(['knowledge_id' =&gt; $knowledge-&gt;id]);
+
+    $this-&gt;actingAs($user)
+        -&gt;delete(route('knowledges.destroy', $knowledge))
+        -&gt;assertRedirect(route('books.show', $book));
+
+    $this-&gt;assertSoftDeleted($knowledge);
+    $this-&gt;assertDatabaseHas('actions', [
+        'id'         =&gt; $action-&gt;id,
+        'deleted_at' =&gt; null,
+    ]);
+}</code></pre>
+    <div class="note">
+      <strong>レビューでの指摘：</strong>初回実装時にメソッド名が<code>test_deleting_knowledge_<span class="bug">dose</span>_not_...</code>とタイポしていた。
+      PHPUnitはメソッド名の意味を解釈しないため実行・PASSはするが、可読性のため<code>does_not</code>に修正。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>④ 見つかった次の課題：行動編集での知識の付け替え</h2>
+    <p>知識から行動を作成したあと、その知識を削除すると、行動は本に残り続けるが「知識と紐づけ直す手段がない」
+    ことに気づいた。<code>ActionController::update</code>は現状<code>book_id</code>・<code>knowledge_id</code>を
+    両方とも更新対象から除外しており（「参照元の付け替えはしない想定」）、知識を削除できる仕様にする以上、
+    知識側だけ編集不可のままなのは片手落ちになる。</p>
+    <div class="key">
+      <strong>方針案（明日以降の行動画面修正で対応予定）：</strong>
+      <ul style="margin:.4rem 0 0;">
+        <li>本（<code>book_id</code>）は行動の必須の親なので引き続き編集不可のまま</li>
+        <li>知識（<code>knowledge_id</code>）は任意リンクなので、<strong>同じ本に属する知識</strong>から選び直せるように編集画面へセレクトを追加</li>
+        <li><code>ActionController::update</code>の<code>except</code>から<code>knowledge_id</code>を外し、<code>store()</code>と同様に検証済みの時だけセットする</li>
+      </ul>
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>⑤ 完成状況と明日の予定</h2>
+    <h4>本日完成</h4>
+    <ul class="checklist">
+      <li>知識一覧・新規登録・編集・詳細・削除確認モーダルのFigma準拠修正</li>
+      <li>知識削除時の行動の扱いを設計として整理し、モーダル文言・テストに反映</li>
+      <li><code>KnowledgeTest</code>にテスト追加（タイポ修正込みでPASS確認済み）</li>
+    </ul>
+    <h4>明日の予定</h4>
+    <ul class="todo">
+      <li><strong>行動（Action）関連のUI/UX改善</strong>に着手。issueを新規作成し、ブランチは<code>feature/&lt;issue番号&gt;-actions-ui</code>を想定</li>
+      <li><code>&lt;x-app-layout theme="action"&gt;</code>を各画面に適用し、背景テーマ（オレンジ系）を反映</li>
+      <li>行動一覧・詳細のFigma差分を洗い出し（書籍・知識と同様、ヘッダー配色・件数表示・ページネーションが対象になりそう）</li>
+      <li><strong>行動編集画面に知識の付け替えセレクトを追加</strong>（②・④の設計整理を反映。本日の積み残し）</li>
+      <li><code>x-sort-header</code>に<code>color="action"</code>相当の配色を追加</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発記録 / 2026-07-21 &mdash; 知識画面のUI/UX改善（issue #20）
+  </footer>
+</body>
+</html>

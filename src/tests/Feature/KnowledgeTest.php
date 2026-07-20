@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Book;
 use App\Models\Knowledge;
 use App\Models\User;
+use App\Models\Action;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -174,6 +175,25 @@ class KnowledgeTest extends TestCase
             ->assertRedirect(route('books.show',$book));
 
         $this->assertSoftDeleted($knowledge);
+    }
+
+    // 知識を削除しても、紐づく行動は削除されない（本に紐づく行動として残る）
+    public function test_deleting_knowledge_does_not_delete_linked_actions(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->for($user)->create();
+        $knowledge = Knowledge::factory()->for($book)->create();
+        $action = Action::factory()->for($book)->create(['knowledge_id' => $knowledge->id]);
+
+        $this->actingAs($user)
+            ->delete(route('knowledges.destroy', $knowledge))
+            ->assertRedirect(route('books.show', $book));
+
+        $this->assertSoftDeleted($knowledge);
+        $this->assertDatabaseHas('actions', [
+            'id'         => $action->id,
+            'deleted_at' => null,
+        ]);
     }
 
     // 未ログインは login へリダイレクト
