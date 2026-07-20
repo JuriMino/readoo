@@ -14,7 +14,15 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="min-h-screen flex flex-col bg-base font-sans text-gray-900 antialiased">
+    @php
+        $bodyBg = match($theme){
+            'book'      => 'bg-book/10',
+            'knowledge' => 'bg-knowledge/10',
+            'action'   => 'bg-action/10',
+            default     => 'bg-base',
+        };
+    @endphp
+    <body class="min-h-screen flex flex-col {{ $bodyBg }} font-sans text-gray-900 antialiased">
         {{-- 上部ナビ --}}
         @include('layouts.navigation')
 

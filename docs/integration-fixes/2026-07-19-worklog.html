@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 結合テスト後の修正 作業記録 2026-07-19</title>
+  <style>
+    :root {
+      --indigo: #4f46e5; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--indigo), #6366f1); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--indigo); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--indigo); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--indigo); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--indigo); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--blue); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--indigo); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+    .pr { display:inline-block; background:#eef2ff; color:var(--indigo); font-weight:700; padding:.05rem .45rem; border-radius:4px; font-size:.82em; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>結合テスト後の修正 作業記録</h1>
+    <p>2026-07-19 &mdash; 退会確認モーダルのUI改善（issue #16）</p>
+  </header>
+
+  <div class="container">
+
+    <h2>今日のサマリー</h2>
+    <div class="card">
+      <p>結合テストでページネーション確認用のサンプルデータを investigate 投入したのち、退会（アカウント削除）確認モーダルの<strong>見た目を改善</strong>した。デザイン案（画像）をもとに、削除対象データの件数サマリーを表示しつつ、<strong>既存のパスワード確認仕様は維持</strong>する形で実装。issueとブランチの作成、コミットの分割、Feature Testの追加までを1日で完了し、mainにマージ済み。</p>
+      <ul class="checklist">
+        <li>actionsテーブルへユーザー4向けサンプルデータ24件を投入（ページネーション確認用）</li>
+        <li>退会確認モーダルのデザイン改善（統計サマリー・警告ボックスを追加）</li>
+        <li>ProfileControllerで本・知識・行動の件数を集計してビューに渡すよう変更</li>
+        <li>ついでにログイン前ヘッダーの軽微な表示修正も同ブランチで対応</li>
+        <li>Feature Testを追加し、件数表示のロジックを検証</li>
+        <li>PR #17として提出 → マージ → ローカルmainをpull</li>
+      </ul>
+      <p><span class="pr">issue #16</span> <code>feature/16-profile-delete-modal</code> &mdash; マージ済み（PR #17）</p>
+    </div>
+
+    <h2>1. サンプルデータ投入（actionsテーブル）</h2>
+    <div class="card">
+      <p>作業に先立ち、<code>users.id = 4</code> に紐づく<code>books</code>（23冊）を対象に、<code>actions</code>を24件投入した。過去のつまづきから得た注意点に従い、以下の形で実施。</p>
+      <pre><code>$bookIds = App\Models\Book::where('user_id',4)->pluck('id')->all();
+foreach (range(1,24) as $i) {
+    App\Models\Action::factory()->create(['book_id' => $bookIds[array_rand($bookIds)]]);
+}</code></pre>
+      <table>
+        <tr><th>注意点</th><th>内容</th></tr>
+        <tr><td>Factoryの<code>forUser()</code>マジック衝突</td><td>ActionFactoryに<code>forUser</code>は未定義のため、<code>Action::factory()->forUser(4)</code>とすると<code>for + User</code>と解釈され<code>Action::user()</code>を探しにいき例外になる。<code>book_id</code>を直接指定して回避</td></tr>
+        <tr><td>参照元をばらけさせる</td><td><code>count()</code>付き一発生成だと<code>array_rand</code>が1回しか評価されず全件同じ本になるため、<code>foreach</code>でループして1件ずつ生成</td></tr>
+        <tr><td>所有者はbook経由</td><td>actions/knowledgesは自前の<code>user_id</code>を持たないため、対象ユーザーのbookに限定して紐づける</td></tr>
+      </table>
+      <p>結果、既存4件と合わせて<code>users.id=4</code>向けactionsは28件になった。確認後の削除は今回は保留（表示確認に継続利用のため）。</p>
+    </div>
+
+    <h2>2. 退会確認モーダルのUI改善</h2>
+
+    <h3>デザイン方針</h3>
+    <div class="card">
+      <p>提示されたデザイン案をもとに、以下の構成に変更した。</p>
+      <table>
+        <tr><th>要素</th><th>内容</th></tr>
+        <tr><td>ヘッダー</td><td>警告アイコン＋「退会してよいですか？」／「この操作は取り消せません」</td></tr>
+        <tr><td>統計サマリー</td><td>登録した本／記録した知識／登録した行動の件数を3カラムのカードで表示</td></tr>
+        <tr><td>警告ボックス</td><td>「退会すると全てのデータが削除されます」＋補足説明</td></tr>
+        <tr><td>本人確認</td><td><strong>既存仕様のパスワード入力欄はそのまま維持</strong>（デザイン案には無いが要件として残す）</td></tr>
+        <tr><td>フッター</td><td>Cancel／Delete Account ボタン</td></tr>
+      </table>
+    </div>
+
+    <h3>ProfileController：件数の集計</h3>
+    <div class="card">
+      <p>knowledges/actionsは自前の<code>user_id</code>を持たないため、<code>book</code>経由の<code>whereHas</code>で集計する。</p>
+      <pre><code>public function edit(Request $request): View
+{
+    $user = $request->user();
+
+    return view('profile.edit', [
+        'user' => $user,
+        'bookCount' => $user->books()->count(),
+        'knowledgeCount' => Knowledge::whereHas('book', fn ($q) => $q->where('user_id', $user->id))->count(),
+        'actionCount' => Action::whereHas('book', fn ($q) => $q->where('user_id', $user->id))->count(),
+    ]);
+}</code></pre>
+    </div>
+
+    <h3>小さなバグ修正</h3>
+    <div class="warn">
+      <strong><span class="bug">発見</span> <code>text-grau-900</code> / <code>text-grau-600</code></strong>
+      <p>元コードにタイポでTailwindに存在しないクラス名が使われており、実質<strong>文字色の指定が効いていなかった</strong>（黙って無視される）。<code>text-gray-900</code> / <code>text-gray-500</code>に修正した。</p>
+    </div>
+    <div class="key">
+      <strong>学び：</strong> Tailwindの未定義クラスはエラーにならず静かに無視される。list-sortingの<code>max-w-8xl</code>のときと同種の落とし穴。タイポの発見には、見た目のレビュー（今回はデザイン案との突き合わせ）が有効だった。
+    </div>
+
+    <h3>付随した軽微な修正：ログイン前ヘッダー</h3>
+    <div class="note">
+      <strong>同ブランチに混在：</strong> <code>guest.blade.php</code>のロゴ表示・メニュー文言のスタイルを軽微に修正。issue #16の本題とは無関係だが、修正量が小さいため同ブランチで対応し、<strong>コミットだけ分離</strong>して履歴を追いやすくした。
+    </div>
+
+    <h2>3. Git運用</h2>
+
+    <h3>ブランチ切り忘れ</h3>
+    <div class="warn">
+      <strong><span class="bug">ヒヤリ</span> 気づいたらmainで作業していた</strong>
+      <p>退会モーダルの修正を始めた時点でissue／ブランチを切り忘れ、mainブランチ上で直接編集していた。幸い<strong>未コミットの変更のみ</strong>だったため、<code>git checkout -b feature/16-profile-delete-modal</code>で作業中の変更ごと新ブランチに退避し、mainはorigin/mainのまま保てた。</p>
+    </div>
+    <div class="key">
+      <strong>学び：</strong> コミット前であれば、ブランチの切り忘れは<code>checkout -b</code>一発で無傷リカバリできる。<strong>コミットしてしまっていたら</strong><code>git branch</code>で退避後に<code>git reset --hard origin/main</code>のような一手間が必要になっていたはず。着手前のブランチ確認を習慣化する動機になった。
+    </div>
+
+    <h3>コミットの分割方針</h3>
+    <div class="card">
+      <p>同ブランチ内でも「issue本題」と「ついでの軽微修正」は<strong>コミットを分ける</strong>方針にした。</p>
+      <pre><code>feat: 退会確認モーダルに削除対象データのサマリー表示を追加
+fix: ログイン前ヘッダーのロゴ・メニュー表示を修正
+test: プロフィール画面の削除対象データ件数表示のテストを追加</code></pre>
+      <p>ブランチまでは分けず（工数に見合わない規模のため）、PR説明文に軽微修正を明記することでレビュー時の混乱を防いだ。</p>
+    </div>
+
+    <h2>4. Feature Testの追加</h2>
+    <div class="card">
+      <p>ProfileController@editが返す件数（<code>bookCount</code>／<code>knowledgeCount</code>／<code>actionCount</code>）を検証するテストを追加した。</p>
+      <pre><code>public function test_profile_page_displays_correct_data_counts(): void
+{
+    $user = User::factory()->create();
+    $book = Book::factory()->for($user)->create();
+    Knowledge::factory()->for($book)->count(2)->create();
+    Action::factory()->create(['book_id' => $book->id]);
+
+    $response = $this->actingAs($user)->get('/profile');
+
+    $response->assertViewHas('bookCount', 1);
+    $response->assertViewHas('knowledgeCount', 2);
+    $response->assertViewHas('actionCount', 1);
+}</code></pre>
+      <p><code>php artisan test --filter=ProfileTest</code>で既存8件と合わせて<strong>全9件パス（35 assertions）</strong>を確認。初回追加時にメソッド内のインデントが崩れていたため修正し、再コミットした。</p>
+    </div>
+    <div class="note">
+      <strong>テスト方針の切り分け：</strong> 集計ロジック（件数の正しさ）はFeature Testで担保する一方、モーダルの<strong>見た目・レイアウト</strong>はマークアップ変更に弱く価値が低いためテスト対象外とし、手動確認に委ねた。
+    </div>
+
+    <h2>5. マージ後の後片付け</h2>
+    <div class="card">
+      <table>
+        <tr><th>作業</th><th>結果</th></tr>
+        <tr><td>PR #17 作成・マージ</td><td class="done">完了</td></tr>
+        <tr><td>ローカルmainをpull</td><td class="done">完了</td></tr>
+        <tr><td>ローカルの<code>feature/16-profile-delete-modal</code>／<code>feature/14-list-sorting</code>削除</td><td class="done">完了</td></tr>
+        <tr><td>リモート（GitHub）のブランチ削除</td><td>保留 &mdash; 開発完了まで残す方針</td></tr>
+      </table>
+    </div>
+    <div class="note">
+      <strong><code>git remote prune origin</code>の再確認：</strong> このコマンドは<strong>GitHub側のブランチを削除するものではない</strong>。ローカルに残る「リモート追跡ブランチ」というキャッシュ参照だけを、実際にGitHub上で削除済みのものに限って掃除するコマンド。今回はGitHub側のブランチをまだ残す方針のため、実行しても対象がなく何も起きないことを<code>git fetch --prune --dry-run</code>で確認した。ブランチ復元が必要になった場合は<code>git fetch</code> → <code>git checkout &lt;ブランチ名&gt;</code>でいつでも当時の状態に戻せる。
+    </div>
+
+    <h2>今後の検討</h2>
+    <ul class="todo">
+      <li>投入した24件のサンプルactionsは、確認が済み次第削除する（実データに紛れ込ませない方針）</li>
+      <li>開発が一区切りしたタイミングでGitHub上の不要ブランチをまとめて削除（<code>git push origin --delete</code>）</li>
+      <li>「PRマージ時に自動でheadブランチを削除」のリポジトリ設定を検討</li>
+    </ul>
+
+  </div>
+
+  <footer>
+    Readoo! 開発ログ &mdash; 2026-07-19 &mdash; integration-fixes
+  </footer>
+</body>
+</html>

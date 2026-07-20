@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="max-w-7xl mx-auto px-6 py-12">
+    <div class="max-w-8xl mx-auto px-6 py-12">
         {{-- 見出し行：左にタイトル＋挨拶、右にEdit Profile --}}
         <div class="flex items-start justify-between">
             <div>

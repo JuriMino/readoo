@@ -1,6 +1,5 @@
-<x-app-layout>
+<x-app-layout theme="book">
     <div class="max-w-8xl mx-auto px-6 py-12">
-
         {{-- 見出し行・左にタイトル＋New Book、右に他コレクション導線 --}}
         <div class="flex items-start justify-between">
             <div>
@@ -31,8 +30,8 @@
         @php
             $statusStyles = [
                 'unread'   => 'bg-gray-100 text-gray-600',
-                'reading'  => 'bg-blue-100 text-blue-700',
-                'finished' => 'bg-green-100 text-green-700'
+                'reading'  => 'bg-orange-100 text-orange-700',
+                'finished' => 'bg-blue-100 text-blue-700'
             ];
         @endphp
 
@@ -45,18 +44,22 @@
                 </a>
             </div>
         @else
-            {{-- テーブル --}}
+            {{-- 件数表示 + テーブル + ページネーションを１つのカードに --}}
             <div class="mt-8 bg-white border border-gray-200 rounded-2xl overflow-hidden">
+                {{-- 件数表示 --}}
+                <div class="px-5 py-4 text-sm text-gray-500 border-b border-gray-100">
+                    全 {{ $books->total() }} 件中 {{ $books->firstItem() }} 〜 {{ $books->lastItem()}} 件を表示
+                </div>
                 <table class="w-full text-sm">
-                    <thead class="bg-gray-50 text-gray-500">
+                    <thead class="bg-book/10 text-book">
                         <tr>
-                            <x-sort-header column="created_at" label="登録日" :sort="$sort" :direction="$direction" />
-                            <x-sort-header column="title" label="タイトル" :sort="$sort" :direction="$direction" />
-                            <x-sort-header column="author" label="著者" :sort="$sort" :direction="$direction" />
-                            <x-sort-header column="publisher" label="出版社" :sort="$sort" :direction="$direction" />
-                            <x-sort-header column="genre" label="ジャンル" :sort="$sort" :direction="$direction" />
-                            <x-sort-header column="status" label="ステータス" :sort="$sort" :direction="$direction" />
-                            <x-sort-header column="started_at" label="読書開始日" :sort="$sort" :direction="$direction" />
+                            <x-sort-header column="created_at" label="登録日" :sort="$sort" :direction="$direction" color="book" />
+                            <x-sort-header column="title" label="タイトル" :sort="$sort" :direction="$direction" color="book" />
+                            <x-sort-header column="author" label="著者" :sort="$sort" :direction="$direction" color="book" />
+                            <x-sort-header column="publisher" label="出版社" :sort="$sort" :direction="$direction" color="book" />
+                            <x-sort-header column="genre" label="ジャンル" :sort="$sort" :direction="$direction" color="book" />
+                            <x-sort-header column="status" label="ステータス" :sort="$sort" :direction="$direction" color="book" />
+                            <x-sort-header column="started_at" label="読書開始日" :sort="$sort" :direction="$direction" color="book" />
                             <th class="px-5 py-3 text-left font-bold">読了日</th>
                         </tr>
                     </thead>
@@ -83,11 +86,35 @@
                         @endforeach
                     </tbody>
                 </table>
-            </div>
+                {{-- ページネーション --}}
+                @php
+                    $current = $books->currentPage();
+                    $last = $books->lastPage();
+                    $window = 2;
+                    $start = max(1, $current - $window);
+                    $end = min($last, $current + $window);
+                @endphp
+                <div class="px-5 py-4 border-t border-gray-100 flex justify-center items-center gap-2">
+                    @if ($books->onFirstPage())
+                        <span class="px-3 py-1.5 rounded-lg text-sm text-gray-300 cursor-not-allowed">&lt; Prev</span>
+                    @else
+                        <a href="{{ $books->previousPageUrl() }}" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100">&lt; Prev</a>
+                    @endif
 
-            {{-- ページネーション --}}
-            <div class="mt-6">
-                {{ $books->links() }}
+                    @for ($page = $start; $page <= $end; $page++)
+                        @if ($page === $current)
+                            <span class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold bg-book text-white">{{ $page }}</span>
+                        @else
+                            <a href="{{ $books->url($page) }}" class="w-8 h-8 flex items-center justify-center rounded-lg text-sm text-gray-600 border border-gray-200 hover:bg-gray-100">{{ $page }}</a>
+                        @endif
+                    @endfor
+
+                    @if ($books->hasMorePages())
+                        <a href="{{ $books->nextPageUrl() }}" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100"> Next &gt;</a>
+                    @else
+                        <span class="px-3 py-1.5 rounded-lg text-sm text-gray-300 cursor-not-allowed">Next &gt;</span>
+                    @endif
+                </div>
             </div>
         @endif
     </div>
