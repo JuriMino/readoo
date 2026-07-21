@@ -7,6 +7,7 @@
         'gray' => ['active' => 'text-gray-900', 'hover' => 'hover:text-gray-700', 'arrow' => 'text-gray-300'],
         'book' => ['active' => 'text-book', 'hover' => 'hover:text-book', 'arrow' => 'text-green-300'],
         'knowledge' => ['active' => 'text-knowledge', 'hover' => 'hover:text-knowledge', 'arrow' => 'text-blue-300' ],
+        'action' => ['active' => 'text-action', 'hover' => 'hover:text-action', 'arrow' => 'text-orange-300' ],
     ];
     $c = $colorClasses[$color] ?? $colorClasses['gray'];
 @endphp

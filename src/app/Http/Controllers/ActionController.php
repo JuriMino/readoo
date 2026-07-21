@@ -117,15 +117,21 @@ class ActionController extends Controller
     {
         $this->authorize('update', $action);
 
-        return view('actions.edit', ['action' => $action]);
+        $knowledges = $action->book->knowledges()->get(['id', 'title']);
+
+        return view('actions.edit', ['action' => $action, 'knowledges' => $knowledges]);
     }
 
-    // 更新：参照元（本・知識）の付け替えはしない想定
+    // 更新：参照元（本）は付け替えない。関連知識は同じ本の中でなら変更可。
     public function update(ActionRequest $request, Action $action)
     {
         $this->authorize('update', $action);
 
+        $validated = $request->validated();
+
         $action->update($request->safe()->except(['book_id','knowledge_id']));
+        $action->knowledge_id = $validated['knowledge_id'] ?? null;
+        $action->save();
 
         return redirect()->route('actions.show', $action)->with('status','行動を更新しました');
     }

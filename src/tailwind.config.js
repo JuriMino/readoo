@@ -4,7 +4,7 @@ import forms from '@tailwindcss/forms';
 const brand = {
     green:'#16a34a',
     blue: '#2D5BE3',
-    orange:'#E8510A',
+    orange:'#FF8000',
 };
 
 /** @type {import('tailwindcss').Config} */

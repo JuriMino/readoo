@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Readoo! 行動画面UI/UX改善 作業記録 2026-07-22</title>
+  <style>
+    :root {
+      --orange: #E8510A; --blue: #2D5BE3; --green: #16a34a;
+      --bg: #fafafa; --code-bg: #1e1e2e; --code-fg: #e4e4e7;
+      --border: #e5e7eb; --text: #1f2937; --muted: #6b7280; --red: #dc2626;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", Meiryo, sans-serif; line-height: 1.8; color: var(--text); background: var(--bg); }
+    header { background: linear-gradient(135deg, var(--orange), #f2803f); color: #fff; padding: 2.2rem 1.5rem; text-align: center; }
+    header h1 { margin: 0 0 .4rem; font-size: 1.7rem; }
+    header p { margin: 0; opacity: .92; font-size: .95rem; }
+    .container { max-width: 940px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+    h2 { margin-top: 2.6rem; padding-bottom: .4rem; border-bottom: 3px solid var(--orange); font-size: 1.35rem; }
+    h3 { margin-top: 1.6rem; font-size: 1.1rem; color: var(--orange); }
+    h4 { margin-top: 1.1rem; margin-bottom: .3rem; font-size: 1rem; }
+    .card { background: #fff; border: 1px solid var(--border); border-left: 4px solid var(--orange); border-radius: 8px; padding: 1rem 1.3rem; margin: 1rem 0; box-shadow: 0 1px 3px rgba(0,0,0,.05); }
+    pre { background: var(--code-bg); color: var(--code-fg); padding: .9rem 1.1rem; border-radius: 8px; overflow-x: auto; font-size: .85rem; line-height: 1.6; }
+    code { font-family: "SFMono-Regular", Consolas, Menlo, monospace; }
+    p code, li code, td code, h4 code { background: #f1f1f4; color: var(--orange); padding: .1rem .4rem; border-radius: 4px; font-size: .88em; }
+    pre code { background: none; color: inherit; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; background: #fff; font-size: .88rem; }
+    th, td { border: 1px solid var(--border); padding: .55rem .8rem; text-align: left; vertical-align: top; }
+    th { background: #f9fafb; }
+    .done { color: var(--green); font-weight: 700; }
+    .note { background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .note strong { color: var(--orange); }
+    .warn { background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .warn strong { color: var(--red); }
+    .key { background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .key strong { color: var(--blue); }
+    .qa { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem 1.2rem; margin: 1rem 0; }
+    .qa strong { color: var(--green); }
+    .bug { background:#fee2e2; color:#991b1b; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    .ok  { background:#dcfce7; color:#166534; font-weight:700; padding:.05rem .4rem; border-radius:4px; font-size:.85em; }
+    ul.checklist { list-style: none; padding-left: 0; }
+    ul.checklist li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+    ul.todo { list-style: none; padding-left: 0; }
+    ul.todo li { padding: .3rem 0 .3rem 1.8rem; position: relative; }
+    ul.todo li::before { content: "☐"; position: absolute; left: 0; color: var(--muted); font-weight: 700; }
+    footer { text-align: center; color: var(--muted); font-size: .82rem; padding: 2rem 1rem; border-top: 1px solid var(--border); }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>行動画面のUI/UX改善 作業記録</h1>
+    <p>2026-07-22 &mdash; issue #22・feature/22-actions-ui：Figma準拠での画面修正 ＋ 関連知識の編集対応</p>
+  </header>
+
+  <div class="container">
+
+    <h2>本日のサマリー</h2>
+    <div class="card">
+      <p>issue #22「行動画面のUI/UX改善」として、書籍・知識側で作った型を行動一覧・新規登録・編集・詳細・削除確認モーダルに展開した。
+      あわせて、昨日の知識画面修正時に見つかった積み残し課題（知識削除後、行動側から知識を紐付け直せない）に対応し、
+      <code>ActionController::update</code>で<code>knowledge_id</code>を編集可能にした。本（<code>book_id</code>）は引き続き不変。
+      実装に伴い<code>ActionRequest</code>のバリデーション不備（テーブル名タイポ）を発見・修正し、Featureテストも新しい仕様に合わせて整理・追加した。</p>
+    </div>
+    <ul class="checklist">
+      <li>行動一覧・新規登録・編集・詳細に <code>&lt;x-app-layout theme="action"&gt;</code> を適用</li>
+      <li>行動一覧：ヘッダー配色（オレンジ系）・カスタムページネーションを書籍・知識一覧と同様に実装</li>
+      <li><code>x-sort-header</code> に <code>color="action"</code> を追加</li>
+      <li>行動詳細：アイコンをfill形式SVGに統一、削除確認モーダルをFigma準拠に再設計</li>
+      <li>行動画面の背景色をブランドカラーから独立した <code>#FCF7F2</code> に指定（<code>tailwind.config.js</code>のorangeはボタン等の用途のため変更しない）</li>
+      <li><code>tailwind.config.js</code>のorangeを <code>#E8510A</code> → <code>#FF8000</code> に変更</li>
+      <li>行動編集：関連知識（<code>knowledge_id</code>）を表示のみ→同じ本に属する知識から選択可能なセレクトに変更</li>
+      <li><code>ActionRequest</code>：更新時にも<code>knowledge_id</code>のバリデーションを追加（テーブル名タイポを発見・修正）</li>
+      <li><code>ActionTest</code>・<code>ActionAuthorizationTest</code>を新仕様に合わせて整理・追加（全件PASS）</li>
+    </ul>
+
+    <!-- ============================================================ -->
+    <h2>① 画面修正（書籍・知識側の型を展開）</h2>
+    <table>
+      <tr><th>画面</th><th>内容</th></tr>
+      <tr><td>一覧</td><td>テーマ背景・ヘッダー配色（<code>bg-action/10 text-action</code>）・中央寄せページネーションを書籍・知識一覧と同じ構成で実装</td></tr>
+      <tr><td>新規登録・編集</td><td>Cancelボタンの背景色統一、フォーム幅拡大などのタイポ・配色修正</td></tr>
+      <tr><td>詳細</td><td>編集・削除アイコンをfill形式SVGに統一、削除確認モーダルを🗑️/⚠️アイコン付きのFigma準拠デザインへ変更</td></tr>
+    </table>
+
+    <h4>行動画面だけ背景色をブランドカラーから独立させたい</h4>
+    <p>他画面は<code>bg-book/10</code>・<code>bg-knowledge/10</code>のようにテーマカラーの透過で背景を作っていたが、
+    行動画面の背景は<code>#FCF7F2</code>というピンポイントの色を使いたい、かつ<code>tailwind.config.js</code>の
+    <code>action</code>（ボタン・見出し等で使用中）はorangeのまま変えたくない、という要望だった。
+    <code>colors</code>に新しい色を追加する必要はなく、<code>app.blade.php</code>の<code>match</code>文の中で
+    Tailwindの任意値記法をそのまま使えば済む。</p>
+    <pre><code>$bodyBg = match($theme){
+    'book'      =&gt; 'bg-book/10',
+    'knowledge' =&gt; 'bg-knowledge/10',
+    'action'    =&gt; 'bg-[#FCF7F2]',
+    default     =&gt; 'bg-base',
+};</code></pre>
+    <div class="note">
+      <strong>任意値記法のポイント：</strong><code>bg-[#FCF7F2]</code>はビルド時にBladeファイル内の文字列としてスキャンされるため、
+      <code>tailwind.config.js</code>の<code>colors</code>に登録しなくてもそのまま使える。ブランドカラーの色調整（<code>orange: #E8510A</code> → <code>#FF8000</code>）とは
+      完全に独立した変更として扱えた。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>② 積み残し課題の解消：行動編集で関連知識を変更可能に</h2>
+    <p>昨日の知識画面修正時に見つかった課題（知識を削除した後、行動側から新しい知識に紐付け直す手段がない）に対応。
+    本（<code>book_id</code>）は行動の必須の親なので引き続き編集不可、知識（<code>knowledge_id</code>）は任意リンクなので
+    「同じ本に属する知識」から選び直せるようにした。</p>
+
+    <h4>コントローラ：knowledge_idをexceptから外す</h4>
+    <pre><code>public function edit(Action $action)
+{
+    $this-&gt;authorize('update', $action);
+
+    // この行動の本に属する知識だけを選択肢にする
+    $knowledges = $action-&gt;book-&gt;knowledges()-&gt;get(['id', 'title']);
+
+    return view('actions.edit', ['action' =&gt; $action, 'knowledges' =&gt; $knowledges]);
+}
+
+// 更新：参照元（本）は付け替えない。関連知識は同じ本の中でなら変更可。
+public function update(ActionRequest $request, Action $action)
+{
+    $this-&gt;authorize('update', $action);
+
+    $validated = $request-&gt;validated();
+
+    $action-&gt;update($request-&gt;safe()-&gt;except(['book_id','knowledge_id']));
+    $action-&gt;knowledge_id = $validated['knowledge_id'] ?? null;
+    $action-&gt;save();
+
+    return redirect()-&gt;route('actions.show', $action)-&gt;with('status','行動を更新しました');
+}</code></pre>
+    <p><code>knowledge_id</code>は<code>$fillable</code>外のため、<code>store()</code>と同じパターンで
+    検証済みの値だけを明示的にセットする形にした。</p>
+
+    <h4>バリデーション：更新時のexistsルール、テーブル名のタイポ</h4>
+    <p>更新フォームでは<code>book_id</code>が送信されないため、ルートバインドされた<code>$action</code>の
+    <code>book_id</code>を基準に<code>knowledge_id</code>を検証する。実装時、<code>Rule::exists()</code>の
+    第一引数（テーブル名）を誤ってカラム名の<code>knowledge_id</code>にしてしまい、以下のSQLエラーが発生した。</p>
+    <pre><code>SQLSTATE[42S02]: Base table or view not found: 1146
+Table 'readoo.knowledge_id' doesn't exist
+(SQL: select count(*) as aggregate from `knowledge_id` where `id` = ? and `book_id` = ?)</code></pre>
+    <div class="warn">
+      <strong>修正：</strong><code>Rule::exists(<span class="bug">'knowledge_id'</span>, 'id')</code> →
+      <code>Rule::exists(<span class="ok">'knowledges'</span>, 'id')</code>。
+    </div>
+    <pre><code>// 更新（PATCH)の時、関連知識だけ検証（本は不変なのでroute上のactionから固定）
+if($this-&gt;isMethod('patch')){
+    $rules['knowledge_id'] = [
+        'nullable',
+        Rule::exists('knowledges', 'id')-&gt;where('book_id', $this-&gt;route('action')-&gt;book_id),
+    ];
+}</code></pre>
+
+    <h4>ビュー：表示のみ→セレクトへ</h4>
+    <pre><code>&lt;select name="knowledge_id" id="knowledge_id" class="..."&gt;
+    &lt;option value=""&gt;知識を選択してください&lt;/option&gt;
+    @foreach ($knowledges as $knowledge)
+        &lt;option value="{{ $knowledge-&gt;id }}" @selected(old('knowledge_id', $action-&gt;knowledge_id) == $knowledge-&gt;id)&gt;{{ $knowledge-&gt;title }}&lt;/option&gt;
+    @endforeach
+&lt;/select&gt;</code></pre>
+
+    <!-- ============================================================ -->
+    <h2>③ Featureテストの整理・追加</h2>
+    <p><code>knowledge_id</code>が更新時にも正当な検証対象になったため、既存の「本・知識どちらも update で
+    除外されて変わらない」という前提の1テストが崩れた。実際に流すと以下のエラーで失敗することを確認。</p>
+    <pre><code>FAILED  Tests\Feature\ActionTest &gt; update cannot book and knowledge
+Call to a member function all() on array
+-&gt;assertRedirect(route('actions.show', $action));</code></pre>
+    <p>book2に属する知識をbook1の行動へ紐付けようとすると、新しいバリデーションでエラーになり
+    <code>actions.show</code>へはリダイレクトされない（editへ戻る）ため、テストの前提が成立しなくなっていた。</p>
+
+    <h4>book_idの不変性テストとして純化</h4>
+    <pre><code>// 更新：本の付け替えを試みても参照元は変わらない（book_id は update で除外）
+public function test_update_cannot_book(): void
+{
+    $user = User::factory()-&gt;create();
+    $book1 = Book::factory()-&gt;for($user)-&gt;create();
+    $book2 = Book::factory()-&gt;for($user)-&gt;create();
+    $action = Action::factory()-&gt;for($book1)-&gt;create();
+
+    $this-&gt;actingAs($user)
+        -&gt;patch(route('actions.update', $action), $this-&gt;validData($book1,[
+            'title'   =&gt; 'Keep Refs',
+            'book_id' =&gt; $book2-&gt;id,
+        ]))
+        -&gt;assertRedirect(route('actions.show', $action));
+
+    $this-&gt;assertDatabaseHas('actions',[
+        'id'      =&gt; $action-&gt;id,
+        'book_id' =&gt; $book1-&gt;id,  // 元のまま
+    ]);
+}</code></pre>
+
+    <h4>新規追加：関連知識の変更・解除が正しく動くこと</h4>
+    <p><code>ActionTest</code>に2本追加：同じ本に属する知識への変更が成功すること、空にすると
+    紐付けが外れる（<code>null</code>になる）こと。</p>
+
+    <h4>新規追加：整合性チェック（更新版）</h4>
+    <p><code>ActionAuthorizationTest</code>には、store用の<code>test_user_cannot_attach_knowledge_of_another_book()</code>を
+    残したまま、update用の<code>test_user_cannot_attach_knowledge_of_another_book_on_update()</code>を追加した。
+    store側とupdate側では<code>ActionRequest::rules()</code>内の分岐（<code>isMethod('post')</code> /
+    <code>isMethod('patch')</code>）が別なので、それぞれ独立して検証する。</p>
+    <pre><code>// 整合性：更新時も別の本に属する知識は紐づけられない（knowledge_idのバリデーションで弾かれる）
+public function test_user_cannot_attach_knowledge_of_another_book_on_update(): void
+{
+    $user = User::factory()-&gt;create();
+    $book1 = Book::factory()-&gt;for($user)-&gt;create();
+    $book2 = Book::factory()-&gt;for($user)-&gt;create();
+    $knowledgeOnBook2 = Knowledge::factory()-&gt;for($book2)-&gt;create();
+    $action = Action::factory()-&gt;for($book1)-&gt;create();
+
+    $this-&gt;actingAs($user)
+        -&gt;from(route('actions.edit', $action))
+        -&gt;patch(route('actions.update', $action), $this-&gt;validData($book1, [
+            'knowledge_id' =&gt; $knowledgeOnBook2-&gt;id,
+        ]))
+        -&gt;assertSessionHasErrors('knowledge_id')
+        -&gt;assertRedirect(route('actions.edit', $action));
+
+    $this-&gt;assertDatabaseHas('actions', [
+        'id'           =&gt; $action-&gt;id,
+        'knowledge_id' =&gt; null, // 変わらない
+    ]);
+}</code></pre>
+
+    <div class="qa">
+      <strong>最終確認：</strong><code>ActionTest</code>・<code>ActionAuthorizationTest</code>・
+      <code>KnowledgeTest</code>を通しで実行し、23件全件PASS（68 assertions）を確認。
+    </div>
+
+    <!-- ============================================================ -->
+    <h2>④ 完成状況</h2>
+    <h4>本日完成</h4>
+    <ul class="checklist">
+      <li>行動一覧・新規登録・編集・詳細・削除確認モーダルのFigma準拠修正</li>
+      <li>行動画面の背景色を<code>#FCF7F2</code>に固定（ブランドカラーのorangeとは独立）</li>
+      <li>ブランドカラーorangeを<code>#FF8000</code>に更新</li>
+      <li>行動編集で関連知識を変更・解除できるように対応（book_idは不変のまま維持）</li>
+      <li><code>ActionRequest</code>のテーブル名タイポを発見・修正</li>
+      <li>Featureテストを新仕様に合わせて整理・追加し、全件PASSを確認</li>
+    </ul>
+    <p>これで書籍（#18）・知識（#20）・行動（#22）の3画面のUI/UX改善が一通り完了。</p>
+
+  </div>
+
+  <footer>
+    Readoo! 開発記録 / 2026-07-22 &mdash; 行動画面のUI/UX改善（issue #22）
+  </footer>
+</body>
+</html>

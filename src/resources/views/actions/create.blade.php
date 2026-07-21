@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout theme="action">
     @php
         // 登録後・キャンセル時の戻り先（開いた画面に応じて分岐）
         $cancelUrl = match(request('from')){
@@ -8,7 +8,7 @@
         };
     @endphp
 
-    <div class="max-w-3xl mx-auto px-6 py-12">
+    <div class="max-w-5xl mx-auto px-6 py-12">
         {{-- パンくず + 見出し --}}
         <nav class="text-sm text-gray-400">
             <a href="{{ route('actions.index') }}" class="hover:underline">Action List</a>
@@ -32,7 +32,7 @@
                     },
                 }"
             >
-                <h2 class="px-6 py-3 bg-orange-50 text-orange-700 font-bold">参照元</h2>
+                <h2 class="px-6 py-3 bg-orange-100 text-orange-700 font-bold">参照元</h2>
                 <div class="px-6 py-6">
                     <div class="grid grid-cols-2 gap-6">
                         {{-- 参照元（本） --}}
@@ -61,7 +61,7 @@
                         </div>
                     </div>
                     {{-- 関連知識(本を選ぶと絞り込まれる。任意) --}}
-                    <div>
+                    <div class="mt-5">
                         <label for="knowledge_id" class="flex items-center space-x-2 text-sm font-bold text-gray-700">
                             <span>関連知識</span><x-optional-badge />
                         </label>
@@ -79,7 +79,7 @@
 
             {{-- 行動の内容 --}}
             <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <h2 class="px-6 py-3 bg-orange-50 text-orange-700 font-bold">行動の内容</h2>
+                <h2 class="px-6 py-3 bg-orange-100 text-orange-700 font-bold">行動の内容</h2>
                 <div class="px-6 py-6">
                     <div>
                         <label for="title" class="flex items-center space-x-2 text-sm font-bold text-gray-700">
@@ -93,7 +93,7 @@
 
             {{-- 5W1H --}}
             <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <h2 class="px-6 py-3 bg-orange-50 text-orange-700 font-bold">5W1H（具体的な行動の設計）</h2>
+                <h2 class="px-6 py-3 bg-orange-100 text-orange-700 font-bold">5W1H（具体的な行動の設計）</h2>
                 <div class="px-6 py-6">
                     <div class="grid grid-cols-2 gap-6">
                         @php
@@ -126,7 +126,7 @@
 
             {{-- タグ --}}
             <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <h2 class="px-6 py-3 bg-orange-50 text-orange-700 font-bold">タグ</h2>
+                <h2 class="px-6 py-3 bg-orange-100 text-orange-700 font-bold">タグ</h2>
                 <div class="px-6 py-6">
                     <div class="grid grid-cols-3 gap-6">
                         @foreach (['tag1' => 'タグ１', 'tag2' => 'タグ２', 'tag3' => 'タグ３'] as $name => $label)
@@ -144,7 +144,7 @@
 
             {{-- ボタン --}}
             <div class="flex justify-end gap-3">
-                <a href="{{ $cancelUrl }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition">Cancel</a>
+                <a href="{{ $cancelUrl }}" class="px-6 py-2 border bg-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition">Cancel</a>
                 <button type="submit" class="px-6 py-2 bg-action rounded-lg text-white font-bold hover:opacity-90 transition">
                     Create
                 </button>

@@ -49,6 +49,14 @@ class ActionRequest extends FormRequest
             ];
         }
 
+        // 更新（PATCH)の時、関連知識だけ検証（本は普遍なのでroute上のactionから固定）
+        if($this->isMethod('patch')){
+            $rules['knowledge_id'] = [
+                'nullable',
+                Rule::exists('knowledges', 'id')->where('book_id', $this->route('action')->book_id),
+            ];
+        }
+
         return $rules;
     }
 

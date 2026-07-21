@@ -1,5 +1,5 @@
-<x-app-layout>
-    <div class="max-w-3xl mx-auto px-6 py-12">
+<x-app-layout theme="action">
+    <div class="max-w-5xl mx-auto px-6 py-12">
         {{-- パンくず + 見出し --}}
         <nav class="text-sm text-gray-400">
             <a href="{{ route('actions.index')}}" class="hover:underline">Action List</a>
@@ -15,12 +15,14 @@
 
             {{-- 参照元（本・知識は変更不可。表示のみ） --}}
             <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <h2 class="px-6 py-3 bg-orange-50 text-orange-700 font-bold">参照元</h2>
+                <h2 class="px-6 py-3 bg-orange-100 text-orange-700 font-bold">参照元</h2>
                 <div class="px-6 py-6 space-y-6">
                     <div class="grid grid-cols-2 gap-6">
                         {{-- 参照元（本）※編集不可 --}}
                         <div>
-                            <span class="text-sm font-bold text-gray-700">参照元（本）</span>
+                            <label class="flex items-center space-x-2 text-sm font-bold text-gray-700">
+                                <span>参照元（本）</span>
+                            </label>
                             <div class="mt-2 px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-500">
                                 {{ $action->book->title }}
                             </div>
@@ -36,20 +38,26 @@
                         </div>
                     </div>
 
-                    {{-- 関連知識 ※編集不可 --}}
+                    {{-- 関連知識 (本は固定。同じ本に属する知識から選択可)--}}
                     <div>
-                        <span class="text-sm font-bold text-gray-700">関連知識</span>
-                        <div class="mt-2 px-4 py-3 bg-gray-100 border border-gray-200 rounded-lg text-gray-500">
-                            {{ $action->knowledge?->title ?? '(紐付けなし)' }}
-                        </div>
-                        <p class="mt-1 text-xs text-gray-400">関連知識は変更できません</p>
+                        <label for="knowledge_id" class="flex items-center space-x-2 text-sm font-bold text-gray-700">
+                            <span>関連知識</span><x-optional-badge />
+                        </label>
+                        <select name="knowledge_id" id="knowledge_id" class="block w-full mt-2 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 focus:border-action focus:ring-action">
+                            <option value="">知識を選択してください</option>
+                            @foreach ($knowledges as $knowledge)
+                                <option value="{{ $knowledge->id }}" @selected(old('knowledge_id', $action->knowledge_id) == $knowledge->id)>{{ $knowledge->title }}</option>
+                            @endforeach
+                        </select>
+                        <p class="mt-2 text-xs text-gray-400">知識に紐付けない場合は空欄のままにしてください</p>
+                        <x-input-error :messages="$errors->get('knowledge_id')" class="mt-2" />
                     </div>
                 </div>
             </section>
 
             {{-- 行動の内容 --}}
             <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <h2 class="px-6 py-3 bg-orange-50 text-orange-700 font-bold">行動の内容</h2>
+                <h2 class="px-6 py-3 bg-orange-100 text-orange-700 font-bold">行動の内容</h2>
                 <div class="px-6 py-6">
                     <div>
                         <label for="title" class="flex items-center space-x-2 text-sm font-bold text-gray-700">
@@ -63,7 +71,7 @@
 
             {{-- 5W1H --}}
             <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <h2 class="px-6 py-3 bg-orange-50 text-orange-700 font-bold">5W1H（具体的な行動の設計）</h2>
+                <h2 class="px-6 py-3 bg-orange-100 text-orange-700 font-bold">5W1H（具体的な行動の設計）</h2>
                 <div class="px-6 py-6">
                     <div class="grid grid-cols-2 gap-6">
                         @php
@@ -92,7 +100,7 @@
 
             {{-- タグ --}}
             <section class="bg-white border border-gray-200 rounded-2xl overflow-hidden">
-                <h2 class="px-6 py-3 bg-orange-50 text-orange-700 font-bold">タグ</h2>
+                <h2 class="px-6 py-3 bg-orange-100 text-orange-700 font-bold">タグ</h2>
                 <div class="px-6 py-6">
                     <div class="grid grid-cols-3 gap-6">
                         @foreach (['tag1' => 'タグ１', 'tag2' => 'タグ２', 'tag3' => 'タグ３',] as $name => $label)
@@ -110,7 +118,7 @@
 
             {{-- ボタン --}}
             <div class="flex justify-end gap-3">
-                <a href="{{route('actions.show', $action) }}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition">Cancel</a>
+                <a href="{{route('actions.show', $action) }}" class="px-6 py-2 border bg-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition">Cancel</a>
                 <button type="submit" class="px-6 py-2 bg-action rounded-lg text-white font-bold hover:opacity-90 transition">Update</button>
             </div>
         </form>
