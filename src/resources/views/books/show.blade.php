@@ -102,29 +102,33 @@
             @if ($book->knowledges->isEmpty())
                 <p class="px-6 py-8 text-center text-sm text-gray-500">まだ知識が登録されていません</p>
             @else
-                <table class="w-full text-sm">
+                <table class="w-full text-sm table-fixed">
+                    <colgroup>
+                        <col class="w-1/2">
+                        <col class="w-28">
+                    </colgroup>
                     <thead class="bg-blue-50 text-blue-700">
                         <tr>
                             <th class="px-6 py-3 text-left font-bold">タイトル</th>
                             <th class="px-6 py-3 text-left font-bold">該当箇所</th>
-                            <th class="px-6 py-3 text-left font-bold">タグ</th>
-                            <th class="px-6 py-3 text-left font-bold">詳細</th>
+                            <th class="px-6 py-3 text-center font-bold">タグ</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach ($book->knowledges as $knowledge)
                             <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 font-bold text-gray-900">{{ $knowledge->title}}</td>
+                                <td class="px-6 py-4 font-bold text-gray-900">
+                                    <a href="{{ route('knowledges.show', $knowledge) }}" class="text-gray-700 font-medium hover:text-knowledge hover:underline">
+                                        {{ $knowledge->title}}
+                                    </a>
+                                </td>
                                 <td class="px-6 py-4 text-gray-600 whitespace-nowrap">{{ $knowledge->book_page ? $knowledge->book_page : '-' }}</td>
                                 <td class="px-6 py-4">
-                                    <div class="flex flex-wrap gap-1.5">
+                                    <div class="flex flex-wrap gap-1.5 justify-end">
                                         @foreach (array_filter([$knowledge->tag1, $knowledge->tag2, $knowledge->tag3]) as $tag)
                                             <span class="inline-block px-3 py-1 rounded-full border border-blue-200 bg-blue-50 text-blue-600 text-xs">{{ $tag }}</span>
                                         @endforeach
                                     </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <a href="{{ route('knowledges.show', $knowledge) }}" class="text-gray-700 font-medium hover:text-knowledge hover:underline">詳細</a>
                                 </td>
                             </tr>
                         @endforeach
@@ -144,29 +148,33 @@
             @if ($book->actions->isEmpty())
                 <p class="px-6 py-8 text-center text-sm text-gray-500">まだ行動が登録されていません</p>
             @else
-                <table class="w-full text-sm">
+                <table class="w-full text-sm table-fixed">
+                    <colgroup>
+                        <col class="w-1/2">
+                        <col class="w-28">
+                    </colgroup>
                     <thead class="bg-orange-50 text-orange-700">
                         <tr>
                             <th class="px-6 py-3 text-left font-bold">タイトル</th>
                             <th class="px-6 py-3 text-left font-bold">該当箇所</th>
-                            <th class="px-6 py-3 text-left font-bold">タグ</th>
-                            <th class="px-6 py-3 text-left font-bold">詳細</th>
+                            <th class="px-6 py-3 text-center font-bold">タグ</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach ($book->actions as $action)
                             <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 font-bold text-gray-900">{{ $action->title}}</td>
+                                <td class="px-6 py-4 font-bold text-gray-900">
+                                    <a href="{{ route('actions.show', $action) }}" class="text-gray-700 font-medium hover:text-action hover:underline">
+                                        {{ $action->title}}
+                                    </a>
+                                </td>
                                 <td class="px-6 py-4 text-gray-600 whitespace-nowrap">{{ $action->book_page ? $action->book_page : '-' }}</td>
                                 <td class="px-6 py-4">
-                                    <div class="flex flex-wrap gap-1.5">
+                                    <div class="flex flex-wrap gap-1.5 justify-end">
                                         @foreach (array_filter([$action->tag1, $action->tag2, $action->tag3]) as $tag)
                                             <span class="inline-block px-3 py-1 rounded-full border border-orange-200 bg-orange-50 text-orange-600 text-xs">{{ $tag }}</span>
                                         @endforeach
                                     </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <a href="{{ route('actions.show', $action) }}" class="text-gray-700 font-medium hover:text-action hover:underline">詳細</a>
                                 </td>
                             </tr>
                         @endforeach
