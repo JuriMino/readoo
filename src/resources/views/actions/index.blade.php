@@ -44,14 +44,17 @@
                             <x-sort-header column="book" label="参照元" :sort="$sort" :direction="$direction" color="action" />
                             <th class="px-5 py-3 text-left font-bold">該当箇所</th>
                             <th class="px-5 py-3 text-left font-bold">タグ</th>
-                            <th class="px-5 py-3 text-left font-bold">詳細</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach ($actions as $action)
                             <tr class="hover:bg-gray-50 transition">
                                 <td class="px-5 py-4 font-bold text-gray-900 whitespace-nowrap">{{ $action->created_at->format('Y-m-d') }}</td>
-                                <td class="px-5 py-4 font-bold text-gray-900">{{ $action->title }}</td>
+                                <td class="px-5 py-4 font-bold text-gray-900">
+                                    <a href="{{ route('actions.show', $action) }}" class="text-gray-700 font-medium hover:text-action hover:underline">
+                                        {{ $action->title }}
+                                    </a>
+                                </td>
                                 <td class="px-5 py-4  text-gray-900">{{ $action->book->title }}</td>
                                 <td class="px-5 py-4 text-gray-900">{{ $action->book_page ?? '-' }}</td>
                                 <td class="px-5 py-4">
@@ -60,9 +63,6 @@
                                             <span class="inline-block px-3 py-1 rounded-full border border-orange-200 bg-orange-50 text-orange-600 text-xs">{{ $tag }}</span>
                                         @endforeach
                                     </div>
-                                </td>
-                                <td class="px-5 py-4">
-                                    <a href="{{ route('actions.show', $action) }}" class="text-gray-700 font-medium hover:text-action hover:underline">詳細</a>
                                 </td>
                             </tr>
                         @endforeach

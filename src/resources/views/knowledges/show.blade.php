@@ -90,19 +90,26 @@
             @if ($knowledge->actions->isEmpty())
                 <p class="px-6 py-8 text-center text-sm text-gray-500">まだ行動が登録されていません</p>
             @else
-                <table class="w-full text-sm">
+                <table class="w-full text-sm table-fixed">
+                    <colgroup>
+                        <col class="w-1/2">
+                        <col class="w-27">
+                    </colgroup>
                     <thead class="bg-orange-50 text-orange-700">
                         <tr>
                             <th class="px-6 py-3 text-left font-bold">タイトル</th>
                             <th class="px-6 py-3 text-left font-bold">該当箇所</th>
                             <th class="px-6 py-3 text-left font-bold">タグ</th>
-                            <th class="px-6 py-3 text-left font-bold">詳細</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
                         @foreach ($knowledge->actions as $action)
                             <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 font-bold text-gray-900">{{ $action->title}}</td>
+                                <td class="px-6 py-4 font-bold text-gray-900">
+                                    <a href="{{ route('actions.show', $action) }}" class="text-gray-700 font-medium hover:text-action hover:underline">
+                                        {{ $action->title}}
+                                    </a>
+                                </td>
                                 <td class="px-6 py-4 text-gray-600 whitespace-nowrap">{{ $action->book_page ? $action->book_page : '-' }}</td>
                                 <td class="px-6 py-4">
                                     <div class="flex flex-wrap gap-1.5">
@@ -110,9 +117,6 @@
                                             <span class="inline-block px-3 py-1 rounded-full border border-orange-200 bg-orange-50 text-orange-600 text-xs">{{ $tag }}</span>
                                         @endforeach
                                     </div>
-                                </td>
-                                <td class="px-6 py-4">
-                                    <a href="{{ route('actions.show', $action) }}" class="text-gray-700 font-medium hover:text-action hover:underline">詳細</a>
                                 </td>
                             </tr>
                         @endforeach
