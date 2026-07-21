@@ -1,4 +1,4 @@
-<x-app-layout>
+<x-app-layout theme="action">
     <div class="max-w-8xl mx-auto px-6 py-12">
 
         {{-- 見出し行・左にタイトル+New Action、右に他コレクション導線 --}}
@@ -37,11 +37,11 @@
                 </div>
 
                 <table class="w-full text-sm">
-                    <thead class="bg-gray-50 text-gray-500">
+                    <thead class="bg-action/10 text-action">
                         <tr>
-                            <x-sort-header column="created_at" label="登録日" :sort="$sort" :direction="$direction" />
-                            <x-sort-header column="title" label="タイトル" :sort="$sort" :direction="$direction" />
-                            <x-sort-header column="book" label="参照元" :sort="$sort" :direction="$direction" />
+                            <x-sort-header column="created_at" label="登録日" :sort="$sort" :direction="$direction" color="action" />
+                            <x-sort-header column="title" label="タイトル" :sort="$sort" :direction="$direction" color="action" />
+                            <x-sort-header column="book" label="参照元" :sort="$sort" :direction="$direction" color="action" />
                             <th class="px-5 py-3 text-left font-bold">該当箇所</th>
                             <th class="px-5 py-3 text-left font-bold">タグ</th>
                             <th class="px-5 py-3 text-left font-bold">詳細</th>
@@ -70,8 +70,33 @@
                 </table>
 
                 {{-- ページネーション --}}
-                <div class="px-5 py-4 border-t border-gray-100">
-                    {{ $actions->links() }}
+                 @php
+                    $current = $actions->currentPage();
+                    $last = $actions->lastPage();
+                    $window = 2;
+                    $start = max(1, $current - $window);
+                    $end = min($last, $current + $window);
+                @endphp
+                <div class="px-5 py-4 border-t border-gray-100 flex justify-center items-center gap-2">
+                    @if ($actions->onFirstPage())
+                        <span class="px-3 py-1.5 rounded-lg text-sm text-gray-300 cursor-not-allowed">&lt; Prev</span>
+                    @else
+                        <a href="{{ $actions->previousPageUrl() }}" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100">&lt; Prev</a>
+                    @endif
+
+                    @for ($page = $start; $page <= $end; $page++)
+                        @if ($page === $current)
+                            <span class="w-8 h-8 flex items-center justify-center rounded-lg text-sm font-bold bg-action text-white">{{ $page }}</span>
+                        @else
+                            <a href="{{ $actions->url($page) }}" class="w-8 h-8 flex items-center justify-center rounded-lg text-sm text-gray-600 border border-gray-200 hover:bg-gray-100">{{ $page }}</a>
+                        @endif
+                    @endfor
+
+                    @if ($actions->hasMorePages())
+                        <a href="{{ $actions->nextPageUrl() }}" class="px-3 py-1.5 rounded-lg text-sm text-gray-600 hover:bg-gray-100"> Next &gt;</a>
+                    @else
+                        <span class="px-3 py-1.5 rounded-lg text-sm text-gray-300 cursor-not-allowed">Next &gt;</span>
+                    @endif
                 </div>
             </div>
         @endif

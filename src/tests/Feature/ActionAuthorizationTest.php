@@ -123,4 +123,27 @@ class ActionAuthorizationTest extends TestCase
         $this->assertDatabaseCount('actions', 0);
     }
 
+    // 整合性：更新時も別の本に属する知識は紐づけられない（knowledge_idのバリデーションで弾かれる）
+    public function test_user_cannot_attach_knowledge_of_another_book_on_update(): void
+    {
+        $user = User::factory()->create();
+        $book1 = Book::factory()->for($user)->create();
+        $book2 = Book::factory()->for($user)->create();
+        $knowledgeOnBook2 = Knowledge::factory()->for($book2)->create();
+        $action = Action::factory()->for($book1)->create();
+
+        $this->actingAs($user)
+            ->from(route('actions.edit', $action))
+            ->patch(route('actions.update', $action), $this->validData($book1, [
+                'knowledge_id' => $knowledgeOnBook2->id,
+            ]))
+            ->assertSessionHasErrors('knowledge_id')
+            ->assertRedirect(route('actions.edit', $action));
+
+        $this->assertDatabaseHas('actions', [
+            'id'           => $action->id,
+            'knowledge_id' => null, // 変わらない
+        ]);
+    }
+
 }

@@ -18,7 +18,7 @@
         $bodyBg = match($theme){
             'book'      => 'bg-book/10',
             'knowledge' => 'bg-knowledge/10',
-            'action'   => 'bg-action/10',
+            'action'   => 'bg-[#FCF7F2]',
             default     => 'bg-base',
         };
     @endphp

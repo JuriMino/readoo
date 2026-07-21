@@ -176,27 +176,62 @@ class ActionTest extends TestCase
         ]);
     }
 
-    // 更新：本・知識の付け替えを試みても参照元は変わらない（update で除外）
-    public function test_update_cannot_book_and_knowledge(): void
+    // 更新：本の付け替えを試みても参照元は変わらない（book_id は update で除外）
+    public function test_update_cannot_book(): void
     {
         $user = User::factory()->create();
         $book1 = Book::factory()->for($user)->create();
         $book2 = Book::factory()->for($user)->create();
-        $knowledgeOnBook2 = Knowledge::factory()->for($book2)->create();
         $action = Action::factory()->for($book1)->create();
 
         $this->actingAs($user)
             ->patch(route('actions.update', $action), $this->validData($book1,[
                 'title'        => 'Keep Refs',
                 'book_id'      => $book2->id,
-                'knowledge_id' => $knowledgeOnBook2->id,
             ]))
             ->assertRedirect(route('actions.show', $action));
 
         $this->assertDatabaseHas('actions',[
             'id'           => $action->id,
             'book_id'      => $book1->id,  // 元のまま
-            'knowledge_id' => null,       // 元のまま（付かない）
+        ]);
+    }
+
+    // 更新：同じ本に属する知識なら関連知識を変更できる
+    public function test_action_can_be_updated_with_knowledge(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->for($user)->create();
+        $knowledge = Knowledge::factory()->for($book)->create();
+        $action = Action::factory()->for($book)->create();
+
+        $this->actingAs($user)
+            ->patch(route('actions.update', $action), $this->validData($book, ['knowledge_id' => $knowledge->id,]))
+            ->assertRedirect(route('actions.show', $action));
+
+        $this->assertDatabaseHas('actions',[
+            'id'           => $action->id,
+            'knowledge_id' => $knowledge->id,
+        ]);
+    }
+
+    // 更新：関連知識を空にすると紐付けが外れる
+    public function test_action_can_be_updated_to_clear_knowledge(): void
+    {
+        $user = User::factory()->create();
+        $book = Book::factory()->for($user)->create();
+        $knowledge = Knowledge::factory()->for($book)->create();
+        $action = Action::factory()->for($book)->create(['knowledge_id' => $knowledge->id]);
+
+        $this->actingAs($user)
+            ->patch(route('actions.update', $action), $this->validData($book, [
+                'knowledge_id' => '',
+            ]))
+            ->assertRedirect(route('actions.show', $action));
+
+        $this->assertDatabaseHas('actions', [
+            'id'           => $action->id,
+            'knowledge_id' => null,
         ]);
     }
 
