@@ -202,7 +202,7 @@ docker compose exec app php artisan test
 9. 結合テスト
 10. UI / UX改善
 11. README作成
-12. AWSへのデプロイ
+12. AWSへのデプロイ（2026-09月末までに完了予定）
 
 ### AIの活用
 
