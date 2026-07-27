@@ -123,7 +123,7 @@
             <div class="flex justify-end gap-3">
                 <a href="{{ route('books.show', $book) }}" class="px-6 py-2 border bg-gray-300 rounded-lg text-gray-600 font-bold hover:bg-gray-50 transition">Cancel</a>
                 <button type="submit" class="px-6 py-2 bg-secondary rounded-lg text-white font-bold hover:opacity-90 transition">
-                    Upsate
+                    Update
                 </button>
             </div>
         </form>
