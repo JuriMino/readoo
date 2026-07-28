@@ -1,0 +1,62 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src
+
+    steps:
+      - name: リポジトリをチェックアウト
+        uses: actions/checkout@v4
+
+      - name: Node.jsをセットアップ
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: フロント依存をインストール
+        run: npm ci
+
+      - name: フロント資産をビルド
+        run: npm run build
+
+      - name: SSH鍵を準備
+        working-directory: .
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: EC2でソース最新化・依存更新・マイグレーション
+        working-directory: .
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+            cd /var/www/readoo/src &&
+            git pull origin main &&
+            composer install --no-dev --optimize-autoloader &&
+            sudo -u www-data php artisan migrate --force
+          '
+
+      - name: ビルド成果物をEC2へ転送
+        run: |
+          rsync -avz -e "ssh -i ~/.ssh/deploy_key" \
+            ./public/build/ \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/readoo/src/public/build/
+
+      - name: EC2でキャッシュ再構築
+        working-directory: .
+        run: |
+          ssh -i ~/.ssh/deploy_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} '
+            cd /var/www/readoo/src &&
+            sudo -u www-data php artisan config:clear &&
+            sudo -u www-data php artisan config:cache &&
+            sudo -u www-data php artisan route:clear &&
+            sudo -u www-data php artisan route:cache
+          '
