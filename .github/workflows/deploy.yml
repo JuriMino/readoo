@@ -46,7 +46,7 @@ jobs:
 
       - name: ビルド成果物をEC2へ転送
         run: |
-          rsync -avz -e "ssh -i ~/.ssh/deploy_key" \
+          rsync -avz --rsync-path="sudo -u www-data rsync" -e "ssh -i ~/.ssh/deploy_key" \
             ./public/build/ \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/readoo/src/public/build/
 
