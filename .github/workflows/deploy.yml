@@ -26,6 +26,24 @@ jobs:
       - name: フロント資産をビルド
         run: npm run build
 
+      - name: AWS認証情報を設定
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: GitHub ActionsのIPをSGに一時許可
+        working-directory: .
+        run: |
+          RUNNER_IP=$(curl -s https://checkip.amazonaws.com)
+          echo "RUNNER_IP=$RUNNER_IP" >> $GITHUB_ENV
+          aws ec2 authorize-security-group-ingress \
+            --group-id ${{ secrets.EC2_SG_ID }} \
+            --protocol tcp \
+            --port 22 \
+            --cidr ${RUNNER_IP}/32
+
       - name: SSH鍵を準備
         working-directory: .
         run: |
@@ -60,3 +78,15 @@ jobs:
             sudo -u www-data php artisan route:clear &&
             sudo -u www-data php artisan route:cache
           '
+
+      - name: SGの一時許可を削除
+        if: always()
+        working-directory: .
+        run: |
+          if [ -n "$RUNNER_IP" ]; then
+            aws ec2 revoke-security-group-ingress \
+              --group-id ${{ secrets.EC2_SG_ID }} \
+              --protocol tcp \
+              --port 22 \
+              --cidr ${RUNNER_IP}/32
+          fi
